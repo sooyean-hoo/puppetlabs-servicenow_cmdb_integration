@@ -128,6 +128,7 @@ def servicenow(certname, config_file = nil)
   certname_field    = servicenow_config['certname_field']
   classes_field     = servicenow_config['classes_field']
   environment_field = servicenow_config['environment_field']
+  debug             = servicenow_config['debug']
   factnameinplaceofcertname = servicenow_config['factnameinplaceofcertname']
 
   # Since we also support hiera-eyaml encrypted passwords, we'll want to decrypt
@@ -192,7 +193,7 @@ CMDATA
   cmdb_request = nil
   cmdb_record = nil
 
-  if oauth_token == 'simulationhost'
+  if debug
     cmdb_record = {}
     servicenow_config['password'] = '==PASSWORD==REDACTED==' unless servicenow_config['password'].nil? || servicenow_config['password'].empty?
     cmdb_record[classes_field] = servicenow_config
