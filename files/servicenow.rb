@@ -179,7 +179,7 @@ def servicenow(certname, config_file = nil)
 CMDATA
     data = `#{cmdata}`
 
-    valuetolinkCMBD = JSON.parse(data)[0].values[0]
+    valuetolinkCMBD = JSON.parse(data)[0].values[0] || certname # In the event where missing data is encountered, certname is used as fallback
   else
     valuetolinkCMBD = certname
   end
