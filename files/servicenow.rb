@@ -175,11 +175,14 @@ def servicenow(certname, config_file = nil)
     valuetolinkCMBD = Facter.value(factnameinplaceofcertname)
 
     cmdata = <<-CMDATA
-      certname=#{certname}; q=\"inventory[facts.#{factnameinplaceofcertname}]{ certname = \\\"$certname\\\" }\" ; sn=`/opt/puppetlabs/bin/puppet config print server` ; puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
+certname=\"#{certname}\" ; q=\"inventory[facts.#{factnameinplaceofcertname}]{ certname = \\\"$certname\\\" }\" ; sn=`/opt/puppetlabs/bin/puppet config print server` ; puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
 CMDATA
-    data = `#{cmdata}`
-
-    valuetolinkCMBD = JSON.parse(data)[0].values[0] || certname # In the event where missing data is encountered, certname is used as fallback
+    begin
+      data = Facter::Core::Execution.execute("#{cmdata}") unless certname == '__test__'
+      valuetolinkCMBD = JSON.parse(data)[0].values[0] || data || certname # In the event where missing data is encountered, certname is used as fallback
+    rescue
+      valuetolinkCMBD = certname
+    end  
   else
     valuetolinkCMBD = certname
   end
@@ -194,6 +197,8 @@ CMDATA
     servicenow_config['password'] = '==PASSWORD==REDACTED==' unless servicenow_config['password'].nil? || servicenow_config['password'].empty?
     cmdb_record[classes_field] = servicenow_config
     cmdb_record[classes_field]['uri'] = uri
+    cmdb_record[classes_field]['valuetolinkCMBD'] = valuetolinkCMBD
+
     data = JSON.parse(JSON.generate(cmdb_record[classes_field]))
 
     cmdb_record[classes_field] = {}
