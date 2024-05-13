@@ -171,21 +171,32 @@ def servicenow(certname, config_file = nil)
     end
   end
 
+  valuetolinkCMBD_used=""
+  valuetolinkCMBD_rawdata=""
+  valuetolinkCMBD_cmdata = ""
   if factnameinplaceofcertname
     Puppet.initialize_settings if Puppet.settings[:vardir].nil? || Puppet.settings[:vardir].to_s.empty?
     valuetolinkCMBD = Facter.value(factnameinplaceofcertname)
+    valuetolinkCMBD_used=factnameinplaceofcertname
 
     cmdata = <<-CMDATA
-certname=\"#{certname}\" ; q=\"inventory[facts.#{factnameinplaceofcertname}]{ certname = \\\"$certname\\\" }\" ; sn=`/opt/puppetlabs/bin/puppet config print server` ; puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
+export PATH=\"${PATH}:/opt/puppetlabs/bin\" ; certname=\"#{certname}\"; q=\"inventory[facts.#{factnameinplaceofcertname}]{certname=\\\"$certname\\\"}\" ; sn=`/opt/puppetlabs/puppet/bin/facter fqdn` ; /opt/puppetlabs/bin/puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
 CMDATA
     begin
-      data = Facter::Core::Execution.execute("#{cmdata}") unless certname == '__test__'
+      valuetolinkCMBD_cmdata = cmdata
+      data = ""
+      #data = Facter::Core::Execution.execute("#{cmdata}") unless certname == '__test__'
+      data = `#{cmdata}` unless certname == '__test__'
+      
+      valuetolinkCMBD_rawdata = data
       valuetolinkCMBD = JSON.parse(data)[0].values[0] || data || certname # In the event where missing data is encountered, certname is used as fallback
     rescue
       valuetolinkCMBD = certname
+      valuetolinkCMBD_used='certname'
     end  
   else
-    valuetolinkCMBD = certname
+    valuetolinkCMBD = 
+    valuetolinkCMBD_used='certname'
   end
 
   uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{valuetolinkCMBD}&sysparm_display_value=true"
@@ -196,9 +207,12 @@ CMDATA
   if debug
     cmdb_record = {}
     servicenow_config['password'] = '==PASSWORD==REDACTED==' unless servicenow_config['password'].nil? || servicenow_config['password'].empty?
+    servicenow_config['oauth_token'] = '==PASSWORD==REDACTED==' unless servicenow_config['oauth_token'].nil? || servicenow_config['oauth_token'].empty?
     cmdb_record[classes_field] = servicenow_config
     cmdb_record[classes_field]['uri'] = uri
-    cmdb_record[classes_field]['valuetolinkCMBD'] = valuetolinkCMBD
+    cmdb_record[classes_field]['valuetolinkCMBD_used'] = valuetolinkCMBD_used
+    cmdb_record[classes_field]['valuetolinkCMBD_rawdata'] =  valuetolinkCMBD_rawdata
+    cmdb_record[classes_field]['valuetolinkCMBD_cmdata'] =  valuetolinkCMBD_cmdata
 
     data = JSON.parse(JSON.generate(cmdb_record[classes_field]))
 
