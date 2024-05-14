@@ -1,0 +1,6 @@
+instance: singteldev.service-now.com
+user: puppet_integration
+password: InTegrati0n@useR
+certname_field: name
+factnameinplaceofcertname: host_name
+table: cmdb_ci

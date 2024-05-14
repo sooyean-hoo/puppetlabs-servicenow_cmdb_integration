@@ -118,6 +118,7 @@ end
 
 def servicenow(certname, config_file = nil)
   config_path = config_file.nil? ? '/etc/puppetlabs/puppet/servicenow_cmdb.yaml' : config_file
+  config_path = './servicenow_cmdb.yaml'  unless File.exist?(config_path)
   servicenow_config = YAML.load_file(config_path)
 
   instance          = servicenow_config['instance']
