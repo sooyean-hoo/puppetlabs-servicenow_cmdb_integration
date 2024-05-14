@@ -1,0 +1,69 @@
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+      - "dev_sooyean"
+  workflow_dispatch:
+  
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  Setup_matrix:
+  
+    name: "Setup Test Matrix"
+    runs-on: "ubuntu-latest"   #${{ inputs.runs_on }}
+    outputs:
+      spec_matrix: ${{ steps.get-matrix.outputs.spec_matrix }}
+    github:
+      server_url: https://github.com/puppetlabs/puppetlabs-servicenow_cmdb_integration.git
+      
+
+  
+    env:
+      BUNDLE_WITHOUT: release_prep
+  
+    steps:
+  
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+        with:
+          ref: 'dev_sooyean' #${{ github.event.pull_request.head.sha }}
+  
+      - name: "Setup ruby"
+        uses: "ruby/setup-ruby@v1"
+        with:
+          ruby-version: "2.7"
+          bundler-cache: true
+  
+      - name: "Bundle environment"
+        run: |
+          echo ::group::bundler environment
+          bundle env
+          echo ::endgroup::
+  
+      - name: Setup Spec Test Matrix
+        id: get-matrix
+        run: |
+          bundle exec matrix_from_metadata_v2 ${{ inputs.flags }} | grep name= | sed -E 's/^.+name=([^:]+)::/\1=/g'
+        
+      - name: Print matrix_from_metadata_v2 for build 
+        run: echo "::debug matrix_from_metadata_v2=${{   needs.setup_matrix.outputs.spec_matrix }}"
+
+      - name: Process matrix_from_metadata_v2 for build 
+        run: echo "::debug process matrix_from_metadata_v2=${{ fromJson( needs.Setup_matrix.outputs.spec_matrix ) }} "
+
+  Spec:
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_ci.yml@dev_sooyean"
+    secrets: "inherit"
+
+  Acceptance:
+    needs: Spec
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance.yml@dev_sooyean"
+    secrets: "inherit"
