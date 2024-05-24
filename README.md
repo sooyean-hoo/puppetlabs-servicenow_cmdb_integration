@@ -89,3 +89,11 @@ defscript=$PWD/../README.md    mr run Acceptancetests
 
 
 ```
+
+
+
+## PDK Unit Test
+```bash
+cd ../
+bundler  update ; bundler install  ; bundler exec pdk test unit
+```
