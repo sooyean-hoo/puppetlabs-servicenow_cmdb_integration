@@ -1,0 +1,7 @@
+[ -z "$1" ] && exit 0  ; taskOPS=${taskOPS:-bash -} ; taskname="$@" ;  echo  awk @@singlequote@@ ' BEGIN { prnit=0 } /^E__.+@@@taskname@@@/{ prnit=1; next ; }  /^```[^`]/{ prnit=prnit + 1 ; next ; } /^```/{ prnit=prnit - 2  ; next ; }  { if (prnit == 2 ) print } ' @@singlequote@@   $0  \| ${taskOPS} | sed  "s/@@singlequote@@/'/g"  | sed ${RegexOpts} "s/@@@taskname@@@/${taskname}/g" > $0.tmp ; bash $0.tmp ; errorid=$? ; rm -fr  $0.tmp ; exit ${errorid} ; ####SOURCE README.md
+E__cli..dc5d7d-c927b0.dat.Development.Acceptancetests.._L235
+```bash
+bundle exec rake acceptance:setup
+bundle exec rspec spec/acceptance
+bundle exec rake acceptance:tear_down
+```

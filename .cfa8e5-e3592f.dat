@@ -1,0 +1,90 @@
+[ -z "$1" ] && exit 0  ; taskOPS=${taskOPS:-bash -} ; taskname="$@" ;  echo  awk @@singlequote@@ ' BEGIN { prnit=0 } /^E__.+@@@taskname@@@/{ prnit=1; next ; }  /^```[^`]/{ prnit=prnit + 1 ; next ; } /^```/{ prnit=prnit - 2  ; next ; }  { if (prnit == 2 ) print } ' @@singlequote@@   $0  \| ${taskOPS} | sed  "s/@@singlequote@@/'/g"  | sed ${RegexOpts} "s/@@@taskname@@@/${taskname}/g" > $0.tmp ; bash $0.tmp ; errorid=$? ; rm -fr  $0.tmp ; exit ${errorid} ; ####SOURCE README.md
+E__cli..cfa8e5-e3592f.dat.Tosetup.._L6
+```bash
+
+git clone git@github.com:sooyean-hoo/puppetlabs-servicenow_cmdb_integration.git
+mkdir  ./puppetlabs-servicenow_cmdb_integration/doc
+git clone git@github.com:sooyean-hoo/puppetlabs-servicenow_cmdb_integration.git ./puppetlabs-servicenow_cmdb_integration/doc
+cd ./puppetlabs-servicenow_cmdb_integration/doc ;
+git checkout doc 
+
+git config --add user.name "Hoo Sooyean (何書淵)"
+git config --add user.email "Sooyean.hoo@perforce.com"
+
+git reset
+
+
+
+```
+E__cli..cfa8e5-e3592f.dat.NodesInvolved.._L25
+```bash
+defaultadminid=xv.sooyean.hoo@singtel.com
+defaultadminpasswd=${defaultadminpasswd:-Welcome@2022}
+
+PEVERSION=${PEVERSION:-2019.8.1}   # 2021.7.3
+#domain="sg.singtelgroup.net"
+
+
+imageid_def=rhel8
+
+#servernames=${servernames:-pupprdmasls001.cloudsg1}
+servernames=${servernames:-master}
+
+oldcompilernames="${oldcompilernames:-}"
+
+compilernames_ACTUAL="${compilernames:-\
+	prvprdpupls103.nix	prvprdpupls104.nix \
+    prvprdpupls203.nix  prvprdpupls204.nix  \
+            }"
+compilernames="${compilernames:-\
+			prvprdpupls103.nix prvprdpupls104.nix  \
+            }"
+compilernames=""
+
+dbnames="${dbnames:-}"
+
+replicanames="${replicanames:-}"
+#replicanames="${replicanames:-}"
+
+
+#agentnames="awsdb" #             borinterm2peagent02
+#agentnames="${agentnames:-prvprdrunls001.nix prvprdpupls004.mom.nix git-sgbss.nix pptdevagtl010.cloudsg1}"
+agentnames="${agentnames:- servicenow_instance}"
+
+#loadbalancernames="${loadbalancernames:-prvprdlbsls001.nix  }"
+
+ # prvprdlbsls002.nix
+
+nodes_os="=master=UbuntuServer22.04LTS   \
+		  =servicenow_instance=UbuntuServer22.04LTS   \
+		  \
+"
+nodes_insttype=" =pupprdmasls002.cloudsg1=t2.2xlarge \
+				 =PUPPET_psedev=t2.2xlarge \
+				 =prvprdpupls004.mom.nix=t2.xlarge \
+				 =psedev=t2.xlarge \
+				 =pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=t2.large \
+"
+
+nodes_volumesize="	=prvprdpupls002.nix=70  \
+					=pupprdmasls002.cloudsg1=100  \
+					=PUPPET_psedev=100 \
+					=prvprdpupls004.mom.nix=100 \
+					=prvprdrunls001.nix=70
+	  			    =psedev=100 \
+"
+```
+E__cli..cfa8e5-e3592f.dat.PrepareforTestsRun.._L84
+```bash
+
+
+
+defscript=$PWD/../README.md    mr run Acceptancetests
+
+
+```
+E__cli..cfa8e5-e3592f.dat.PDKUnitTest.._L96
+```bash
+cd ../
+bundler  update ; bundler install  ; bundler exec pdk test unit
+```
