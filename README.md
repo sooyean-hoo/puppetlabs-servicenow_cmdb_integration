@@ -60,19 +60,9 @@ agentnames="${agentnames:- servicenow_instance}"
 
  # prvprdlbsls002.nix
 
-nodes_os="=pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=MicrosoftWindowsServer2016Base  \
-	      =pptdevagtl003.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=rhel8 \
-	      =PUPPET_psedev=RHEL9 \
-	      =pupprdmasls002.cloudsg1=RHEL9 \
-	      =pptdevagtl010.cloudsg1=ubuntu2204 \
-	      =prvprdpupls004.mom.nix=RHEL9 \
-	      =prvprdrunls001.nix=RHEL9 \
-	      \
-	      =prvprdpupls002.nix=RHEL8 \
-	      =prvprdpupls103.mom.nix=RHEL8 \
-	      =prvprdpupls104.mom.nix=RHEL8 \
-	      =prvprdlbsls001.nix=RHEL8 \
-	      =psedev=RHEL9 \
+nodes_os="=master=UbuntuServer22.04LTS   \
+		  =servicenow_instance=UbuntuServer22.04LTS   \
+		  \
 "
 nodes_insttype=" =pupprdmasls002.cloudsg1=t2.2xlarge \
 				 =PUPPET_psedev=t2.2xlarge \
@@ -88,6 +78,12 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 					=prvprdrunls001.nix=70
 	  			    =psedev=100 \
 "
-
 ```
 
+## Prepare for Tests Run
+```bash
+
+
+
+
+```
