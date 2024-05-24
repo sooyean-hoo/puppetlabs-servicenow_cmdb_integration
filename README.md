@@ -87,7 +87,7 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 my-aws-azure-login; 
 rm -fr ./nodes.dat ;  
 rm -fr ./registerfiles ./prep* ;    
-DEAGENTSFIRST=true  VMCREATE=+   defscript=~/bin/PUPPET_EntConsoleSupport.md   servernames_=-  compilernames_=- agentnames_=-  INSTALLPE=true    mr run      Nodes.List  Nodes.Setup  AltUpdate
+DEAGENTSFIRST=true  VMCREATE=+   defscript=~/bin/PUPPET_EntConsoleSupport.md   servernames=master  compilernames_=- agentnames=servicenow_instance  INSTALLPE=true    mr run      Nodes.List  Nodes.Setup  AltUpdate
 
 cd ../
 defscript=$PWD/README.md    mr run Acceptancetests --show 

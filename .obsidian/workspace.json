@@ -154,8 +154,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "eb39f06246a63b9b",
+  "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
+    "servicenow_instance.tmp",
+    "master.tmp",
+    "servicenow_instance",
+    "master",
     "nodes.dat",
     "createedns",
     "README.md"
