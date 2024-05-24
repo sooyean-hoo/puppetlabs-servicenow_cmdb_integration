@@ -4,19 +4,15 @@
     "type": "split",
     "children": [
       {
-        "id": "59539db103a5aff2",
+        "id": "dc132f68143dba31",
         "type": "tabs",
         "children": [
           {
-            "id": "ebb0d540ca963f5c",
+            "id": "e8aabb49b9fcceb5",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "README.md",
-                "mode": "source",
-                "source": false
-              }
+              "type": "empty",
+              "state": {}
             }
           }
         ]
@@ -85,7 +81,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +97,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -124,17 +118,23 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "README.md"
-              }
+              "state": {}
+            }
+          },
+          {
+            "id": "5b39a6c826e8973c",
+            "type": "leaf",
+            "state": {
+              "type": "git-history-view",
+              "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 617.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -146,6 +146,8 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "eb39f06246a63b9b",
-  "lastOpenFiles": []
+  "active": "34843924bd2f13f9",
+  "lastOpenFiles": [
+    "README.md"
+  ]
 }

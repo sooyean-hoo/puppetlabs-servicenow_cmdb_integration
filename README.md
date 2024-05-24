@@ -83,7 +83,16 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 ## Prepare for Tests Run
 ```bash
 
+cd ../
+defscript=$PWD/README.md    mr run Acceptancetests --show 
+defscript=$PWD/README.md    mr run Acceptancetests
+
+```
 
 
 
+## PDK Unit Test
+```bash
+cd ../
+bundler  update ; bundler install  ; bundler exec pdk test unit
 ```
