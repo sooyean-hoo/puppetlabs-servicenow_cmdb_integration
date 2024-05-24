@@ -1,8 +1,5 @@
-This exists as a submodule in the original repo: `git@github.com:sooyean-hoo/puppetlabs-servicenow_cmdb_integration.git`  also it is commit as a `doc` branch
-
-
-
-## To setup
+[ -z "$1" ] && exit 0  ; taskOPS=${taskOPS:-bash -} ; taskname="$@" ;  echo  awk @@singlequote@@ ' BEGIN { prnit=0 } /^E__.+@@@taskname@@@/{ prnit=1; next ; }  /^```[^`]/{ prnit=prnit + 1 ; next ; } /^```/{ prnit=prnit - 2  ; next ; }  { if (prnit == 2 ) print } ' @@singlequote@@   $0  \| ${taskOPS} | sed  "s/@@singlequote@@/'/g"  | sed ${RegexOpts} "s/@@@taskname@@@/${taskname}/g" > $0.tmp ; bash $0.tmp ; errorid=$? ; rm -fr  $0.tmp ; exit ${errorid} ; ####SOURCE README.md
+E__cli..cfa8e5-e3592f.dat.Tosetup.._L6
 ```bash
 
 git clone git@github.com:sooyean-hoo/puppetlabs-servicenow_cmdb_integration.git
@@ -19,9 +16,7 @@ git reset
 
 
 ```
-
-
-## Nodes Involved
+E__cli..cfa8e5-e3592f.dat.NodesInvolved.._L25
 ```bash
 defaultadminid=xv.sooyean.hoo@singtel.com
 defaultadminpasswd=${defaultadminpasswd:-Welcome@2022}
@@ -79,20 +74,16 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 	  			    =psedev=100 \
 "
 ```
-
-## Prepare for Tests Run
+E__cli..cfa8e5-e3592f.dat.PrepareforTestsRun.._L84
 ```bash
 
 
 
-defscript=$PWD/../README.md    mr run Acceptancetests --show 
 defscript=$PWD/../README.md    mr run Acceptancetests
 
+
 ```
-
-
-
-## PDK Unit Test
+E__cli..cfa8e5-e3592f.dat.PDKUnitTest.._L96
 ```bash
 cd ../
 bundler  update ; bundler install  ; bundler exec pdk test unit
