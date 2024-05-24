@@ -1,0 +1,1 @@
+[ -e ./.nodes.dat ] || defscript=/Users/valente/bin/PUPPET_EntConsoleSupport.md mr run	NodesToSetup.Declarethenodes.._L65 > /dev/null ; source ./.nodes.dat 
