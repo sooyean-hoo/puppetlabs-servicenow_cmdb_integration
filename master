@@ -8,6 +8,16 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###DATA Administrator:getpasswd@0.0.0.0:5985
 ###DATA Administrator:getpasswd@0.0.0.0:5986
 ###DATA Administrator:getpasswd@0.0.0.0:3389
+#!/bin/bash
+export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
+###DATA ec2-user:passwordkeyloc@0.0.0.0:22
+###DATA centos:passwordkeyloc@0.0.0.0:22
+###DATA rocky:passwordkeyloc@0.0.0.0:22
+###DATA ubuntu:passwordkeyloc@0.0.0.0:22
+###DATA root:passwordkeyloc@0.0.0.0:22
+###DATA Administrator:getpasswd@0.0.0.0:5985
+###DATA Administrator:getpasswd@0.0.0.0:5986
+###DATA Administrator:getpasswd@0.0.0.0:3389
 
 ###DATA ec2-user:sooyean.awskey@13.212.165.245:22
 ###DATA centos:sooyean.awskey@13.212.165.245:22
@@ -50,4 +60,24 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###AWSSTAGE DONE 
 
 ###runremoveon __CREATED__
-###NODEStage DONE_FORTHENODE 
+###DATA ec2-user:passwordkeyloc@master:22
+###DATA ec2-user:passwordkeyloc@master:3389
+###DATA ec2-user:passwordkeyloc@master:5985
+###DATA ec2-user:passwordkeyloc@master:5986
+###DATA ec2-user:passwordkeyloc@master:8143
+###DATA ec2-user:passwordkeyloc@master:22
+###DATA ec2-user:passwordkeyloc@master:3389
+###DATA ec2-user:passwordkeyloc@master:5985
+###DATA ec2-user:passwordkeyloc@master:5986
+###DATA ec2-user:passwordkeyloc@master:8143
+###DATA ec2-user:passwordkeyloc@ip-172-31-2-84.ap-southeast-1.compute.internal:22
+###DATA ec2-user:passwordkeyloc@ip-172-31-2-84.ap-southeast-1.compute.internal:3389
+###DATA ec2-user:passwordkeyloc@ip-172-31-2-84.ap-southeast-1.compute.internal:5985
+###DATA ec2-user:passwordkeyloc@ip-172-31-2-84.ap-southeast-1.compute.internal:5986
+###DATA ec2-user:passwordkeyloc@ip-172-31-2-84.ap-southeast-1.compute.internal:8143
+###DATA ec2-user:passwordkeyloc@ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com:22
+###DATA ec2-user:passwordkeyloc@ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com:3389
+###DATA ec2-user:passwordkeyloc@ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com:5985
+###DATA ec2-user:passwordkeyloc@ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com:5986
+###DATA ec2-user:passwordkeyloc@ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com:8143
+###NODEStage DONE_NODE_AND_AGENT 
