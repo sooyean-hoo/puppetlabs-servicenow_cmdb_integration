@@ -21,4 +21,73 @@ git reset
 ```
 
 
+## Nodes Involved
+```bash
+defaultadminid=xv.sooyean.hoo@singtel.com
+defaultadminpasswd=${defaultadminpasswd:-Welcome@2022}
+
+PEVERSION=${PEVERSION:-2019.8.1}   # 2021.7.3
+#domain="sg.singtelgroup.net"
+
+
+imageid_def=rhel8
+
+#servernames=${servernames:-pupprdmasls001.cloudsg1}
+servernames=${servernames:-prvprdpupls002.nix}
+
+oldcompilernames="${oldcompilernames:-}"
+
+compilernames_ACTUAL="${compilernames:-\
+	prvprdpupls103.nix	prvprdpupls104.nix \
+    prvprdpupls203.nix  prvprdpupls204.nix  \
+            }"
+compilernames="${compilernames:-\
+			prvprdpupls103.nix prvprdpupls104.nix  \
+            }"
+#compilernames=""
+
+dbnames="${dbnames:-}"
+
+replicanames="${replicanames:-}"
+#replicanames="${replicanames:-}"
+
+
+#agentnames="awsdb" #             borinterm2peagent02
+#agentnames="${agentnames:-prvprdrunls001.nix prvprdpupls004.mom.nix git-sgbss.nix pptdevagtl010.cloudsg1}"
+agentnames="${agentnames:-prvprdrunls001.nix puptstappls001.nix pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net }"
+
+loadbalancernames="${loadbalancernames:-prvprdlbsls001.nix  }"
+
+ # prvprdlbsls002.nix
+
+nodes_os="=pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=MicrosoftWindowsServer2016Base  \
+	      =pptdevagtl003.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=rhel8 \
+	      =PUPPET_psedev=RHEL9 \
+	      =pupprdmasls002.cloudsg1=RHEL9 \
+	      =pptdevagtl010.cloudsg1=ubuntu2204 \
+	      =prvprdpupls004.mom.nix=RHEL9 \
+	      =prvprdrunls001.nix=RHEL9 \
+	      \
+	      =prvprdpupls002.nix=RHEL8 \
+	      =prvprdpupls103.mom.nix=RHEL8 \
+	      =prvprdpupls104.mom.nix=RHEL8 \
+	      =prvprdlbsls001.nix=RHEL8 \
+	      =psedev=RHEL9 \
+"
+nodes_insttype=" =pupprdmasls002.cloudsg1=t2.2xlarge \
+				 =PUPPET_psedev=t2.2xlarge \
+				 =prvprdpupls004.mom.nix=t2.xlarge \
+				 =psedev=t2.xlarge \
+				 =pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net=t2.large \
+"
+
+nodes_volumesize="	=prvprdpupls002.nix=70  \
+					=pupprdmasls002.cloudsg1=100  \
+					=PUPPET_psedev=100 \
+					=prvprdpupls004.mom.nix=100 \
+					=prvprdrunls001.nix=70
+	  			    =psedev=100 \
+"
+
+```
 
