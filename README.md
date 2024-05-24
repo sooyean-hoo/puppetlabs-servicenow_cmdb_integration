@@ -33,7 +33,7 @@ PEVERSION=${PEVERSION:-2019.8.1}   # 2021.7.3
 imageid_def=rhel8
 
 #servernames=${servernames:-pupprdmasls001.cloudsg1}
-servernames=${servernames:-prvprdpupls002.nix}
+servernames=${servernames:-master}
 
 oldcompilernames="${oldcompilernames:-}"
 
@@ -44,7 +44,7 @@ compilernames_ACTUAL="${compilernames:-\
 compilernames="${compilernames:-\
 			prvprdpupls103.nix prvprdpupls104.nix  \
             }"
-#compilernames=""
+compilernames=""
 
 dbnames="${dbnames:-}"
 
@@ -54,9 +54,9 @@ replicanames="${replicanames:-}"
 
 #agentnames="awsdb" #             borinterm2peagent02
 #agentnames="${agentnames:-prvprdrunls001.nix prvprdpupls004.mom.nix git-sgbss.nix pptdevagtl010.cloudsg1}"
-agentnames="${agentnames:-prvprdrunls001.nix puptstappls001.nix pptdevagtw002.prnbzjcf0uselnxtzbni41unuf.ix.internal.cloudapp.net }"
+agentnames="${agentnames:- servicenow_instance}"
 
-loadbalancernames="${loadbalancernames:-prvprdlbsls001.nix  }"
+#loadbalancernames="${loadbalancernames:-prvprdlbsls001.nix  }"
 
  # prvprdlbsls002.nix
 
