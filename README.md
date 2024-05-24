@@ -83,10 +83,9 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 ## Prepare for Tests Run
 ```bash
 
-
-
-defscript=$PWD/../README.md    mr run Acceptancetests --show 
-defscript=$PWD/../README.md    mr run Acceptancetests
+cd ../
+defscript=$PWD/README.md    mr run Acceptancetests --show 
+defscript=$PWD/README.md    mr run Acceptancetests
 
 ```
 
