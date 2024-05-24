@@ -157,11 +157,16 @@
   "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
     "servicenow_instance.tmp",
+    "servicenow_instance.DEBUG.9800",
+    "servicenow_instance.DEBUG.0000",
+    "servicenow_instance.repair.tmp",
+    "servicenow_instance.repair",
+    "servicenow_instance.BAK",
+    "master.repair.tmp",
+    "master.repair",
+    "master.BAK",
     "master.tmp",
     "servicenow_instance",
-    "master",
-    "nodes.dat",
-    "createedns",
     "README.md"
   ]
 }

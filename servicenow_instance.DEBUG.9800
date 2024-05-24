@@ -34,6 +34,7 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###AWSSTAGE DONE 
 
 ###runremoveon __CREATED__
+###NODEStage AGENT_CONNECTTEST 
 ###DATA ec2-user:sooyean.awskey@13.212.112.81:22
 ###DATA ec2-user:sooyean.awskey@13.212.112.81:22
 ###DATA centos:sooyean.awskey@13.212.112.81:22
@@ -43,4 +44,3 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###DATA Administrator:getpasswd@13.212.112.81:5985
 ###DATA Administrator:getpasswd@13.212.112.81:5986
 ###DATA Administrator:getpasswd@13.212.112.81:3389
-###NODEStage AGENT_PART1_DONE 
