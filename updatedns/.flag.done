@@ -1,0 +1,26 @@
+1716576333
+FATAL Error: Cannot Determine the MachineName file to use. Please verify the name of the Script: ssh2_ => 
+FATAL Error: MachineName file not in the PATH. Please verify the name of the Script or 'm' provided: bname =  , with  ssh2_ =>  
+Usage
+---
+  m=<cmd for Machine IP> /Users/valente/bin/ssh2_ ;
+  E.g.
+     m=ORACLEFREE_n1  ~/bin/ssh2_
+---
+    You can also just clear a link, but the name should reflect the Cmd for Machine IP.
+    For like the same effect as above, we will have a link called ~/bin/ssh2_ORACLEFREE_n1 -> ~/bin/ssh2_
+=============================================================
+        DEBUGSSH2=<|Y| Will enable Debug Mode for ssh2 only.
+        PINGFIRST=<|NO|Set it so it will ping url first, but it will still test the connection, using nc and curl.>   \
+        SKIPCONNECTTEST=<|Set this to Skip the testing of connection for faster response. default: Blank i.e. All connection will be test until one working one is found.> \
+        SKIPSSHTEST=<|Set this to Skip the ssh userid/password login test for faster response. default: Blank i.e. All ssh connections, port ended with 22, will be test with login test.> \
+=============================================================
+running sshCMD as =    ssh        -t -e @ -YC =
+ssh -t -e @ -YC -R 17722:127.0.0.1:22
+================================================================================
+Use
+$proxy_port =
+$PROXYCMD =
+/Users/valente/bin/ssh2 -t -o "ProxyCommand corkscrew $proxy_ip_or_domain_name $proxy_port $destination_ip_or_domain_name 22"
+================================================================================
+================================================================================EXECUTE

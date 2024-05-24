@@ -1,13 +1,5 @@
 #!/bin/bash
 export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
-###DATA ec2-user:passwordkeyloc@0.0.0.0:22
-###DATA centos:passwordkeyloc@0.0.0.0:22
-###DATA rocky:passwordkeyloc@0.0.0.0:22
-###DATA ubuntu:passwordkeyloc@0.0.0.0:22
-###DATA root:passwordkeyloc@0.0.0.0:22
-###DATA Administrator:getpasswd@0.0.0.0:5985
-###DATA Administrator:getpasswd@0.0.0.0:5986
-###DATA Administrator:getpasswd@0.0.0.0:3389
 #!/bin/bash
 export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
 
@@ -44,33 +36,28 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###AWSSTAGE DONE 
 
 ###runremoveon __CREATED__
+###NODEStage DONE_NODE_AND_AGENT 
 ###DATA ec2-user:sooyean.awskey@13.212.112.81:22
-###DATA ec2-user:sooyean.awskey@13.212.112.81:22
-###DATA centos:sooyean.awskey@13.212.112.81:22
-###DATA rocky:sooyean.awskey@13.212.112.81:22
-###DATA ubuntu:sooyean.awskey@13.212.112.81:22
-###DATA root:sooyean.awskey@13.212.112.81:22
+###DATA Administrator:getpasswd@13.212.112.81:3389
 ###DATA Administrator:getpasswd@13.212.112.81:5985
 ###DATA Administrator:getpasswd@13.212.112.81:5986
-###DATA Administrator:getpasswd@13.212.112.81:3389
-###DATA ec2-user:sooyean.awskey@servicenow_instance:22
-###DATA ec2-user:sooyean.awskey@servicenow_instance:3389
-###DATA ec2-user:sooyean.awskey@servicenow_instance:5985
-###DATA ec2-user:sooyean.awskey@servicenow_instance:5986
-###DATA ec2-user:sooyean.awskey@servicenow_instance:8143
-###DATA ec2-user:sooyean.awskey@servicenow_instance:22
-###DATA ec2-user:sooyean.awskey@servicenow_instance:3389
-###DATA ec2-user:sooyean.awskey@servicenow_instance:5985
-###DATA ec2-user:sooyean.awskey@servicenow_instance:5986
-###DATA ec2-user:sooyean.awskey@servicenow_instance:8143
-###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:22
-###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:3389
-###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:5985
-###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:5986
-###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:8143
+###DATA centos:sooyean.awskey@13.212.112.81:22
+###DATA ec2-user:sooyean.awskey@13.212.112.81:22
 ###DATA ec2-user:sooyean.awskey@ec2-13-212-112-81.ap-southeast-1.compute.amazonaws.com:22
 ###DATA ec2-user:sooyean.awskey@ec2-13-212-112-81.ap-southeast-1.compute.amazonaws.com:3389
 ###DATA ec2-user:sooyean.awskey@ec2-13-212-112-81.ap-southeast-1.compute.amazonaws.com:5985
 ###DATA ec2-user:sooyean.awskey@ec2-13-212-112-81.ap-southeast-1.compute.amazonaws.com:5986
 ###DATA ec2-user:sooyean.awskey@ec2-13-212-112-81.ap-southeast-1.compute.amazonaws.com:8143
-###NODEStage DONE_NODE_AND_AGENT 
+###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:22
+###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:3389
+###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:5985
+###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:5986
+###DATA ec2-user:sooyean.awskey@ip-172-31-5-161.ap-southeast-1.compute.internal:8143
+###DATA ec2-user:sooyean.awskey@servicenow_instance:22
+###DATA ec2-user:sooyean.awskey@servicenow_instance:3389
+###DATA ec2-user:sooyean.awskey@servicenow_instance:5985
+###DATA ec2-user:sooyean.awskey@servicenow_instance:5986
+###DATA ec2-user:sooyean.awskey@servicenow_instance:8143
+###DATA rocky:sooyean.awskey@13.212.112.81:22
+###DATA root:sooyean.awskey@13.212.112.81:22
+###DATA ubuntu:sooyean.awskey@13.212.112.81:22

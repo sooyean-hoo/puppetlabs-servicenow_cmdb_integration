@@ -1,0 +1,20 @@
+2024-05-25T02:45:35.498150 DEBUG  [main] [Bolt::Logger] Loaded configuration from /Users/valente/.puppetlabs/etc/bolt/bolt-defaults.yaml
+2024-05-25T02:45:35.498252 DEBUG  [main] [Bolt::Logger] Analytics opt-out is set, analytics will be disabled
+2024-05-25T02:45:35.604743 DEBUG  [main] [Bolt::Executor] Started with 36 max thread(s)
+2024-05-25T02:45:36.190042 DEBUG  [main] [Bolt::PAL] Loading modules from /Users/valente/.rbenv/versions/2.7.8/lib/ruby/gems/2.7.0/gems/bolt-3.30.0/bolt-modules:/Users/valente/EclipseWorkspaces/PuppetTrainings/puppetlabs-servicenow_cmdb_integration/doc/modules:/Users/valente/EclipseWorkspaces/PuppetTrainings/puppetlabs-servicenow_cmdb_integration/doc/.modules:/Users/valente/.rbenv/versions/2.7.8/lib/ruby/gems/2.7.0/gems/bolt-3.30.0/modules
+2024-05-25T02:45:36.190715 DEBUG  [main] [Bolt::Inventory] Loaded inventory from /tmp/invs/invs_all7177.yaml
+2024-05-25T02:45:36.191598 WARN   [main] [Bolt::Logger] Bolt might be installed as a gem. To use Bolt reliably and with all of its
+dependencies, uninstall the 'bolt' gem and install Bolt as a package:
+https://puppet.com/docs/bolt/latest/bolt_installing.html
+
+If you meant to install Bolt as a gem and want to disable this warning,
+set the BOLT_GEM environment variable. [ID: gem_install]
+2024-05-25T02:45:36.191712 WARN   [main] [Bolt::Logger] CLI arguments ["connect-timeout"] might be overridden by Inventory: /tmp/invs/invs_all7177.yaml [ID: cli_overrides]
+2024-05-25T02:45:36.222720 INFO   [event-publisher] [Bolt::Outputter::Logger] Starting: script /tmp/sethost.ps1 on 13.212.165.245, 13.212.112.81
+2024-05-25T02:45:36.347270 INFO   [exec-worker-1] [Bolt::Executor] Running script /tmp/sethost.ps1 with '[]' on ["13.212.165.245"]
+2024-05-25T02:45:36.347392 INFO   [exec-worker-2] [Bolt::Executor] Running script /tmp/sethost.ps1 with '[]' on ["13.212.112.81"]
+2024-05-25T02:45:36.347477 DEBUG  [exec-worker-1] [Bolt::Transport::SSH] Running script '/tmp/sethost.ps1' on 13.212.165.245
+2024-05-25T02:45:36.348674 DEBUG  [exec-worker-2] [Bolt::Transport::SSH] Running script '/tmp/sethost.ps1' on 13.212.112.81
+2024-05-25T02:45:38.054314 INFO   [exec-worker-1] [Bolt::Executor] {"target":"13.212.165.245","action":"script","object":"/tmp/sethost.ps1","status":"failure","value":{"stdout":"","stderr":"/tmp/e51611b2-2e98-4d0b-a69c-98d14c58147c/sethost.ps1: line 2: syntax error near unexpected token `]'\n/tmp/e51611b2-2e98-4d0b-a69c-98d14c58147c/sethost.ps1: line 2: `[CmdletBinding()]            \t\t\t\t\t\t\t\t\t\t#\\'\n","merged_output":"/tmp/e51611b2-2e98-4d0b-a69c-98d14c58147c/sethost.ps1: line 2: syntax error near unexpected token `]'\n/tmp/e51611b2-2e98-4d0b-a69c-98d14c58147c/sethost.ps1: line 2: `[CmdletBinding()]            \t\t\t\t\t\t\t\t\t\t#\\'\n","exit_code":2,"_error":{"kind":"puppetlabs.tasks/command-error","issue_code":"COMMAND_ERROR","msg":"The command failed with exit code 2","details":{"exit_code":2}}}}
+2024-05-25T02:45:38.104927 INFO   [exec-worker-2] [Bolt::Executor] {"target":"13.212.112.81","action":"script","object":"/tmp/sethost.ps1","status":"failure","value":{"stdout":"","stderr":"/tmp/420863e4-39f5-4044-9718-c37d91cbdafa/sethost.ps1: line 2: syntax error near unexpected token `]'\n/tmp/420863e4-39f5-4044-9718-c37d91cbdafa/sethost.ps1: line 2: `[CmdletBinding()]            \t\t\t\t\t\t\t\t\t\t#\\'\n","merged_output":"/tmp/420863e4-39f5-4044-9718-c37d91cbdafa/sethost.ps1: line 2: syntax error near unexpected token `]'\n/tmp/420863e4-39f5-4044-9718-c37d91cbdafa/sethost.ps1: line 2: `[CmdletBinding()]            \t\t\t\t\t\t\t\t\t\t#\\'\n","exit_code":2,"_error":{"kind":"puppetlabs.tasks/command-error","issue_code":"COMMAND_ERROR","msg":"The command failed with exit code 2","details":{"exit_code":2}}}}
+2024-05-25T02:45:38.105779 INFO   [event-publisher] [Bolt::Outputter::Logger] Finished: script /tmp/sethost.ps1 with 2 failures in 1.88 sec
