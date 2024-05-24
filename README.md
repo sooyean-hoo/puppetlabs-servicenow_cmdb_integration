@@ -85,5 +85,7 @@ nodes_volumesize="	=prvprdpupls002.nix=70  \
 
 
 
+defscript=$PWD/../README.md    mr run Acceptancetests
+
 
 ```
