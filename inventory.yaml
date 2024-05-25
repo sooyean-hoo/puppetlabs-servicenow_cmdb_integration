@@ -1,0 +1,26 @@
+---
+groups:
+- name: master
+  targets:
+  - 13.212.165.245
+  config:
+    transport: ssh
+    ssh:
+      run-as: root
+      host-key-check: false
+      port: 22
+      user: ec2-user
+      private-key:  ~/.ssh/sooyean.awskey
+
+- name: servicenow-instance
+  targets:
+  - 13.212.112.81
+  config:
+    transport: ssh
+    ssh:
+      run-as: root
+      host-key-check: false
+      port: 22
+      user: ec2-user
+      private-key:  ~/.ssh/sooyean.awskey
+

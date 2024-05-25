@@ -156,6 +156,8 @@
   },
   "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
+    "inventory.yaml~",
+    "inventory.yaml",
     "updatedns/master.flag.done",
     "updatedns/master.flag",
     "createedns/master.flag.log",
@@ -165,8 +167,6 @@
     "servicenow_instance.DEBUG.9988",
     "servicenow_instance.DEBUG.9986",
     "servicenow_instance.DEBUG.9985",
-    "servicenow_instance.DEBUG.9980",
-    "servicenow_instance.tmp",
     "README.md"
   ]
 }
