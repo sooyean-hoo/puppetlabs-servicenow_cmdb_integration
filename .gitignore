@@ -4,3 +4,4 @@ bolt-debug.log
 nodes.dat
 *.0000
 *.DEBUG
+*.BAK
