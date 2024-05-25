@@ -93,7 +93,10 @@ cp -f `./master invs ./servicenow_instance --runasroot`.  ./inventory.yaml
 ```
 
 ## Acceptance Tests Run
-```bashcd ../
+```bash
+cd ../
+bundler  update ; bundler install  ;
+
 defscript=$PWD/README.md    mr run Acceptancetests --show 
 defscript=$PWD/README.md    mr run Acceptancetests
 
