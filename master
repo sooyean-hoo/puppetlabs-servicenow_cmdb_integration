@@ -1,33 +1,10 @@
 #!/bin/bash
 export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
-###DATA ec2-user:passwordkeyloc@0.0.0.0:22
-###DATA centos:passwordkeyloc@0.0.0.0:22
-###DATA rocky:passwordkeyloc@0.0.0.0:22
-###DATA ubuntu:passwordkeyloc@0.0.0.0:22
-###DATA root:passwordkeyloc@0.0.0.0:22
-###DATA Administrator:getpasswd@0.0.0.0:5985
-###DATA Administrator:getpasswd@0.0.0.0:5986
-###DATA Administrator:getpasswd@0.0.0.0:3389
+#!/bin/bash
+export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
 
-###DATA ec2-user:sooyean.awskey@13.212.165.245:22
-###DATA centos:sooyean.awskey@13.212.165.245:22
-###DATA rocky:sooyean.awskey@13.212.165.245:22
-###DATA ubuntu:sooyean.awskey@13.212.165.245:22
-###DATA root:sooyean.awskey@13.212.165.245:22
-###DATA Administrator:getpasswd@13.212.165.245:5985
-###DATA Administrator:getpasswd@13.212.165.245:5986
-###DATA Administrator:getpasswd@13.212.165.245:3389
 ###COMMANDCLIAWSCMDCREATE aws ec2 run-instances --profile a_Developer --image-id ami-051f0947e420652a9 --count 1 --instance-type t2.xlarge --key-name sooyean.awskey --security-group-ids sg-0570e7dd03d03130b sg-087e16267826fb0fd --subnet-id subnet-0dd3027f85e75744e --region ap-southeast-1 
 ###AWSINSTID i-0d4cd19897deec59f 
-###DATA ec2-user:sooyean.awskey@13.212.165.245:22
-###DATA ec2-user:sooyean.awskey@13.212.165.245:22
-###DATA centos:sooyean.awskey@13.212.165.245:22
-###DATA rocky:sooyean.awskey@13.212.165.245:22
-###DATA ubuntu:sooyean.awskey@13.212.165.245:22
-###DATA root:sooyean.awskey@13.212.165.245:22
-###DATA Administrator:getpasswd@13.212.165.245:5985
-###DATA Administrator:getpasswd@13.212.165.245:5986
-###DATA Administrator:getpasswd@13.212.165.245:3389
 ###imageid ami-051f0947e420652a9 
 ###describe_images {"Images":[{"Architecture":"x86_64","CreationDate":"2022-05-05T10:37:05.000Z","ImageId":"ami-051f0947e420652a9","ImageLocation":"amazon/RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","ImageType":"machine","Public":true,"OwnerId":"309956199498","PlatformDetails":"Red Hat Enterprise Linux","UsageOperation":"RunInstances:0010","State":"available","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"DeleteOnTermination":true,"SnapshotId":"snap-019beaa45bb99953d","VolumeSize":10,"VolumeType":"gp2","Encrypted":false}}],"Description":"Provided by Red Hat, Inc.","EnaSupport":true,"Hypervisor":"xen","ImageOwnerAlias":"amazon","Name":"RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","RootDeviceName":"/dev/sda1","RootDeviceType":"ebs","SriovNetSupport":"simple","VirtualizationType":"hvm","DeprecationTime":"2024-05-05T10:37:05.000Z"}]} 
 ###State running 
@@ -59,4 +36,13 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###AWSSTAGE DONE 
 
 ###runremoveon __CREATED__ 
-###NODEStage DONE_FORTHENODE 
+###NODEStage DONE_NODE_AND_AGENT 
+###DATA ec2-user:sooyean.awskey@13.212.165.245:22
+###DATA Administrator:getpasswd@13.212.165.245:3389
+###DATA Administrator:getpasswd@13.212.165.245:5985
+###DATA Administrator:getpasswd@13.212.165.245:5986
+###DATA centos:sooyean.awskey@13.212.165.245:22
+###DATA ec2-user:sooyean.awskey@13.212.165.245:22
+###DATA rocky:sooyean.awskey@13.212.165.245:22
+###DATA root:sooyean.awskey@13.212.165.245:22
+###DATA ubuntu:sooyean.awskey@13.212.165.245:22

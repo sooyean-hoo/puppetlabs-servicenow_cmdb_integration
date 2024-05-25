@@ -1,5 +1,7 @@
 #!/bin/bash
 export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
+#!/bin/bash
+export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
 
 ###COMMANDCLIAWSCMDCREATE aws ec2 run-instances --profile a_Developer --image-id ami-051f0947e420652a9 --count 1 --instance-type t2.micro --key-name sooyean.awskey --security-group-ids sg-0570e7dd03d03130b sg-087e16267826fb0fd --subnet-id subnet-0dd3027f85e75744e --region ap-southeast-1 
 ###AWSINSTID i-0ed79e867f32ec4d7 
@@ -34,6 +36,7 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###AWSSTAGE DONE 
 
 ###runremoveon __CREATED__ 
+###NODEStage DONE_NODE_AND_AGENT 
 ###DATA ec2-user:sooyean.awskey@13.212.112.81:22
 ###DATA Administrator:getpasswd@13.212.112.81:3389
 ###DATA Administrator:getpasswd@13.212.112.81:5985
@@ -58,4 +61,3 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###DATA rocky:sooyean.awskey@13.212.112.81:22
 ###DATA root:sooyean.awskey@13.212.112.81:22
 ###DATA ubuntu:sooyean.awskey@13.212.112.81:22
-###NODEStage AGENT_PART1_DONE 

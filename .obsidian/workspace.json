@@ -156,17 +156,17 @@
   },
   "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
-    "master.tmp",
-    "master.repair.tmp",
-    "master.repair",
-    "master.BAK",
-    "servicenow_instance.DEBUG.9800",
+    "createedns/master.flag.log",
+    "createedns/master.flag.done",
+    "createedns/master.flag",
+    "servicenow_instance.DEBUG.9999",
+    "servicenow_instance.DEBUG.9988",
+    "servicenow_instance.DEBUG.9986",
+    "servicenow_instance.DEBUG.9985",
+    "servicenow_instance.DEBUG.9980",
     "servicenow_instance.tmp",
-    "servicenow_instance.DEBUG.0000",
-    "servicenow_instance.repair.tmp",
-    "servicenow_instance.repair",
-    "servicenow_instance.BAK",
-    "master.DEBUG.0000s",
+    "servicenow_instance.DEBUG.9970",
+    "servicenow_instance.DEBUG.9960",
     "README.md"
   ]
 }
