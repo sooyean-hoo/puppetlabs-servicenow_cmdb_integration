@@ -156,6 +156,8 @@
   },
   "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
+    "updatedns/master.flag.done",
+    "updatedns/master.flag",
     "createedns/master.flag.log",
     "createedns/master.flag.done",
     "createedns/master.flag",
@@ -165,8 +167,6 @@
     "servicenow_instance.DEBUG.9985",
     "servicenow_instance.DEBUG.9980",
     "servicenow_instance.tmp",
-    "servicenow_instance.DEBUG.9970",
-    "servicenow_instance.DEBUG.9960",
     "README.md"
   ]
 }

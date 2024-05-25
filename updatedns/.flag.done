@@ -1,4 +1,4 @@
-1716576333
+1716605548
 FATAL Error: Cannot Determine the MachineName file to use. Please verify the name of the Script: ssh2_ => 
 FATAL Error: MachineName file not in the PATH. Please verify the name of the Script or 'm' provided: bname =  , with  ssh2_ =>  
 Usage
@@ -16,7 +16,7 @@ Usage
         SKIPSSHTEST=<|Set this to Skip the ssh userid/password login test for faster response. default: Blank i.e. All ssh connections, port ended with 22, will be test with login test.> \
 =============================================================
 running sshCMD as =    ssh        -t -e @ -YC =
-ssh -t -e @ -YC -R 17722:127.0.0.1:22
+ssh -t -e @ -YC -R 3128:127.0.0.1:3128 -R 17722:127.0.0.1:22
 ================================================================================
 Use
 $proxy_port =
