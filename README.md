@@ -89,6 +89,8 @@ rm -fr ./nodes.dat ;
 rm -fr ./registerfiles ./prep* ;    
 DEAGENTSFIRST=true  VMCREATE=+   defscript=~/bin/PUPPET_EntConsoleSupport.md   servernames=master  compilernames_=- agentnames=servicenow_instance  INSTALLPE=true    mr run      Nodes.List  Nodes.Setup  AltUpdate
 
+cp -f `./master invs ./servicenow_instance --runasroot`.  ./inventory.yaml
+
 cd ../
 defscript=$PWD/README.md    mr run Acceptancetests --show 
 defscript=$PWD/README.md    mr run Acceptancetests
