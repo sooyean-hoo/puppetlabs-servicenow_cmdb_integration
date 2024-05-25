@@ -1,14 +1,5 @@
 #!/bin/bash
 export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
-###DATA ec2-user:passwordkeyloc@0.0.0.0:22
-###DATA centos:passwordkeyloc@0.0.0.0:22
-###DATA rocky:passwordkeyloc@0.0.0.0:22
-###DATA ubuntu:passwordkeyloc@0.0.0.0:22
-###DATA root:passwordkeyloc@0.0.0.0:22
-###DATA Administrator:getpasswd@0.0.0.0:5985
-###DATA Administrator:getpasswd@0.0.0.0:5986
-###DATA Administrator:getpasswd@0.0.0.0:3389
-
 ###DATA ec2-user:sooyean.awskey@13.212.165.245:22
 ###DATA centos:sooyean.awskey@13.212.165.245:22
 ###DATA rocky:sooyean.awskey@13.212.165.245:22
@@ -17,8 +8,33 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###DATA Administrator:getpasswd@13.212.165.245:5985
 ###DATA Administrator:getpasswd@13.212.165.245:5986
 ###DATA Administrator:getpasswd@13.212.165.245:3389
+#!/bin/bash
+export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
+#!/bin/bash
+export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machineNameFNs ; exit $? ;
+
 ###COMMANDCLIAWSCMDCREATE aws ec2 run-instances --profile a_Developer --image-id ami-051f0947e420652a9 --count 1 --instance-type t2.xlarge --key-name sooyean.awskey --security-group-ids sg-0570e7dd03d03130b sg-087e16267826fb0fd --subnet-id subnet-0dd3027f85e75744e --region ap-southeast-1 
 ###AWSINSTID i-0d4cd19897deec59f 
+###imageid ami-051f0947e420652a9
+###describe_images {"Images":[{"Architecture":"x86_64","CreationDate":"2022-05-05T10:37:05.000Z","ImageId":"ami-051f0947e420652a9","ImageLocation":"amazon/RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","ImageType":"machine","Public":true,"OwnerId":"309956199498","PlatformDetails":"Red Hat Enterprise Linux","UsageOperation":"RunInstances:0010","State":"available","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"DeleteOnTermination":true,"SnapshotId":"snap-019beaa45bb99953d","VolumeSize":10,"VolumeType":"gp2","Encrypted":false}}],"Description":"Provided by Red Hat, Inc.","EnaSupport":true,"Hypervisor":"xen","ImageOwnerAlias":"amazon","Name":"RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","RootDeviceName":"/dev/sda1","RootDeviceType":"ebs","SriovNetSupport":"simple","VirtualizationType":"hvm","DeprecationTime":"2024-05-05T10:37:05.000Z"}]} 
+###State pending
+###insttype t2.xlarge
+###arch x86_64
+###keypair sooyean.awskey
+###secgroups sg-0570e7dd03d03130b sg-087e16267826fb0fd
+###launchtime 2024-05-24T18:25:47+00:00
+###usageoperationupdatetime 2024-05-24T18:25:47+00:00
+###volumeid vol-0498736a324ed5f2e
+###describe_volumes {"Volumes":[{"Attachments":[{"AttachTime":"2024-05-24T18:25:48+00:00","Device":"/dev/sda1","InstanceId":"i-0d4cd19897deec59f","State":"attaching","VolumeId":"vol-0498736a324ed5f2e","DeleteOnTermination":true}],"AvailabilityZone":"ap-southeast-1c","CreateTime":"2024-05-24T18:25:48.597000+00:00","Encrypted":false,"Size":10,"SnapshotId":"snap-019beaa45bb99953d","State":"in-use","VolumeId":"vol-0498736a324ed5f2e","Iops":100,"VolumeType":"gp2","MultiAttachEnabled":false}]} 
+###subnetid subnet-0dd3027f85e75744e
+###region ap-southeast-1 
+###imagename RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2
+###imagearchitecture x86_64
+###password_data {"InstanceId":"i-0d4cd19897deec59f","PasswordData":"","Timestamp":"2024-05-24T18:26:13+00:00"} 
+###volumesize 30 
+
+
+###runremoveon __CREATED__
 ###DATA ec2-user:sooyean.awskey@13.212.165.245:22
 ###DATA ec2-user:sooyean.awskey@13.212.165.245:22
 ###DATA centos:sooyean.awskey@13.212.165.245:22
@@ -28,35 +44,28 @@ export COLUMNS=190 ; source /Users/valente/bin//machineNameFNs || source machine
 ###DATA Administrator:getpasswd@13.212.165.245:5985
 ###DATA Administrator:getpasswd@13.212.165.245:5986
 ###DATA Administrator:getpasswd@13.212.165.245:3389
-###imageid ami-051f0947e420652a9 
-###describe_images {"Images":[{"Architecture":"x86_64","CreationDate":"2022-05-05T10:37:05.000Z","ImageId":"ami-051f0947e420652a9","ImageLocation":"amazon/RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","ImageType":"machine","Public":true,"OwnerId":"309956199498","PlatformDetails":"Red Hat Enterprise Linux","UsageOperation":"RunInstances:0010","State":"available","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"DeleteOnTermination":true,"SnapshotId":"snap-019beaa45bb99953d","VolumeSize":10,"VolumeType":"gp2","Encrypted":false}}],"Description":"Provided by Red Hat, Inc.","EnaSupport":true,"Hypervisor":"xen","ImageOwnerAlias":"amazon","Name":"RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2","RootDeviceName":"/dev/sda1","RootDeviceType":"ebs","SriovNetSupport":"simple","VirtualizationType":"hvm","DeprecationTime":"2024-05-05T10:37:05.000Z"}]} 
-###State running 
-###insttype t2.xlarge 
-###arch x86_64 
-###keypair sooyean.awskey 
-###secgroups sg-0570e7dd03d03130b sg-087e16267826fb0fd 
-###launchtime 2024-05-24T18:25:47+00:00 
-###usageoperationupdatetime 2024-05-24T18:25:47+00:00 
-###volumeid vol-0498736a324ed5f2e 
-###describe_volumes {"Volumes":[{"Attachments":[{"AttachTime":"2024-05-24T18:25:48+00:00","Device":"/dev/sda1","InstanceId":"i-0d4cd19897deec59f","State":"attached","VolumeId":"vol-0498736a324ed5f2e","DeleteOnTermination":true}],"AvailabilityZone":"ap-southeast-1c","CreateTime":"2024-05-24T18:25:48.597000+00:00","Encrypted":false,"Size":30,"SnapshotId":"snap-019beaa45bb99953d","State":"in-use","VolumeId":"vol-0498736a324ed5f2e","Iops":100,"VolumeType":"gp2","MultiAttachEnabled":false}]} 
-###subnetid subnet-0dd3027f85e75744e 
-###region ap-southeast-1 
-###imagename RHEL-8.6.0_HVM-20220503-x86_64-2-Hourly2-GP2 
-###imagearchitecture x86_64 
-###password_data {"InstanceId":"i-0d4cd19897deec59f","PasswordData":"","Timestamp":"2024-05-25T02:34:37+00:00"} 
-###volumesize 30 
-###describe_instances {"Reservations":[{"Groups":[],"Instances":[{"AmiLaunchIndex":0,"ImageId":"ami-051f0947e420652a9","InstanceId":"i-0d4cd19897deec59f","InstanceType":"t2.xlarge","KeyName":"sooyean.awskey","LaunchTime":"2024-05-24T18:25:47+00:00","Monitoring":{"State":"disabled"},"Placement":{"AvailabilityZone":"ap-southeast-1c","GroupName":"","Tenancy":"default"},"PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84","ProductCodes":[],"PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIpAddress":"13.212.165.245","State":{"Code":16,"Name":"running"},"StateTransitionReason":"","SubnetId":"subnet-0dd3027f85e75744e","VpcId":"vpc-0985de42751025e05","Architecture":"x86_64","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"AttachTime":"2024-05-24T18:25:48+00:00","DeleteOnTermination":true,"Status":"attached","VolumeId":"vol-0498736a324ed5f2e"}}],"ClientToken":"471f628f-941c-4113-bfbe-bfd03cbea641","EbsOptimized":false,"EnaSupport":true,"Hypervisor":"xen","NetworkInterfaces":[{"Association":{"IpOwnerId":"amazon","PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIp":"13.212.165.245"},"Attachment":{"AttachTime":"2024-05-24T18:25:47+00:00","AttachmentId":"eni-attach-049272df3644464e3","DeleteOnTermination":true,"DeviceIndex":0,"Status":"attached","NetworkCardIndex":0},"Description":"","Groups":[{"GroupName":"launch-wizard-1","GroupId":"sg-0570e7dd03d03130b"},{"GroupName":"default","GroupId":"sg-087e16267826fb0fd"}],"Ipv6Addresses":[],"MacAddress":"0a:80:89:d7:c2:2f","NetworkInterfaceId":"eni-0ce27548c3b6d0759","OwnerId":"574184548053","PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84","PrivateIpAddresses":[{"Association":{"IpOwnerId":"amazon","PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIp":"13.212.165.245"},"Primary":true,"PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84"}],"SourceDestCheck":true,"Status":"in-use","SubnetId":"subnet-0dd3027f85e75744e","VpcId":"vpc-0985de42751025e05","InterfaceType":"interface"}],"RootDeviceName":"/dev/sda1","RootDeviceType":"ebs","SecurityGroups":[{"GroupName":"launch-wizard-1","GroupId":"sg-0570e7dd03d03130b"},{"GroupName":"default","GroupId":"sg-087e16267826fb0fd"}],"SourceDestCheck":true,"Tags":[{"Key":"termination_date","Value":"2024-09-01T18:25:48.716346+00:00"},{"Key":"Name","Value":"master"},{"Key":"created_on","Value":"Sat_25_May_2024_02:25:51_+08"},{"Key":"lifetime","Value":"100d"},{"Key":"created_by","Value":"sooyean.hoo+AWSCONSOLE@perforce.com"}],"VirtualizationType":"hvm","CpuOptions":{"CoreCount":4,"ThreadsPerCore":1},"CapacityReservationSpecification":{"CapacityReservationPreference":"open"},"HibernationOptions":{"Configured":false},"MetadataOptions":{"State":"applied","HttpTokens":"optional","HttpPutResponseHopLimit":1,"HttpEndpoint":"enabled","HttpProtocolIpv6":"disabled","InstanceMetadataTags":"disabled"},"EnclaveOptions":{"Enabled":false},"PlatformDetails":"Red Hat Enterprise Linux","UsageOperation":"RunInstances:0010","UsageOperationUpdateTime":"2024-05-24T18:25:47+00:00","PrivateDnsNameOptions":{"HostnameType":"ip-name","EnableResourceNameDnsARecord":false,"EnableResourceNameDnsAAAARecord":false},"MaintenanceOptions":{"AutoRecovery":"default"},"CurrentInstanceBootMode":"legacy-bios"}],"OwnerId":"574184548053","ReservationId":"r-0b52ca3578a603f3c"}]} 
-###describe_instances_update_date Sat 25 May 2024 10:35:14 +08
-###PublicDnsName ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com 
-###PrivateDnsName ip-172-31-2-84.ap-southeast-1.compute.internal 
-###PrivateIpAddress 172.31.2.84 
-###PublicIpAddress 13.212.165.245 
-###KeyName sooyean.awskey 
-###MacAddress 0a:80:89:d7:c2:2f 
-###termination_date 2024-09-01T18:25:48.716346+00:00 
-###created_on Sat_25_May_2024_02:25:51_+08 
-###nodename master 
-###AWSSTAGE DONE 
+###NODEStage NODEPASSTOAWSCLI 
 
-###runremoveon __CREATED__ 
-###NODEStage DONE_FORTHENODE 
+
+###describe_instances {"Reservations":[{"Groups":[],"Instances":[{"AmiLaunchIndex":0,"ImageId":"ami-051f0947e420652a9","InstanceId":"i-0d4cd19897deec59f","InstanceType":"t2.xlarge","KeyName":"sooyean.awskey","LaunchTime":"2024-05-24T18:25:47+00:00","Monitoring":{"State":"disabled"},"Placement":{"AvailabilityZone":"ap-southeast-1c","GroupName":"","Tenancy":"default"},"PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84","ProductCodes":[],"PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIpAddress":"13.212.165.245","State":{"Code":16,"Name":"running"},"StateTransitionReason":"","SubnetId":"subnet-0dd3027f85e75744e","VpcId":"vpc-0985de42751025e05","Architecture":"x86_64","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"AttachTime":"2024-05-24T18:25:48+00:00","DeleteOnTermination":true,"Status":"attached","VolumeId":"vol-0498736a324ed5f2e"}}],"ClientToken":"471f628f-941c-4113-bfbe-bfd03cbea641","EbsOptimized":false,"EnaSupport":true,"Hypervisor":"xen","NetworkInterfaces":[{"Association":{"IpOwnerId":"amazon","PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIp":"13.212.165.245"},"Attachment":{"AttachTime":"2024-05-24T18:25:47+00:00","AttachmentId":"eni-attach-049272df3644464e3","DeleteOnTermination":true,"DeviceIndex":0,"Status":"attached","NetworkCardIndex":0},"Description":"","Groups":[{"GroupName":"launch-wizard-1","GroupId":"sg-0570e7dd03d03130b"},{"GroupName":"default","GroupId":"sg-087e16267826fb0fd"}],"Ipv6Addresses":[],"MacAddress":"0a:80:89:d7:c2:2f","NetworkInterfaceId":"eni-0ce27548c3b6d0759","OwnerId":"574184548053","PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84","PrivateIpAddresses":[{"Association":{"IpOwnerId":"amazon","PublicDnsName":"ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com","PublicIp":"13.212.165.245"},"Primary":true,"PrivateDnsName":"ip-172-31-2-84.ap-southeast-1.compute.internal","PrivateIpAddress":"172.31.2.84"}],"SourceDestCheck":true,"Status":"in-use","SubnetId":"subnet-0dd3027f85e75744e","VpcId":"vpc-0985de42751025e05","InterfaceType":"interface"}],"RootDeviceName":"/dev/sda1","RootDeviceType":"ebs","SecurityGroups":[{"GroupName":"launch-wizard-1","GroupId":"sg-0570e7dd03d03130b"},{"GroupName":"default","GroupId":"sg-087e16267826fb0fd"}],"SourceDestCheck":true,"Tags":[{"Key":"termination_date","Value":"2024-09-01T18:25:48.716346+00:00"},{"Key":"Name","Value":"master"},{"Key":"created_on","Value":"Sat_25_May_2024_02:25:51_+08"},{"Key":"lifetime","Value":"100d"},{"Key":"created_by","Value":"sooyean.hoo+AWSCONSOLE@perforce.com"}],"VirtualizationType":"hvm","CpuOptions":{"CoreCount":4,"ThreadsPerCore":1},"CapacityReservationSpecification":{"CapacityReservationPreference":"open"},"HibernationOptions":{"Configured":false},"MetadataOptions":{"State":"applied","HttpTokens":"optional","HttpPutResponseHopLimit":1,"HttpEndpoint":"enabled","HttpProtocolIpv6":"disabled","InstanceMetadataTags":"disabled"},"EnclaveOptions":{"Enabled":false},"PlatformDetails":"Red Hat Enterprise Linux","UsageOperation":"RunInstances:0010","UsageOperationUpdateTime":"2024-05-24T18:25:47+00:00","PrivateDnsNameOptions":{"HostnameType":"ip-name","EnableResourceNameDnsARecord":false,"EnableResourceNameDnsAAAARecord":false},"MaintenanceOptions":{"AutoRecovery":"default"},"CurrentInstanceBootMode":"legacy-bios"}],"OwnerId":"574184548053","ReservationId":"r-0b52ca3578a603f3c"}]} 
+
+###describe_instances_update_date Sat 25 May 2024 10:33:44 +08
+
+###PublicDnsName ec2-13-212-165-245.ap-southeast-1.compute.amazonaws.com 
+
+###PrivateDnsName ip-172-31-2-84.ap-southeast-1.compute.internal 
+
+###PrivateIpAddress 172.31.2.84 
+
+###PublicIpAddress 13.212.165.245 
+
+###KeyName sooyean.awskey 
+
+###MacAddress 0a:80:89:d7:c2:2f 
+
+###termination_date 2024-09-01T18:25:48.716346+00:00 
+
+###created_on Sat_25_May_2024_02:25:51_+08 
+
+###nodename master 
+###AWSSTAGE AWS_update_instances_ip_END 
