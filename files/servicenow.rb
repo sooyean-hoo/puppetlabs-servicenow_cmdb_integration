@@ -90,11 +90,19 @@ class ServiceNowRequest
     @user = user
     @password = password
     @oauth_token = oauth_token
+    @proxy_addr = proxy_addr
+    @proxy_port = proxy_port
+
+    @proxy_addr ||= :ENV
+    @proxy_port ||= nil
+
   end
 
-  def response
+  def response   
     Net::HTTP.start(@uri.host,
                     @uri.port,
+                    @proxy_addr,
+                    @proxy_port,
                     use_ssl: @uri.scheme == 'https',
                     verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
       header = { 'Content-Type' => 'application/json' }
