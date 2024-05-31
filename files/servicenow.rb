@@ -111,8 +111,8 @@ class ServiceNowRequest
     end
     http.request(request)
   end
-  def response
-    unless @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port.empty?
+  def response   
+    if ( @proxy_addr.nil? or @proxy_addr.empty? ) and ( @proxy_port.nil? or  @proxy_port.empty? )
       Net::HTTP.start(@uri.host,
                       @uri.port,
                       use_ssl: @uri.scheme == 'https',

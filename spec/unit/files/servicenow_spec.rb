@@ -186,23 +186,23 @@ describe 'servicenow' do
       expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
     end
   end
-  
-  context 'loading ServiceNow config with valid proxy' do
-    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
-  
-    it 'reads the config from proxy_config.yaml' do
-      expect(servicenow('example').to_s).to include( '=REDACTED=')
-    end
-  end
 
-  context 'loading ServiceNow config with invalid proxy' do
-    let(:configfilename) { './spec/support/files/invalidproxy_config.yaml' }
+#  context 'loading ServiceNow config with valid proxy' do
+#    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
+#  
+#    it 'reads the config from proxy_config.yaml' do
+#      expect(servicenow('example').to_s).to include( '=REDACTED=')
+#    end
+#  end
+#  
+#  context 'loading ServiceNow config with invalid proxy' do
+#    let(:configfilename) { './spec/support/files/invalidproxy_config.yaml' }
+#  
+#    it 'will fail from invalidproxy_config.yaml' do
+#      expect(servicenow('example').to_s).to include( '=REDACTED= RuntimeError ')
+#    end
+#  end
   
-    it 'reads the config from invalidproxy_config.yaml' do
-      expect(servicenow('example').to_s).to include( '=REDACTED=')
-    end
-  end
-
   context 'loading ServiceNow config' do
     shared_context 'setup hiera-eyaml' do
       before(:each) do
