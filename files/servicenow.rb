@@ -169,11 +169,10 @@ def servicenow(certname, config_file = nil)
   end
 
   uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{certname}&sysparm_display_value=true"
-  
+
   if servicenow_config.key?('snow_uri_erb')
-    template = nil
-    snow_uri_erb_default =  "https://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true"
-    begin 
+    snow_uri_erb_default = 'https://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true'
+    begin
       template = ERB.new(servicenow_config['snow_uri_erb'])
       uri = template.result_with_hash(servicenow_config)
     rescue
@@ -181,7 +180,7 @@ def servicenow(certname, config_file = nil)
       uri = template.result_with_hash(servicenow_config)
     end
   end
-  
+
   cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token)
   response = cmdb_request.response
   status = response.code.to_i
