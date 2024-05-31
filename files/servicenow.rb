@@ -120,7 +120,7 @@ class ServiceNowRequest
         processreponse(http)
       end
     else
-      raise "Both proxy_addr and proxy_port are to be provided together." if @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port.empty?
+      raise "Both proxy_addr and proxy_port are to be provided together." if @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port == 0
       Net::HTTP.start(@uri.host,
                       @uri.port,
                       @proxy_addr,

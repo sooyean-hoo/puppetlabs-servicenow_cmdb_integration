@@ -21,6 +21,7 @@ describe 'servicenow' do
     allow(response_obj).to receive(:code).and_return(cmdb_api_response_status.to_s)
     allow(response_obj).to receive(:body).and_return(cmdb_api_response_body)
     allow(Net::HTTP).to receive(:start).with(config['instance'], 443, use_ssl: true, verify_mode: 0).and_return(response_obj)
+    allow(Net::HTTP).to receive(:start).with(config['instance'], 443, anything, anything, use_ssl: true, verify_mode: 0).and_return(response_obj)
   end
 
   context 'without at least one valid method of authentication' do
@@ -187,21 +188,21 @@ describe 'servicenow' do
     end
   end
 
-#  context 'loading ServiceNow config with valid proxy' do
-#    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
-#  
-#    it 'reads the config from proxy_config.yaml' do
-#      expect(servicenow('example').to_s).to include( '=REDACTED=')
-#    end
-#  end
-#  
-#  context 'loading ServiceNow config with invalid proxy' do
-#    let(:configfilename) { './spec/support/files/invalidproxy_config.yaml' }
-#  
-#    it 'will fail from invalidproxy_config.yaml' do
-#      expect(servicenow('example').to_s).to include( '=REDACTED= RuntimeError ')
-#    end
-#  end
+  context 'loading ServiceNow config with valid proxy' do
+    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
+  
+    it 'reads the config from proxy_config.yaml' do
+      expect(servicenow('example').to_s).not_to be_empty
+    end
+  end
+
+  context 'loading ServiceNow config with invalid proxy and fail due to missing proxy_port' do
+    let(:configfilename) { './spec/support/files/spoiltproxy_config.yaml' }
+  
+    it 'will fail from spoiltproxy_config.yaml' do
+      expect{ servicenow('example').to_s}.to raise_error(RuntimeError, 'Both proxy_addr and proxy_port are to be provided together.')
+    end
+  end
   
   context 'loading ServiceNow config' do
     shared_context 'setup hiera-eyaml' do
