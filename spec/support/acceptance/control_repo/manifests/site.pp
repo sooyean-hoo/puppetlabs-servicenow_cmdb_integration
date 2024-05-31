@@ -1,3 +1,4 @@
+# no_param.pp
 class no_param {}
 class single_param(String $param = 'default') {}
 class multiple_params(String $param_one = 'default', String $param_two = 'default') {}
@@ -31,7 +32,7 @@ $classification_hash = {
     }
   }
 }
-$classification_json = inline_template("<%= @classification_hash.to_json %>")
-notify { "classification info":
+$classification_json = inline_template('<%= @classification_hash.to_json %>')
+notify { 'classification info':
   message =>  "<JSON>${classification_json}<JSON>",
 }
