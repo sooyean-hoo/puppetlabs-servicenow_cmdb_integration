@@ -33,6 +33,8 @@ class servicenow_cmdb_integration (
   String $certname_field        = 'fqdn',
   String $classes_field         = 'u_puppet_classes',
   String $environment_field     = 'u_puppet_environment',
+  Optional[String] $proxy_addr  = undef,
+  Optional[String] $proxy_port  = undef,
 ) {
 
   if (($user or $password) and $oauth_token) {
@@ -99,6 +101,8 @@ class servicenow_cmdb_integration (
         certname_field    => $certname_field,
         classes_field     => $classes_field,
         environment_field => $environment_field,
+        proxy_addr        => $proxy_addr,
+        proxy_port        => $proxy_port,
       }),
     },
   ])

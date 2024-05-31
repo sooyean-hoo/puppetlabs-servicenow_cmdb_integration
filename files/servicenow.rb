@@ -92,34 +92,43 @@ class ServiceNowRequest
     @oauth_token = oauth_token
     
     @options=options
-    @proxy_addr = options['proxy_addr']
-    @proxy_port = options['proxy_port']
-
-    @proxy_addr ||= :ENV
-    @proxy_port ||= nil
+    @proxy_addr = options.key?('proxy_addr') ? options['proxy_addr'] : nil
+    @proxy_port = options.key?('proxy_port') ? options['proxy_port'] : nil
 
   end
-
-  def response   
-    Net::HTTP.start(@uri.host,
-                    @uri.port,
-                    @proxy_addr,
-                    @proxy_port,
-                    use_ssl: @uri.scheme == 'https',
-                    verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
-      header = { 'Content-Type' => 'application/json' }
-      # Interpolate the HTTP verb and constantize to a class name.
-      request_class_string = "Net::HTTP::#{@http_verb}"
-      request_class = Object.const_get(request_class_string)
-      # Add uri, fields and authentication to request
-      request = request_class.new("#{@uri.path}?#{@uri.query}", header)
-      request.body = @body
-      if @oauth_token
-        request['Authorization'] = "Bearer #{@oauth_token}"
-      else
-        request.basic_auth(@user, @password)
+  def processreponse(http)
+    header = { 'Content-Type' => 'application/json' }
+    # Interpolate the HTTP verb and constantize to a class name.
+    request_class_string = "Net::HTTP::#{@http_verb}"
+    request_class = Object.const_get(request_class_string)
+    # Add uri, fields and authentication to request
+    request = request_class.new("#{@uri.path}?#{@uri.query}", header)
+    request.body = @body
+    if @oauth_token
+      request['Authorization'] = "Bearer #{@oauth_token}"
+    else
+      request.basic_auth(@user, @password)
+    end
+    http.request(request)
+  end
+  def response
+    unless @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port.empty?
+      Net::HTTP.start(@uri.host,
+                      @uri.port,
+                      use_ssl: @uri.scheme == 'https',
+                      verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+        processreponse(http)
       end
-      http.request(request)
+    else
+      raise "Both proxy_addr and proxy_port are to be provided together." if @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port.empty?
+      Net::HTTP.start(@uri.host,
+                      @uri.port,
+                      @proxy_addr,
+                      @proxy_port,
+                      use_ssl: @uri.scheme == 'https',
+                      verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+        processreponse(http)
+      end      
     end
   end
 end
