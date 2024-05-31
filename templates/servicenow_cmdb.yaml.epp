@@ -6,8 +6,8 @@
       String $certname_field,
       String $classes_field,
       String $environment_field,
-      String $proxy_addr,
-      String $proxy_port
+      Optional[String] $proxy_addr = undef,
+      Optional[String] $proxy_port = undef
 | -%>
 # managed by Puppet
 ---
