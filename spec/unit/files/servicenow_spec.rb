@@ -26,9 +26,9 @@ describe 'servicenow' do
   context 'without at least one valid method of authentication' do
     it 'will fail' do
       # default values are set to nil in the ServiceNowRequest class.
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
     end
   end
 
@@ -182,7 +182,7 @@ describe 'servicenow' do
       certname = 'example.puppet.com'
       uri = "https://#{config['instance']}/api/now/table/#{config['table']}?#{config['certname_field']}=#{certname}&sysparm_display_value=true"
 
-      expect(ServiceNowRequest).to receive(:new).with(uri, 'Get', nil, 'admin', 'password', 'oauth_token')
+      expect(ServiceNowRequest).to receive(:new).with(uri, 'Get', nil, 'admin', 'password', 'oauth_token', anything)
       expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
     end
   end
@@ -254,7 +254,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
         end
 
         it 'decrypts the password' do
-          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
           expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
         end
       end
@@ -265,7 +265,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
         end
 
         it 'decrypts the password' do
-          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
           expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
         end
       end
@@ -286,7 +286,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
       include_context 'setup hiera-eyaml'
 
       it 'decrypts the oauth_token' do
-        expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+        expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
         expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
       end
     end
