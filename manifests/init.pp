@@ -24,6 +24,12 @@
 # @param [String] environment_field
 #   The column name of the CMDB field that stores the node's environment. Defaults
 #   to 'u_puppet_environment'.
+# @param [String] proxy_addr
+#   Proxy Address to use when connecting to ServiceNow Server, Both Proxy Address 
+#   and Port must be provided together. Optional.
+# @param [String] proxy_port
+#   Proxy port to use when connecting to ServiceNow Server. Both Proxy Address 
+#   and Port must be provided together. Optional.
 class servicenow_cmdb_integration (
   String $instance,
   Optional[String] $user        = undef,
