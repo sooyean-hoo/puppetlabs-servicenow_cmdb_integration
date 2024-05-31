@@ -10,7 +10,7 @@ require_relative '../../../files/servicenow.rb'
 describe 'servicenow' do
   let(:cmdb_api_response_status) { 200 }
   let(:cmdb_api_response_body) { File.read('./spec/support/files/valid_cmdb_api_response.json') }
-  let(:config) { YAML.load_file('./spec/support/files/default_config.yaml') }
+  let(:config) { cfgfile = configfilename if defined?(configfilename)  ; cfgfile ||= './spec/support/files/default_config.yaml' ; YAML.load_file( cfgfile ) }
   let(:node_data_hash) { JSON.parse(servicenow('blah'))['servicenow'] }
   let(:expected_response_json) { File.read('./spec/support/files/servicenow_rb_response.json') }
 
@@ -184,6 +184,22 @@ describe 'servicenow' do
 
       expect(ServiceNowRequest).to receive(:new).with(uri, 'Get', nil, 'admin', 'password', 'oauth_token')
       expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
+    end
+  end
+  
+  context 'loading ServiceNow config with valid proxy' do
+    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
+  
+    it 'reads the config from proxy_config.yaml' do
+      expect(servicenow('example').to_s).to include( '=REDACTED=')
+    end
+  end
+
+  context 'loading ServiceNow config with invalid proxy' do
+    let(:configfilename) { './spec/support/files/invalidproxy_config.yaml' }
+  
+    it 'reads the config from invalidproxy_config.yaml' do
+      expect(servicenow('example').to_s).to include( '=REDACTED=')
     end
   end
 
