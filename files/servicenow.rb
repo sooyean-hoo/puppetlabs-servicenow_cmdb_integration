@@ -80,7 +80,7 @@ end
 class ServiceNowRequest
   attr_reader :uri
 
-  def initialize(uri, http_verb, body, user, password, oauth_token)
+  def initialize(uri, http_verb, body, user, password, oauth_token, options: {})
     unless oauth_token || (user && password)
       raise ArgumentError, 'user/password or oauth_token must be specified'
     end
@@ -90,8 +90,10 @@ class ServiceNowRequest
     @user = user
     @password = password
     @oauth_token = oauth_token
-    @proxy_addr = proxy_addr
-    @proxy_port = proxy_port
+    
+    @options=options
+    @proxy_addr = options['proxy_addr']
+    @proxy_port = options['proxy_port']
 
     @proxy_addr ||= :ENV
     @proxy_port ||= nil
@@ -132,6 +134,9 @@ def servicenow(certname, config_file = nil)
   oauth_token       = servicenow_config['oauth_token']
   table             = servicenow_config['table']
   certname_field    = servicenow_config['certname_field']
+  classes_field     = servicenow_config['classes_field']
+  environment_field = servicenow_config['environment_field']
+
   classes_field     = servicenow_config['classes_field']
   environment_field = servicenow_config['environment_field']
 
@@ -177,7 +182,7 @@ def servicenow(certname, config_file = nil)
 
   uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{certname}&sysparm_display_value=true"
 
-  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token)
+  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token, options: servicenow_config )
   response = cmdb_request.response
   status = response.code.to_i
   body = response.body
