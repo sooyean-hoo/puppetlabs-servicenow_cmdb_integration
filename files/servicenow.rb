@@ -7,7 +7,6 @@ require 'openssl'
 require 'net/http'
 require 'yaml'
 require 'json'
-
 require 'puppet'
 
 # hiera-eyaml requires. Note that newer versions of puppet-agent
@@ -201,6 +200,7 @@ def servicenow(certname, config_file = nil)
     valuetolinkCMBD = Facter.value(factnameinplaceofcertname)
     valuetolinkCMBD_used=factnameinplaceofcertname
 
+    originalcertname=certname
     cmdata = <<-CMDATA
 export PATH=\"${PATH}:/opt/puppetlabs/bin\" ; certname=\"#{certname}\"; q=\"inventory[facts.#{factnameinplaceofcertname}]{certname=\\\"$certname\\\"}\" ; sn=`/opt/puppetlabs/puppet/bin/facter fqdn` ; /opt/puppetlabs/bin/puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
 CMDATA
@@ -212,6 +212,7 @@ CMDATA
       
       valuetolinkCMBD_rawdata = data
       valuetolinkCMBD = JSON.parse(data)[0].values[0] || data || certname # In the event where missing data is encountered, certname is used as fallback
+      certname = valuetolinkCMBD
     rescue
       valuetolinkCMBD = certname
       valuetolinkCMBD_used='certname'
@@ -221,7 +222,7 @@ CMDATA
     valuetolinkCMBD_used='certname'
   end
 
-  uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{valuetolinkCMBD}&sysparm_display_value=true"
+  uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{certname}&sysparm_display_value=true"
 
   cmdb_request = nil
   cmdb_record = nil
@@ -236,7 +237,7 @@ CMDATA
     cmdb_record['servicenow_config']['valuetolinkCMBD_rawdata'] =  valuetolinkCMBD_rawdata
     cmdb_record['servicenow_config']['valuetolinkCMBD_cmdata'] =  valuetolinkCMBD_cmdata
   else
-    cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token)
+    cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token, {'certname' => certname}.merge(servicenow_config))
     response = cmdb_request.response
     status = response.code.to_i
     body = response.body
