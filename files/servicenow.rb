@@ -8,6 +8,7 @@ require 'net/http'
 require 'yaml'
 require 'json'
 require 'erb'
+require 'puppet'
 
 # hiera-eyaml requires. Note that newer versions of puppet-agent
 # ship with the hiera-eyaml gem so these should work.
@@ -81,7 +82,7 @@ end
 class ServiceNowRequest
   attr_reader :uri
 
-  def initialize(uri, http_verb, body, user, password, oauth_token)
+  def initialize(uri, http_verb, body, user, password, oauth_token, options = {})
     unless oauth_token || (user && password)
       raise ArgumentError, 'user/password or oauth_token must be specified'
     end
@@ -91,26 +92,45 @@ class ServiceNowRequest
     @user = user
     @password = password
     @oauth_token = oauth_token
-  end
+    
+    @options=options
+    @proxy_addr = options.key?('proxy_addr') ? options['proxy_addr'] : nil
+    @proxy_port = options.key?('proxy_port') ? options['proxy_port'] : nil
 
-  def response
-    Net::HTTP.start(@uri.host,
-                    @uri.port,
-                    use_ssl: @uri.scheme == 'https',
-                    verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
-      header = { 'Content-Type' => 'application/json' }
-      # Interpolate the HTTP verb and constantize to a class name.
-      request_class_string = "Net::HTTP::#{@http_verb}"
-      request_class = Object.const_get(request_class_string)
-      # Add uri, fields and authentication to request
-      request = request_class.new("#{@uri.path}?#{@uri.query}", header)
-      request.body = @body
-      if @oauth_token
-        request['Authorization'] = "Bearer #{@oauth_token}"
-      else
-        request.basic_auth(@user, @password)
+  end
+  def processreponse(http)
+    header = { 'Content-Type' => 'application/json' }
+    # Interpolate the HTTP verb and constantize to a class name.
+    request_class_string = "Net::HTTP::#{@http_verb}"
+    request_class = Object.const_get(request_class_string)
+    # Add uri, fields and authentication to request
+    request = request_class.new("#{@uri.path}?#{@uri.query}", header)
+    request.body = @body
+    if @oauth_token
+      request['Authorization'] = "Bearer #{@oauth_token}"
+    else
+      request.basic_auth(@user, @password)
+    end
+    http.request(request)
+  end
+  def response   
+    if ( @proxy_addr.nil? or @proxy_addr.empty? ) and ( @proxy_port.nil? or  @proxy_port.empty? )
+      Net::HTTP.start(@uri.host,
+                      @uri.port,
+                      use_ssl: @uri.scheme == 'https',
+                      verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+        processreponse(http)
       end
-      http.request(request)
+    else
+      raise "Both proxy_addr and proxy_port are to be provided together." if @proxy_addr.nil? or @proxy_port.nil? or @proxy_addr.empty? or @proxy_port == 0
+      Net::HTTP.start(@uri.host,
+                      @uri.port,
+                      @proxy_addr,
+                      @proxy_port,
+                      use_ssl: @uri.scheme == 'https',
+                      verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+        processreponse(http)
+      end      
     end
   end
 end
@@ -125,6 +145,11 @@ def servicenow(certname, config_file = nil)
   oauth_token       = servicenow_config['oauth_token']
   table             = servicenow_config['table']
   certname_field    = servicenow_config['certname_field']
+  classes_field     = servicenow_config['classes_field']
+  environment_field = servicenow_config['environment_field']
+  debug             = servicenow_config['debug']
+  factnameinplaceofcertname = servicenow_config['factnameinplaceofcertname']
+
   classes_field     = servicenow_config['classes_field']
   environment_field = servicenow_config['environment_field']
 
@@ -168,20 +193,50 @@ def servicenow(certname, config_file = nil)
     end
   end
 
+  valuetolinkCMBD_used=""
+  valuetolinkCMBD_rawdata=""
+  valuetolinkCMBD_cmdata = ""
+  if factnameinplaceofcertname
+    Puppet.initialize_settings if Puppet.settings[:vardir].nil? || Puppet.settings[:vardir].to_s.empty?
+    valuetolinkCMBD = Facter.value(factnameinplaceofcertname)
+    valuetolinkCMBD_used=factnameinplaceofcertname
+
+    originalcertname=certname
+    cmdata = <<-CMDATA
+export PATH=\"${PATH}:/opt/puppetlabs/bin\" ; certname=\"#{certname}\"; q=\"inventory[facts.#{factnameinplaceofcertname}]{certname=\\\"$certname\\\"}\" ; sn=`/opt/puppetlabs/puppet/bin/facter fqdn` ; /opt/puppetlabs/bin/puppet query "$q"  --urls https://${sn}:8081  --cacert /etc/puppetlabs/puppet/ssl/certs/ca.pem  --cert /etc/puppetlabs/puppet/ssl/certs/${sn}.pem  --key /etc/puppetlabs/puppet/ssl/private_keys/${sn}.pem
+CMDATA
+    begin
+      valuetolinkCMBD_cmdata = cmdata
+      data = ""
+      #data = Facter::Core::Execution.execute("#{cmdata}") unless certname == '__test__'
+      data = `#{cmdata}` unless certname == '__test__'
+      
+      valuetolinkCMBD_rawdata = data
+      valuetolinkCMBD = JSON.parse(data)[0].values[0] || data || certname # In the event where missing data is encountered, certname is used as fallback
+      certname = valuetolinkCMBD
+    rescue
+      valuetolinkCMBD = certname
+      valuetolinkCMBD_used='certname'
+    end  
+  else
+    valuetolinkCMBD = certname
+    valuetolinkCMBD_used='certname'
+  end
+
   uri = "https://#{instance}/api/now/table/#{table}?#{certname_field}=#{certname}&sysparm_display_value=true"
 
   if servicenow_config.key?('snow_uri_erb')
     snow_uri_erb_default = 'https://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true'
     begin
       template = ERB.new(servicenow_config['snow_uri_erb'])
-      uri = template.result_with_hash(servicenow_config)
+      uri = template.result(binding)
     rescue
       template = ERB.new(snow_uri_erb_default)
-      uri = template.result_with_hash(servicenow_config)
+      uri = template.result(binding)
     end
   end
 
-  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token)
+  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token,{'certname' => certname}.merge(servicenow_config))
   response = cmdb_request.response
   status = response.code.to_i
   body = response.body
@@ -189,7 +244,29 @@ def servicenow(certname, config_file = nil)
     raise "failed to retrieve the CMDB record from #{cmdb_request.uri} (status: #{status}): #{body}"
   end
 
-  cmdb_record = JSON.parse(body)['result'][0] || {}
+  cmdb_request = nil
+  cmdb_record = nil
+
+  if debug
+    cmdb_record = {}
+    servicenow_config['password'] = '==PASSWORD==REDACTED==' unless servicenow_config['password'].nil? || servicenow_config['password'].empty?
+    servicenow_config['oauth_token'] = '==PASSWORD==REDACTED==' unless servicenow_config['oauth_token'].nil? || servicenow_config['oauth_token'].empty?
+    cmdb_record['servicenow_config'] = servicenow_config
+    cmdb_record['servicenow_config']['uri'] = uri
+    cmdb_record['servicenow_config']['valuetolinkCMBD_used'] = valuetolinkCMBD_used
+    cmdb_record['servicenow_config']['valuetolinkCMBD_rawdata'] =  valuetolinkCMBD_rawdata
+    cmdb_record['servicenow_config']['valuetolinkCMBD_cmdata'] =  valuetolinkCMBD_cmdata
+  else
+    cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token, {'certname' => certname}.merge(servicenow_config))
+    response = cmdb_request.response
+    status = response.code.to_i
+    body = response.body
+    if status >= 400
+      raise "failed to retrieve the CMDB record from #{cmdb_request.uri} (status: #{status}): #{body}"
+    end
+
+    cmdb_record = JSON.parse(body)['result'][0] || {}
+  end
   parse_classification_fields(cmdb_record, classes_field, environment_field)
 
   response = {

@@ -27,6 +27,18 @@
 # @param [String] snow_uri_erb
 #   URI Template for the ServiceNow API, using field values from the config file. Defaults to 
 #   'https://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true'.
+# @param [String] factnameinplaceofcertname
+#   The module will use the certname as the value to match up with the data in the 
+#   ServiceNow CMDB. This allows for a different fact to be used instead.
+# @param [String] debug
+#   This enable the debugging more to allow for an indepth looks in to the Servicenow
+#   Integration. i.e. ServiceNow API's URL, userid, but oauth_token and password are redacted.
+# @param [String] proxy_addr
+#   Proxy Address to use when connecting to ServiceNow Server, Both Proxy Address 
+#   and Port must be provided together. Optional.
+# @param [String] proxy_port
+#   Proxy port to use when connecting to ServiceNow Server. Both Proxy Address 
+#   and Port must be provided together. Optional.
 class servicenow_cmdb_integration (
   String $instance,
   Optional[String] $user         = undef,
@@ -37,6 +49,10 @@ class servicenow_cmdb_integration (
   String $classes_field          = 'u_puppet_classes',
   String $environment_field      = 'u_puppet_environment',
   Optional[String] $snow_uri_erb = undef,
+  Optional[String] $factnameinplaceofcertname = undef,
+  Optional[String] $debug                     = undef,
+  Optional[String] $proxy_addr                = undef,
+  Optional[String] $proxy_port                = undef,
 ) {
 
   if (($user or $password) and $oauth_token) {
@@ -95,15 +111,19 @@ class servicenow_cmdb_integration (
       mode         => '0640',
       validate_cmd => "${validate_settings_path} %",
       content      => epp('servicenow_cmdb_integration/servicenow_cmdb.yaml.epp', {
-        instance          => $instance,
-        user              => $user,
-        password          => $password,
-        oauth_token       => $oauth_token,
-        table             => $table,
-        certname_field    => $certname_field,
-        classes_field     => $classes_field,
-        environment_field => $environment_field,
-        snow_uri_erb      => $snow_uri_erb,
+        instance                  => $instance,
+        user                      => $user,
+        password                  => $password,
+        oauth_token               => $oauth_token,
+        table                     => $table,
+        certname_field            => $certname_field,
+        classes_field             => $classes_field,
+        environment_field         => $environment_field,
+        snow_uri_erb              => $snow_uri_erb,
+        factnameinplaceofcertname => $factnameinplaceofcertname,
+        debug                     => $debug,
+        proxy_addr                => $proxy_addr,
+        proxy_port                => $proxy_port,
       }),
     },
   ])

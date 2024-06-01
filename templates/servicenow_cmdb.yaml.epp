@@ -5,8 +5,12 @@
       String $table,
       String $certname_field,
       String $classes_field,
-      String $environment_field
-      Optional[String] $snow_uri_erb
+      Optional[String] $snow_uri_erb,
+      String $environment_field,
+      Optional[String] $factnameinplaceofcertname = undef,
+      Optional[String] $debug = undef,      
+      Optional[String] $proxy_addr = undef,
+      Optional[String] $proxy_port = undef      
 | -%>
 # managed by Puppet
 ---
@@ -19,3 +23,7 @@ certname_field: <%= $certname_field %>
 classes_field: <%= $classes_field %>
 environment_field: <%= $environment_field %>
 snow_uri_erb: <%= $snow_uri_erb %>
+factnameinplaceofcertname: <%= $factnameinplaceofcertname %>
+proxy_addr: <%= $proxy_addr %>
+proxy_port: <%= $proxy_port %>
+debug: <%= $debug %>

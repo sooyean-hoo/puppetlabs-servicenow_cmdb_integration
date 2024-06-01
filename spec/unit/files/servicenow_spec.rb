@@ -7,28 +7,31 @@ require 'hashdiff'
 
 require_relative '../../../files/servicenow.rb'
 
+
 describe 'servicenow' do
   let(:cmdb_api_response_status) { 200 }
-  let(:cmdb_api_response_body) { File.read('./spec/support/files/valid_cmdb_api_response.json') }
-  let(:config) { YAML.load_file('./spec/support/files/default_config.yaml') }
+  let(:cmdb_api_response_body) { responsefile = responsefilename if defined?(responsefilename)  ; responsefile ||= './spec/support/files/valid_cmdb_api_response.json' ; File.read(responsefile) }
+  let(:config) { cfgfile = configfilename if defined?(configfilename)  ; cfgfile ||= './spec/support/files/default_config.yaml' ; YAML.load_file( cfgfile ) }
   let(:node_data_hash) { JSON.parse(servicenow('blah'))['servicenow'] }
   let(:expected_response_json) { File.read('./spec/support/files/servicenow_rb_response.json') }
 
+
   before(:each) do
-    allow(YAML).to receive(:load_file).with(%r{servicenow_cmdb\.yaml}).and_return(config)
+    allow(YAML).to receive(:load_file).with(%r{servicenow_cmdb\.yaml}).and_return( config  )
 
     response_obj = instance_double('Net::HTTP response obj')
     allow(response_obj).to receive(:code).and_return(cmdb_api_response_status.to_s)
     allow(response_obj).to receive(:body).and_return(cmdb_api_response_body)
     allow(Net::HTTP).to receive(:start).with(config['instance'], 443, use_ssl: true, verify_mode: 0).and_return(response_obj)
+    allow(Net::HTTP).to receive(:start).with(config['instance'], 443, anything, anything, use_ssl: true, verify_mode: 0).and_return(response_obj)
   end
 
   context 'without at least one valid method of authentication' do
     it 'will fail' do
       # default values are set to nil in the ServiceNowRequest class.
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
     end
   end
 
@@ -182,8 +185,53 @@ describe 'servicenow' do
       certname = 'example.puppet.com'
       uri = "https://#{config['instance']}/api/now/table/#{config['table']}?#{config['certname_field']}=#{certname}&sysparm_display_value=true"
 
-      expect(ServiceNowRequest).to receive(:new).with(uri, 'Get', nil, 'admin', 'password', 'oauth_token')
+      expect(ServiceNowRequest).to receive(:new).with(uri, 'Get', nil, 'admin', 'password', 'oauth_token', anything)
       expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
+    end
+  end
+
+  context 'loading ServiceNow config with invalid proxy and fail due to missing proxy_port' do
+    let(:configfilename) { './spec/support/files/spoiltproxy_config.yaml' }
+    let(:config) do
+      default_config = super()
+      default_config['proxy_addr'] = '127.0.0.1'
+      default_config['proxy_port'] = nil
+      default_config
+    end
+            
+    it 'will fail from spoiltproxy_config.yaml' do
+      expect{ servicenow('example').to_s}.to raise_error(RuntimeError, 'Both proxy_addr and proxy_port are to be provided together.')
+    end
+  end
+
+  context 'loading ServiceNow config with valid proxy' do
+    let(:configfilename) { './spec/support/files/proxy_config.yaml' }
+  
+    it 'reads the config from proxy_config.yaml' do
+      expect(servicenow('example').to_s).not_to be_empty
+    end
+  end
+   
+  context 'loading ServiceNow config with factnameinplaceofcertname' do
+    let(:configfilename) { './spec/support/files/hostname_config.yaml' }
+  
+    it 'reads the config from /etc/puppetlabs/puppet/servicenow_cmdb.yaml which is with factnameinplaceofcertname as hostname' do     
+      expect(servicenow('example').to_s).to include( 'host_name')
+    end
+  end
+  context 'loading ServiceNow config with factnameinplaceofcertname and process a redacted actual servicenow response' do
+    let(:responsefilename) { './spec/support/files/letgnis_cmdb_api_response.json' }
+  
+    it 'process a redacted actual servicenow response' do
+      expect(servicenow('eeriedevappls4').to_s).to include( 'eeriedevappls4')
+    end
+  end
+  
+  context 'loading ServiceNow config with debug on' do
+    let(:configfilename) { './spec/support/files/debug_config.yaml' }
+  
+    it 'reads the config from /etc/puppetlabs/puppet/servicenow_cmdb.yaml which is with debug on' do
+      expect(servicenow('example').to_s).to include( '=REDACTED=')
     end
   end
 
@@ -238,7 +286,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
         end
 
         it 'decrypts the password' do
-          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
           expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
         end
       end
@@ -249,7 +297,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
         end
 
         it 'decrypts the password' do
-          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+          expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
           expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
         end
       end
@@ -270,7 +318,7 @@ lqsUgBAYxyFLFLpVsGxI4XLR8hxD]
       include_context 'setup hiera-eyaml'
 
       it 'decrypts the oauth_token' do
-        expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token')
+        expect(ServiceNowRequest).to receive(:new).with(anything, anything, anything, 'admin', 'password', 'oauth_token', anything)
         expect { servicenow('example.puppet.com') }.to raise_error(NoMethodError)
       end
     end
