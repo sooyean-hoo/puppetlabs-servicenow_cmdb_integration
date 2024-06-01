@@ -81,7 +81,7 @@ end
 class ServiceNowRequest
   attr_reader :uri
 
-  def initialize(uri, http_verb, body, user, password, oauth_token)
+  def initialize(uri, http_verb, body, user, password, oauth_token, options = {})
     unless oauth_token || (user && password)
       raise ArgumentError, 'user/password or oauth_token must be specified'
     end
@@ -91,6 +91,8 @@ class ServiceNowRequest
     @user = user
     @password = password
     @oauth_token = oauth_token
+    
+    @options=options    
   end
 
   def response
@@ -174,14 +176,14 @@ def servicenow(certname, config_file = nil)
     snow_uri_erb_default = 'https://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true'
     begin
       template = ERB.new(servicenow_config['snow_uri_erb'])
-      uri = template.result_with_hash(servicenow_config)
+      uri = template.result(binding)
     rescue
       template = ERB.new(snow_uri_erb_default)
-      uri = template.result_with_hash(servicenow_config)
+      uri = template.result(binding)
     end
   end
 
-  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token)
+  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token,{'certname' => certname}.merge(servicenow_config))
   response = cmdb_request.response
   status = response.code.to_i
   body = response.body
