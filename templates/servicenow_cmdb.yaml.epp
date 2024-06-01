@@ -6,6 +6,8 @@
       String $certname_field,
       String $classes_field,
       String $environment_field,
+      Optional[String] $factnameinplaceofcertname = undef,
+      Optional[String] $debug = undef,      
       Optional[String] $proxy_addr = undef,
       Optional[String] $proxy_port = undef
 | -%>
@@ -19,5 +21,7 @@ table: <%= $table %>
 certname_field: <%= $certname_field %>
 classes_field: <%= $classes_field %>
 environment_field: <%= $environment_field %>
+factnameinplaceofcertname: <%= $factnameinplaceofcertname %>
 proxy_addr: <%= $proxy_addr %>
 proxy_port: <%= $proxy_port %>
+debug: <%= $debug %>

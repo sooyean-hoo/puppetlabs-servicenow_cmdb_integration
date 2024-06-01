@@ -24,6 +24,12 @@
 # @param [String] environment_field
 #   The column name of the CMDB field that stores the node's environment. Defaults
 #   to 'u_puppet_environment'.
+# @param [String] factnameinplaceofcertname
+#   The module will use the certname as the value to match up with the data in the 
+#   ServiceNow CMDB. This allows for a different fact to be used instead.
+# @param [String] debug
+#   This enable the debugging more to allow for an indepth looks in to the Servicenow
+#   Integration. i.e. ServiceNow API's URL, userid, but oauth_token and password are redacted.
 # @param [String] proxy_addr
 #   Proxy Address to use when connecting to ServiceNow Server, Both Proxy Address 
 #   and Port must be provided together. Optional.
@@ -32,15 +38,17 @@
 #   and Port must be provided together. Optional.
 class servicenow_cmdb_integration (
   String $instance,
-  Optional[String] $user        = undef,
-  Optional[String] $password    = undef,
-  Optional[String] $oauth_token = undef,
-  String $table                 = 'cmdb_ci',
-  String $certname_field        = 'fqdn',
-  String $classes_field         = 'u_puppet_classes',
-  String $environment_field     = 'u_puppet_environment',
-  Optional[String] $proxy_addr  = undef,
-  Optional[String] $proxy_port  = undef,
+  Optional[String] $user                      = undef,
+  Optional[String] $password                  = undef,
+  Optional[String] $oauth_token               = undef,
+  String $table                               = 'cmdb_ci',
+  String $certname_field                      = 'fqdn',
+  String $classes_field                       = 'u_puppet_classes',
+  String $environment_field                   = 'u_puppet_environment',
+  Optional[String] $factnameinplaceofcertname = undef,
+  Optional[String] $debug                     = undef,
+  Optional[String] $proxy_addr                = undef,
+  Optional[String] $proxy_port                = undef,
 ) {
 
   if (($user or $password) and $oauth_token) {
@@ -99,16 +107,18 @@ class servicenow_cmdb_integration (
       mode         => '0640',
       validate_cmd => "${validate_settings_path} %",
       content      => epp('servicenow_cmdb_integration/servicenow_cmdb.yaml.epp', {
-        instance          => $instance,
-        user              => $user,
-        password          => $password,
-        oauth_token       => $oauth_token,
-        table             => $table,
-        certname_field    => $certname_field,
-        classes_field     => $classes_field,
-        environment_field => $environment_field,
-        proxy_addr        => $proxy_addr,
-        proxy_port        => $proxy_port,
+        instance                  => $instance,
+        user                      => $user,
+        password                  => $password,
+        oauth_token               => $oauth_token,
+        table                     => $table,
+        certname_field            => $certname_field,
+        classes_field             => $classes_field,
+        environment_field         => $environment_field,
+        factnameinplaceofcertname => $factnameinplaceofcertname,
+        debug                     => $debug,
+        proxy_addr                => $proxy_addr,
+        proxy_port                => $proxy_port,
       }),
     },
   ])
