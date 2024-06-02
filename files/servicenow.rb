@@ -129,6 +129,7 @@ def servicenow(certname, config_file = nil)
   certname_field    = servicenow_config['certname_field']
   classes_field     = servicenow_config['classes_field']
   environment_field = servicenow_config['environment_field']
+  debug             = servicenow_config['debug']   
 
   # Since we also support hiera-eyaml encrypted passwords, we'll want to decrypt
   # the password before passing it into the request. In order to do that, we first
@@ -183,15 +184,23 @@ def servicenow(certname, config_file = nil)
     end
   end
 
-  cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token,{'certname' => certname}.merge(servicenow_config))
-  response = cmdb_request.response
-  status = response.code.to_i
-  body = response.body
-  if status >= 400
-    raise "failed to retrieve the CMDB record from #{cmdb_request.uri} (status: #{status}): #{body}"
-  end
+  unless debug.nil? or debug.empty?
+    cmdb_record = {}
+    servicenow_config['password'] = '==PASSWORD==REDACTED==' unless servicenow_config['password'].nil? || servicenow_config['password'].empty?
+    servicenow_config['oauth_token'] = '==PASSWORD==REDACTED==' unless servicenow_config['oauth_token'].nil? || servicenow_config['oauth_token'].empty?
+    cmdb_record['servicenow_config'] = servicenow_config
+    cmdb_record['servicenow_config']['uri'] = uri
+  else
+    cmdb_request = ServiceNowRequest.new(uri, 'Get', nil, username, password, oauth_token,{'certname' => certname}.merge(servicenow_config))
+    response = cmdb_request.response
+    status = response.code.to_i
+    body = response.body
+    if status >= 400
+      raise "failed to retrieve the CMDB record from #{cmdb_request.uri} (status: #{status}): #{body}"
+    end
 
-  cmdb_record = JSON.parse(body)['result'][0] || {}
+    cmdb_record = JSON.parse(body)['result'][0] || {}
+  end
   parse_classification_fields(cmdb_record, classes_field, environment_field)
 
   response = {

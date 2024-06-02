@@ -187,6 +187,59 @@ describe 'servicenow' do
     end
   end
 
+  context 'loading ServiceNow config with custom snow_uri_erb with protocol http URL and check with DEBUG' do
+    let(:config) do
+      default_config = super()
+      default_config['snow_uri_erb'] = 'http://<%=instance%>/<%=table%><%=certname_field%><%=certname%>'
+      default_config['debug'] = 'YES'
+      
+      default_config['instance'] = 'INSTANCEISUSEDWITH'
+      default_config['table'] = 'TABLEWHICHISNOTSPECIFIC'
+      default_config['certname_field'] = 'CERTNAMEIS/'
+        
+      default_config
+    end
+                
+    it 'will load with use_ssl:false for uri following format as specified by snow_uri_erb' do
+  
+      response_obj_http = instance_double('Net::HTTP response obj')
+      allow(response_obj_http).to receive(:code).and_return(cmdb_api_response_status.to_s)
+      allow(response_obj_http).to receive(:body).and_return(cmdb_api_response_body)
+  
+      allow(Net::HTTP).to receive(:start).with(config['instance'], 80, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
+      #allow(Net::HTTP).to receive(:start).with(config['instance'], 80, anything, anything, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
+        
+      expect( JSON.parse(servicenow('example'))['servicenow']['servicenow_config']['uri']    ).to eq( 'http://INSTANCEISUSEDWITH/TABLEWHICHISNOTSPECIFICCERTNAMEIS/example')
+    end
+  end
+  
+  context 'loading ServiceNow config with custom snow_uri_erb with protocol http' do
+    let(:config) do
+      default_config = super()
+      default_config['snow_uri_erb'] = 'http://<%=instance%>/api/now/table/<%=table%>?#<%=certname_field%>=<%=certname%>&sysparm_display_value=true'
+      default_config['debug'] = ''
+      default_config
+    end
+    let(:cmdb_api_response_body_http) do
+      d=JSON.parse(cmdb_api_response_body)
+      d['result'][0]['protocol'] = 'http protocol'
+      data=JSON.generate(d)
+      data
+    end
+              
+    it 'will load with use_ssl:false for http protocol' do
+  
+      response_obj_http = instance_double('Net::HTTP response obj')
+      allow(response_obj_http).to receive(:code).and_return(cmdb_api_response_status.to_s)
+      allow(response_obj_http).to receive(:body).and_return(cmdb_api_response_body_http)
+  
+      allow(Net::HTTP).to receive(:start).with(config['instance'], 80, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
+      allow(Net::HTTP).to receive(:start).with(config['instance'], 80, anything, anything, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
+          
+      expect(   JSON.parse(servicenow('example'))['servicenow']['protocol'] ).to eq( 'http protocol' )
+    end
+  end
+
   context 'loading ServiceNow config' do
     shared_context 'setup hiera-eyaml' do
       before(:each) do
