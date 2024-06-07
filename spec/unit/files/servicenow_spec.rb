@@ -26,9 +26,9 @@ describe 'servicenow' do
   context 'without at least one valid method of authentication' do
     it 'will fail' do
       # default values are set to nil in the ServiceNowRequest class.
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
-      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil, anything ) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, nil, nil, anything) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, 'user', nil, nil, anything) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
+      expect { ServiceNowRequest.new(nil, nil, nil, nil, 'password', nil, anything) }.to raise_error(ArgumentError, 'user/password or oauth_token must be specified')
     end
   end
 
@@ -192,27 +192,26 @@ describe 'servicenow' do
       default_config = super()
       default_config['snow_uri_erb'] = 'http://<%=instance%>/<%=table%><%=certname_field%><%=certname%>'
       default_config['debug'] = 'YES'
-      
+
       default_config['instance'] = 'INSTANCEISUSEDWITH'
       default_config['table'] = 'TABLEWHICHISNOTSPECIFIC'
       default_config['certname_field'] = 'CERTNAMEIS/'
-        
+
       default_config
     end
-                
+
     it 'will load with use_ssl:false for uri following format as specified by snow_uri_erb' do
-  
       response_obj_http = instance_double('Net::HTTP response obj')
       allow(response_obj_http).to receive(:code).and_return(cmdb_api_response_status.to_s)
       allow(response_obj_http).to receive(:body).and_return(cmdb_api_response_body)
-  
+
       allow(Net::HTTP).to receive(:start).with(config['instance'], 80, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
-      #allow(Net::HTTP).to receive(:start).with(config['instance'], 80, anything, anything, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
-        
-      expect( JSON.parse(servicenow('example'))['servicenow']['servicenow_config']['uri']    ).to eq( 'http://INSTANCEISUSEDWITH/TABLEWHICHISNOTSPECIFICCERTNAMEIS/example')
+      # allow(Net::HTTP).to receive(:start).with(config['instance'], 80, anything, anything, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
+
+      expect(JSON.parse(servicenow('example'))['servicenow']['servicenow_config']['uri']).to eq('http://INSTANCEISUSEDWITH/TABLEWHICHISNOTSPECIFICCERTNAMEIS/example')
     end
   end
-  
+
   context 'loading ServiceNow config with custom snow_uri_erb with protocol http' do
     let(:config) do
       default_config = super()
@@ -221,22 +220,21 @@ describe 'servicenow' do
       default_config
     end
     let(:cmdb_api_response_body_http) do
-      d=JSON.parse(cmdb_api_response_body)
+      d = JSON.parse(cmdb_api_response_body)
       d['result'][0]['protocol'] = 'http protocol'
-      data=JSON.generate(d)
+      data = JSON.generate(d)
       data
     end
-              
+
     it 'will load with use_ssl:false for http protocol' do
-  
       response_obj_http = instance_double('Net::HTTP response obj')
       allow(response_obj_http).to receive(:code).and_return(cmdb_api_response_status.to_s)
       allow(response_obj_http).to receive(:body).and_return(cmdb_api_response_body_http)
-  
+
       allow(Net::HTTP).to receive(:start).with(config['instance'], 80, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
       allow(Net::HTTP).to receive(:start).with(config['instance'], 80, anything, anything, use_ssl: false, verify_mode: 0).and_return(response_obj_http)
-          
-      expect(   JSON.parse(servicenow('example'))['servicenow']['protocol'] ).to eq( 'http protocol' )
+
+      expect(JSON.parse(servicenow('example'))['servicenow']['protocol']).to eq('http protocol')
     end
   end
 
