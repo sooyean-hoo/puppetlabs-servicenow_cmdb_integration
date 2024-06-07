@@ -40,7 +40,7 @@ class servicenow_cmdb_integration (
   String $classes_field          = 'u_puppet_classes',
   String $environment_field      = 'u_puppet_environment',
   Optional[String] $snow_uri_erb = undef,
-  Optional[String] $debug                     = undef,
+  Optional[String] $debug        = undef,
 ) {
 
   if (($user or $password) and $oauth_token) {
@@ -108,7 +108,7 @@ class servicenow_cmdb_integration (
         classes_field     => $classes_field,
         environment_field => $environment_field,
         snow_uri_erb      => $snow_uri_erb,
-        debug                     => $debug,
+        debug             => $debug,
       }),
     },
   ])
