@@ -29,8 +29,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -165,7 +164,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "08a402e31193d356",
+  "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
     "inventory.yaml~",
     "inventory.yaml",
