@@ -18,8 +18,19 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "08a402e31193d356",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.6.2"
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -154,7 +165,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e8aabb49b9fcceb5",
+  "active": "08a402e31193d356",
   "lastOpenFiles": [
     "inventory.yaml~",
     "inventory.yaml",
