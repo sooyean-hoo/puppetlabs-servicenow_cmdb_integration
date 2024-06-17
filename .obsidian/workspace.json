@@ -18,16 +18,6 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "08a402e31193d356",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.6.2"
-              }
-            }
           }
         ]
       }
@@ -166,6 +156,7 @@
   },
   "active": "e8aabb49b9fcceb5",
   "lastOpenFiles": [
+    "README.md",
     "inventory.yaml~",
     "inventory.yaml",
     "updatedns/master.flag.done",
@@ -175,8 +166,6 @@
     "createedns/master.flag",
     "servicenow_instance.DEBUG.9999",
     "servicenow_instance.DEBUG.9988",
-    "servicenow_instance.DEBUG.9986",
-    "servicenow_instance.DEBUG.9985",
-    "README.md"
+    "servicenow_instance.DEBUG.9986"
   ]
 }
