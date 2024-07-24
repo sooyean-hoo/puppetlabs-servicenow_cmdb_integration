@@ -129,7 +129,16 @@ namespace :acceptance do
       # one.
       puts("Starting the mock ServiceNow instance at the master (#{master.uri})")
       master.bolt_upload_file('./spec/support/acceptance/servicenow', '/tmp/servicenow')
+      
+      ## Old Code# master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
+      
+      ## New Code# 
+      master.bolt_upload_file('./spec/support/acceptance/servicenow/Gemfile', '/tmp/servicenow')
+      master.bolt_upload_file('./spec/support/acceptance/servicenow/mock_instance.rb', '/tmp/servicenow')
+      #master.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
       master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
+      ########## 
+      
       instance, user, password, token = "#{master.uri}:1080", 'mock_user', 'mock_password', 'mock_token'
     else
       # User provided their own ServiceNow instance so make sure that they've also
@@ -191,7 +200,7 @@ namespace :acceptance do
   task :run_tests do
     rspec_command  = 'bundle exec rspec ./spec/acceptance --format documentation'
     rspec_command += ' --format RspecJunitFormatter --out rspec_junit_results.xml' if ENV['CI'] == 'true'
-    puts("Running the tests ...\n")
+    puts("Running the tests on master:#{master.uri}...\n")
     unless system(rspec_command)
       # system returned false which means rspec failed. So exit 1 here
       exit 1
@@ -200,7 +209,7 @@ namespace :acceptance do
 
   desc 'Teardown the setup'
   task :tear_down do
-    puts("Tearing down the test infrastructure ...\n")
+    puts("Tearing down the test infrastructure on master:#{master.uri}...\n")
     Rake::Task['litmus:tear_down'].invoke(master.uri)
     FileUtils.rm_f('inventory.yaml')
   end

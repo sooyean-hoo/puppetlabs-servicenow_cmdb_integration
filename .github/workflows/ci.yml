@@ -23,12 +23,123 @@ jobs:
     uses: "puppetlabs/cat-github-actions/.github/workflows/module_ci.yml@main"
     secrets: "inherit"
 
+
+
+
+# 
+#   AcceptanceProvision:
+#     needs: [ "Spec" ]
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       command: "whoami && pwd  && ls -l  && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l ./spec/fixtures/litmus_inventory.yaml && bundle exec 'rake acceptance:provision_vms' ; grep -H  -n -v AAAAAAA ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml"
+# 
+#   AcceptancePE:
+#     needs: ["AcceptanceProvision" ]
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       peversion: '2021.7.8'
+#       command: "whoami && pwd  && ls -l && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l cat ./inventory.yaml && bundle exec 'rake acceptance:provision_vms acceptance:setup_pe acceptance:install_module' ; grep -H  -n -v AAAAAAA ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml"
+# 
+#   AcceptanceServiceNow:
+#     needs: ["AcceptanceProvision" ]
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       peversion: '2021.7.8'
+#       command: "whoami && pwd  && ls -l && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l ./spec/fixtures/litmus_inventory.yaml && bundle exec 'rake acceptance:provision_vms acceptance:setup_servicenow_instance' ; grep -H  -n -v AAAAAAA ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml"
+# 
+#   AcceptanceTest:
+#     needs: [ "AcceptancePE"]
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       command: "whoami && pwd  && ls -l && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l ./spec/fixtures/litmus_inventory.yaml && bundle exec 'rake acceptance:provision_vms acceptance:ci_run_tests acceptance:tear_down' ; grep -H  -n -v AAAAAAA ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml"
+
+
+
+#   AcceptanceNeo:
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with: 
+#       peversion: '2021.7.8'
+#       command: "whoami && pwd  && ls -l && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"\n        vars:\n          - role:\n            - master'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l ./inventory.yaml  ;   pushd $PWD ; cd spec/support/acceptance ; cp -fr ./servicenow /tmp/ ; cat ./start_mock_servicenow_instance.sh > /tmp/servicenow/start_mock_servicenow_instance.sh ; nohup sudo bash  ./start_mock_servicenow_instance.sh 2>&1 > /tmp/start_mock_servicenow_instance.log & sleep 10 ; sudo bash ./install_pe.sh  ; grep  -H  -n -v LINENO  /tmp/start_mock_servicenow_instance.log  ; popd ;  bundle exec 'rake acceptance:provision_vms     acceptance:install_module acceptance:run_tests acceptance:tear_down' ; grep -H  -n -v LINENO ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml "
+
+
+#   Acceptance:
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       peversion: '2021.7.8'
+#       command: "whoami && pwd  && ls -l && echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: \"local://\"'   >> inventory.yaml && cat ./inventory.yaml && cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml && ls -l cat ./inventory.yaml && bundle exec 'rake acceptance:ci_run_tests' ; grep -H  -n -v AAAAAAA ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml"
+
+
+# vagrant-mutate vagrant-librarian-puppet
+
+  AcceptancePrep:
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+    secrets: "inherit"
+    with:
+      deploy_peversion: '2021.7.8'
+      command: >
+        puppet --version ;
+        ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
+        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh  ;
+        source /tmp/download_pe_tarball.sh  loadlib  ;
+        pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev ' ;
+        vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
+        echo "=====Pkgs=${pkgs}=============" ;
+        installPkg $pkgs ;
+        echo "=====Pkgs=${vagrantpkgs}=============" ;
+         installPkg $vagrantpkgs ;
+        vagrant plugin install vagrant-libvirt ;
+        vagrant plugin list ;
+        echo "======================================" ;
+        gem install --force  bcrypt_pbkdf --version 1.1.1 ;
+        gem install --force  ed25519 --version 1.3.0 ;
+        echo gem install rubygems-update ; 
+        gem install rubygems-update -v 3.4.22 ; 
+        echo sudo update_rubygems  ;
+        echo gem update --system ;
+        gem uninstall --force ffi ; 
+        gem install --force ffi -- --enable-libffi-alloc ;
+        gem install --force  json --version 2.7.2 ; 
+        echo SKIPPED gem install --force  llhttp-ffi --version 0.5.0 ; 
+        echo SKIPPED gem install --force  nio4r --version 2.7.3 ; 
+        echo SKIPPED gem install --force  nkf --version 0.2.0 ; 
+        gem install --force  racc --version 1.8.1 ; 
+        gem install --force  rainbow --version 2.2.2 ; 
+        gem install --force  strscan --version 3.1.0 ;
+        gem install --force  rake -v 13.2.1 ;
+        gem install --force  CFPropertyList  -v 2.3.6  ;
+        echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          role: master'   >> inventory.yaml ; 
+        echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          role: servicenow_instance'  >> inventory.yaml &&
+        cat ./inventory.yaml && 
+        cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        bundle install ;
+        bundle exec 'rake --tasks' ;
+        bundle exec 'rake acceptance:setup' ;
+        echo bundle exec 'rake acceptance:provision_vms  acceptance:setup' ;
+
   Acceptance:
-    needs: Spec
+    needs: "AcceptancePrep"
     uses: "puppetlabs/cat-github-actions/.github/workflows/module_acceptance.yml@main"
     secrets: "inherit"
     with:
       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+
+#      flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+
+
+
+
+
+
+
+#   V-AcceptanceWithDocker:
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_docker.yml@dev_sooyean"
+#     secrets: "inherit"
 
 # Not working as VMs all down.
 #   Acceptance:

@@ -1,9 +1,44 @@
-acceptance:
+
+# Remove as it is no longer supported from Apr 12, 2021 onwards https://github.com/puppetlabs/provision/pull/164/files
+vmpooler_acceptance:
+  provisioner: vmpooler
+  images: ['ubuntu-2004-x86_64']
+  vars: |
+    roles: ['master']
+
+
+
+ddacceptance:
   provisioner: docker
   images: ['litmusimage/ubuntu:18.04']
   vars: |
     roles: ['master']
 
+duacceptance:
+  provisioner: docker
+  images: ['litmusimage/ubuntu:22.04']
+  vars: |
+    roles: ['master']
+
+acceptance:
+  provisioner: docker
+  images: ['litmusimage/ubuntu:22.04']
+  vars: |
+    roles: ['master']
+
+
+# NO VAGRANT provisioner
+vvacceptance:
+  provisioner: vagrant
+  images: ['generic/ubuntu2204', 'centos/stream9']
+  vars: |
+    roles: ['master','agent0']
+
+# acceptance:
+#   provisioner: docker
+#   images: ['litmusimage/centos:stream9']
+#   vars: |
+#     roles: ['master']
     
 # acceptance:
 #   provisioner: vmpooler

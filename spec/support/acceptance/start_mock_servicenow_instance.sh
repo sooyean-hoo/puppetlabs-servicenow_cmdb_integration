@@ -1,5 +1,46 @@
 #!/bin/bash
 
+mkdir -p /tmp/servicenow
+if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
+  export tmpDir=$PWD
+  
+  cd /tmp/servicenow/
+
+  
+  apt install -y curl || yum install -y curl 
+  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
+  source /tmp/download_pe_tarball.sh  loadlib
+     
+  for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler  \
+      git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    vagrant ; do
+    installPkg $p ;
+  done ;
+
+
+
+  sudo gem install rubygems-update || sudo gem install rubygems-update -v 3.4.22
+  sudo update_rubygems 
+  sudo gem update --system
+  
+  sudo gem uninstall --force ffi 
+  sudo gem install --force ffi -- --enable-libffi-alloc
+
+#   bundle add  puma -v "~> 4.3.12"
+#   for g in       eventmachine reel  rackup rubygems-tasks  ; do 
+#     bundle add  $g ; 
+#   done ;
+
+  
+
+  bundle install --without development test
+  bundle exec ruby ./mock_instance.rb
+  exit $? ;
+fi
+
+
+
+
+
 function cleanup() {
   # bolt_upload_file isn't idempotent, so remove this directory
   # to ensure that later invocations of the setup_servicenow_instance
