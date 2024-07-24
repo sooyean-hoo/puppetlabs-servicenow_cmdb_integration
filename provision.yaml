@@ -1,5 +1,12 @@
 acceptance:
-  provisioner: vmpooler
-  images: ['ubuntu-1804-x86_64']
+  provisioner: docker
+  images: ['litmusimage/ubuntu:18.04']
   vars: |
     roles: ['master']
+
+    
+# acceptance:
+#   provisioner: vmpooler
+#   images: ['ubuntu-1804-x86_64']
+#   vars: |
+#     roles: ['master']
