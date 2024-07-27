@@ -37,6 +37,7 @@ group :development do
   gem "rspec_junit_formatter",                                   require: false
   gem "hashdiff",                                                require: false
   gem "pdk",                                                     require: false
+  gem 'github_changelog_generator', '~> 1.16', '>= 1.16.4',      require: false
 end
 
 puppet_version = ENV['PUPPET_GEM_VERSION']
