@@ -1,10 +1,23 @@
 name: spec
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+      - "dev_sooyean"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+      - "dev_sooyean"
+
+#on: [pull_request]
 
 jobs:
   Spec:
-    runs-on: ubuntu-18.04
+    if: ${{ github.repository == 'REPLACED WITH CI.yaml Spec' }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         check: [parallel_spec, 'syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop']
