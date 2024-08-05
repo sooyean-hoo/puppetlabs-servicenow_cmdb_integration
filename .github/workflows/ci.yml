@@ -81,6 +81,25 @@ jobs:
     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
     secrets: "inherit"
     with:
+      installpecommands: >
+        PEVERSION='2021.7.8' ;
+        pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
+        version=$(puppet --version) ;
+        if  [ -z "$version" ] ; then
+        echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
+        apt install -y curl || yum install -y curl ;
+        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
+        source /tmp/download_pe_tarball.sh  loadlib ;
+        echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
+        touch /tmp/key2share ;
+        installPEConsole =SETVALUES= ;
+        installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
+        dlPEConsole check ${PEVERSION} ;
+        dlPEConsole show ${PEVERSION} ;
+        installPEConsole ;
+        else
+        echo "===Puppet Version Installed=${version}===" ;
+        fi ;
       deploy_peversion: '2021.7.8'
       command: >
         puppet --version ;
