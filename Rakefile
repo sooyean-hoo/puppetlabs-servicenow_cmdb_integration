@@ -115,8 +115,8 @@ namespace :acceptance do
   desc 'Sets up PE on the master'
   task :setup_pe do
     tasks = [
-      :setup_pe_1,
-      :setup_pe_2,
+      :setup_pe_p1,
+      :setup_pe_p2,
     ]
   
     tasks.each do |task|

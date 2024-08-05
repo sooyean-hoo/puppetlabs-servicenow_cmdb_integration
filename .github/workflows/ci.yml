@@ -86,19 +86,19 @@ jobs:
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
         version=$(puppet --version) ;
         if  [ -z "$version" ] ; then
-        echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
-        apt install -y curl || yum install -y curl ;
-        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
-        source /tmp/download_pe_tarball.sh  loadlib ;
-        echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
-        touch /tmp/key2share ;
-        installPEConsole =SETVALUES= ;
-        installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
-        dlPEConsole check ${PEVERSION} ;
-        dlPEConsole show ${PEVERSION} ;
-        installPEConsole ;
+          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
+          apt install -y curl || yum install -y curl ;
+          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
+          source /tmp/download_pe_tarball.sh  loadlib ;
+          echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
+          touch /tmp/key2share ;
+          installPEConsole =SETVALUES= ;
+          installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
+          dlPEConsole check ${PEVERSION} ;
+          dlPEConsole show ${PEVERSION} ;
+          installPEConsole ;
         else
-        echo "===Puppet Version Installed=${version}===" ;
+          echo "===Puppet Version Installed=${version}===" ;
         fi ;
       deploy_peversion: '2021.7.8'
       command: >
@@ -141,7 +141,11 @@ jobs:
         cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
         bundle install ;
         bundle exec 'rake --tasks' ;
-        bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+        bundle install ;
+        bundle exec 'rake acceptance:provision_vms ' ;
+        grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        bundle install ;
+        bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
 
   Acceptance:
