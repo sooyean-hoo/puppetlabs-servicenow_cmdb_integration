@@ -135,6 +135,7 @@ jobs:
         gem install --force  strscan --version 3.1.0 ;
         gem install --force  rake -v 13.2.1 ;
         gem install --force  CFPropertyList  -v 2.3.6  ;
+        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ;
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          role: master'   >> inventory.yaml ; 
         echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          role: servicenow_instance'  >> inventory.yaml &&
         cat ./inventory.yaml && 
@@ -144,6 +145,8 @@ jobs:
         bundle install ;
         bundle exec 'rake acceptance:provision_vms ' ;
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
+        ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -vvvvvv -p2222 127.0.0.1 date  || echo ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
