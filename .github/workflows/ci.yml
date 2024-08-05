@@ -147,7 +147,7 @@ jobs:
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
         ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
         ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
-        pwd ; ls -l ; ls -l ./.vagrant.d/ ;
+        pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
         ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -vvvvvv -p2222 127.0.0.1 date  || echo ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
