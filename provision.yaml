@@ -1,8 +1,8 @@
 acceptance:
   provisioner: vagrant
-  images: ['generic/ubuntu2204', 'centos/stream9']
+  images: ['generic/ubuntu2204' ]
   vars: |
-    roles: ['master','agent0']
+    roles: ['master' ]
 
 
 
@@ -31,9 +31,9 @@ duacceptance:
 # NO VAGRANT provisioner
 vvacceptance:
   provisioner: vagrant
-  images: ['generic/ubuntu2204', 'centos/stream9']
+  images: ['generic/ubuntu2204' ]
   vars: |
-    roles: ['master','agent0']
+    roles: ['master' ]
 
 # acceptance:
 #   provisioner: docker
