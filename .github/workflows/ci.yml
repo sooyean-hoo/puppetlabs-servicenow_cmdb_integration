@@ -141,8 +141,8 @@ jobs:
         cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
         bundle install ;
         bundle exec 'rake --tasks' ;
-        bundle exec 'rake acceptance:setup' ;
-        echo bundle exec 'rake acceptance:provision_vms  acceptance:setup' ;
+        bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+        echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
 
   Acceptance:
     needs: "AcceptancePrep"

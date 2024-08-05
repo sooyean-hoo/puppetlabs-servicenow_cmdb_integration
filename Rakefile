@@ -114,12 +114,29 @@ namespace :acceptance do
   # module for PE setup
   desc 'Sets up PE on the master'
   task :setup_pe do
+    tasks = [
+      :setup_pe_1,
+      :setup_pe_2,
+    ]
+  
+    tasks.each do |task|
+      task = "acceptance:#{task}"
+      puts("Invoking #{task}")
+      Rake::Task[task].invoke
+      puts("")
+    end
+  end
+  
+  desc 'Sets up PE on the master P1 install PE'
+  task :setup_pe_p1 do
     master.bolt_run_script('spec/support/acceptance/install_pe.sh')
-    # Setup hiera-eyaml config
+  end
+  desc 'Sets up PE on the master P2 Config PE Hiera'
+  task :setup_pe_p2 do
     master.run_shell('rm -rf /etc/eyaml')
     master.bolt_upload_file('spec/support/common/hiera-eyaml', '/etc/eyaml')
   end
-
+  
   desc 'Sets up the ServiceNow instance'
   task :setup_servicenow_instance, [:instance, :user, :password, :token] do |_, args|
     instance, user, password, token = args[:instance], args[:user], args[:password], args[:token]
