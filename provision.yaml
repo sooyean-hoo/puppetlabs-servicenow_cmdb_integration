@@ -1,8 +1,8 @@
 acceptance:
-  provisioner: vagrant
-  images: ['generic/ubuntu2204' ]
+  provisioner: docker
+  images: ['litmusimage/ubuntu:18.04']
   vars: |
-    roles: ['master', 'servicenow_instance' ]
+    roles: ['master']
 
 
 
