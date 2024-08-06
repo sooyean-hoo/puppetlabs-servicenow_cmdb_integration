@@ -175,7 +175,7 @@ jobs:
         echo "===== ssh with /tmp/myownkey ===========" ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
         echo "======ssh puppet install====================" ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 "apt install -y puppet"  ||  echo "FAIL: ssh puppet install..."  ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 "sudo apt install -y puppet"  ||  echo "FAIL: ssh puppet install..."  ;
         echo "==========================" ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance ' ;
