@@ -111,6 +111,8 @@ jobs:
         if [ "docker" =  "$provisioner" ] ; then
           echo "=======DOCKER RUN=======" ;
           docker ps -a ;
+          echo "===== ssh with default passwd based on generate inv ===========" ;
+          sshpass -p root ssh -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p52599 -l root 127.0.0.1 date  ||  echo "FAIL: ssh with default passwd based on generate inv..."  ;
         elif [ "vagrant" =  "$provisioner" ] ; then
           echo "=======VAGRANT RUN=======" ;
           echo "===Proposed Changes===" ;
@@ -130,7 +132,7 @@ jobs:
           grep -H -n -v -E 'AALINEAANUMBER' ${OLDCWD}/spec/fixtures/litmus_inventory.yaml ;
           vagrant ssh default  --command "cat /home/vagrant/.ssh/authorized_keys |  grep -H -n -v -E 'AALINEAANUMBER' " || echo "FAIL: vagrant ssh default.....date" ;
           echo "==============" ;
-                  vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
+          vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
           popd ;
           echo "===== ssh with vagrantkey ===========" ;
           ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with vagrantkey..."  ;
