@@ -95,8 +95,8 @@ jobs:
           gem install --force  CFPropertyList  -v 2.3.6  ;
         fi ;
         mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;  
-        echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          role:\n            - master'   >> inventory.yaml ; 
-        echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          role:\n            - servicenow_instance'  ">>" inventory.yaml &&
+        echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master'   >> inventory.yaml ; 
+        echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - servicenow_instance' '>> inventory.yaml' > /dev/null &&
         cat ./inventory.yaml && 
         cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
         bundle install ;

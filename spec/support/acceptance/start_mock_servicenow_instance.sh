@@ -1,18 +1,19 @@
 #!/bin/bash
 
 mkdir -p /tmp/servicenow
+apt install -y curl || yum install -y curl 
+
 if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   export tmpDir=$PWD
   
   cd /tmp/servicenow/
 
   
-  apt install -y curl || yum install -y curl 
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
   source /tmp/download_pe_tarball.sh  loadlib
      
   for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler  \
-      git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    vagrant ; do
+      git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    ; do
     installPkg $p ;
   done ;
 
