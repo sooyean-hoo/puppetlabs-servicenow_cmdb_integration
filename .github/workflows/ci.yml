@@ -107,9 +107,12 @@ jobs:
         bundle exec 'rake acceptance:provision_vms ' ;
         ssh-keygen -R localhost ; 
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
-        if [ -z "$VAGRANTRUN" ] ; then
-          echo "=======SKIPPED VAGRANT=======" ;
-        else 
+        provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
+        if [ "docker" =  "$provisioner" ] ; then
+          echo "=======DOCKER RUN=======" ;
+          docker ps -a ;
+        elif [ "vagrant" =  "$provisioner" ] ; then
+          echo "=======VAGRANT RUN=======" ;
           echo "===Proposed Changes===" ;
           cat ./spec/fixtures/litmus_inventory.yaml |  yq  '.groups[3].targets[0].config.ssh.private-key="/tmp/myownkey"' | tee  ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
           echo "==============" ;
@@ -136,6 +139,8 @@ jobs:
           echo "======ssh puppet install====================" ;
           ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 "sudo apt install -y puppet"  ||  echo "FAIL: ssh puppet install..."  ;
           echo "==========================" ;
+        else
+          echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance ' ;
