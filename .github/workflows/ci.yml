@@ -102,16 +102,19 @@ jobs:
         fi ;
       deploy_peversion: '2021.7.8'
       command: >
-        puppet --version ;
+        echo "===Puppet Version Installed=$(puppet --version)===" ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh  ;
         source /tmp/download_pe_tarball.sh  loadlib  ;
-        pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass' ;
+        pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
+        snappkgs='snapd' ;
         vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
         echo "=====Pkgs=${pkgs}=============" ;
         installPkg $pkgs ;
         echo "=====Pkgs=${vagrantpkgs}=============" ;
-         installPkg $vagrantpkgs ;
+        installPkg $vagrantpkgs ;
+        echo "=====Pkgs=${snappkgs}=============" ;
+        installPkg $snappkgs ;
         vagrant plugin install vagrant-libvirt ;
         vagrant plugin list ;
         wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
@@ -135,7 +138,7 @@ jobs:
         gem install --force  strscan --version 3.1.0 ;
         gem install --force  rake -v 13.2.1 ;
         gem install --force  CFPropertyList  -v 2.3.6  ;
-        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ; ssh-keygen -R localhost ; 
+        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;  
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          role: master'   >> inventory.yaml ; 
         echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          role: servicenow_instance'  >> inventory.yaml &&
         cat ./inventory.yaml && 
@@ -148,12 +151,15 @@ jobs:
         bundle exec 'rake acceptance:provision_vms ' ;
         ssh-keygen -R localhost ; 
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        echo "===Proposed Changes===" ;
+        cat ./spec/fixtures/litmus_inventory.yaml |  yq  '.groups[3].targets[0].config.ssh.private-key="/tmp/myownkey"' | grep -H -n -v -E 'AALINEAANUMBER' ;
+        echo "==============" ;
         ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
         ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
         pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
         echo "=====vagrant ssh default===========" ;
         pushd `pwd` ; cd spec/fixtures/.vagrant/generic-ubuntu2204-0 ;pwd ;
-        vagrant ssh default  --command "ls -l /home/vagrant/.ssh" || echo "FAIL: vagrant ssh default.....date" ; 
+        vagrant ssh default  --command "ls -l /home/vagrant/.ssh" || echo "FAIL: vagrant ssh default.....date" ;
         echo "==============" ;
         vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
         popd ;
