@@ -81,7 +81,9 @@ jobs:
     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
     secrets: "inherit"
     with:
+      flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
       installpecommands: >
+        echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
         version=$(puppet --version) ;
