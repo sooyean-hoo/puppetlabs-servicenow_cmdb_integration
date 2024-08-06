@@ -2,7 +2,7 @@ acceptance:
   provisioner: vagrant
   images: ['generic/ubuntu2204' ]
   vars: |
-    roles: ['master' ]
+    roles: ['master', 'servicenow_instance' ]
 
 
 

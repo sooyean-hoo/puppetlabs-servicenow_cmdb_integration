@@ -183,6 +183,8 @@ jobs:
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         bundle exec 'rake acceptance:install_module' ;
         echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+        echo "============================Setup done, Now Run Tests " ;
+        bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ;
 
   Acceptance:
     needs: "AcceptancePrep"
