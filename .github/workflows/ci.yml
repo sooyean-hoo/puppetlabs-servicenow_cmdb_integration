@@ -165,7 +165,7 @@ jobs:
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
-        version=$(puppet --version) || echo ;
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' || echo ; 
         version="NOT NEEDED SO ByPassed" ;
         if  [ -z "$version" ] ; then
           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
@@ -180,19 +180,27 @@ jobs:
           dlPEConsole show ${PEVERSION} ;
           installPEConsole ;
         else
-          echo "===Puppet Version Installed=${version}===" ;
+          cd ./spec/fixtures/ ;
+          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || echo ; 
+          echo "===Puppet Version Installed=${puppetversion}===" || echo ;
         fi ;
       prepcommand1: >
-        echo "===Puppet Version Installed=$(puppet --version)===" || echo ;
+        cd ./spec/fixtures/ ;
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || echo ; 
+        echo "===Puppet Version Installed=${puppetversion}===" || echo ;
       command: >
         source /tmp/download_pe_tarball.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         bundle install ;
-        bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance ' ;
+        bundle exec 'rake acceptance:setup_pe_p2'
+        bundle install ;
+        bundle exec 'rake acceptance:setup_servicenow_instance ' ;
         echo "============================After Update from setup_servicenow_instance " ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         bundle exec 'rake acceptance:install_module' ;
-        echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+        echo DONE bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+        echo ;
+        echo ;
         echo "============================Setup done, Now Run Tests " ;
         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ;
 
