@@ -110,6 +110,17 @@ namespace :acceptance do
     Rake::Task['litmus:provision_list'].invoke(provision_list)
   end
 
+  desc 'Sets up PE on the master P1 install PE'
+  task :setup_pe_p1 do
+    master.bolt_run_script('spec/support/acceptance/install_pe.sh')
+  end
+
+  desc 'Sets up PE on the master P2 Config PE Hiera'
+  task :setup_pe_p2 do
+    master.run_shell('rm -rf /etc/eyaml')
+    master.bolt_upload_file('spec/support/common/hiera-eyaml', '/etc/eyaml')
+  end
+  
   # TODO: This should be refactored to use the https://github.com/puppetlabs/puppetlabs-peadm
   # module for PE setup
   desc 'Sets up PE on the master'
@@ -127,15 +138,7 @@ namespace :acceptance do
     end
   end
   
-  desc 'Sets up PE on the master P1 install PE'
-  task :setup_pe_p1 do
-    master.bolt_run_script('spec/support/acceptance/install_pe.sh')
-  end
-  desc 'Sets up PE on the master P2 Config PE Hiera'
-  task :setup_pe_p2 do
-    master.run_shell('rm -rf /etc/eyaml')
-    master.bolt_upload_file('spec/support/common/hiera-eyaml', '/etc/eyaml')
-  end
+
   
   desc 'Sets up the ServiceNow instance'
   task :setup_servicenow_instance, [:instance, :user, :password, :token] do |_, args|
