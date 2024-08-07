@@ -130,14 +130,12 @@ jobs:
           echo "=======VAGRANT RUN=======" ;
           ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
           echo "===Proposed Changes===" ;
-          cat ./spec/fixtures/litmus_inventory.yaml |  yq  '.groups[3].targets[0].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
+          cat ./spec/fixtures/litmus_inventory.yaml | yq  '.groups[].targets[].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
           echo "=============================================================" ;
           ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
           ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
           pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
           OLDCWD=$(pwd) ;
-          echo "===== ssh with vagrantkey ===========" ;
-          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with vagrantkey..."  ;
           echo "=====vagrant ssh default===========" ;
           pushd `pwd` ; cd spec/fixtures/.vagrant/generic-ubuntu2204-0 ;pwd ;
           vagrant ssh default  --command "cat /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
@@ -150,15 +148,19 @@ jobs:
           echo "==============" ;
           vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
           popd ;
+          echo "===== ssh with vagrantkey ===========" ;
+          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with vagrantkey..."  ;
           echo "===== ssh with /tmp/myownkey ===========" ;
           ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
-          echo "======ssh puppet install====================" ;
-          ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 "sudo apt install -y puppet"  ||  echo "FAIL: ssh puppet install..."  ;
+          echo "SKIPPED ======ssh puppet install====================" ;
+          echo SKIPPED ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 "sudo apt install -y puppet"  "||"  echo "FAIL: ssh puppet install..."  ;
           echo "==========================" ;
         else
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
       deploy_peversion: '2021.7.8'
+      deploy_petargetinv: './spec/fixtures/litmus_inventory.yaml'
+      deploy_petarget: '127.0.0.1:2222'
       installpecommands: >
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
