@@ -1,6 +1,11 @@
 #!/bin/bash
 
-pepasswd=pie$(date +%s )piepiepiepiepiepiepiepiepieP5!
+pepasswd_def=pie$(date +%s )piepiepiepiepiepiepiepiepieP5!
+
+if [ -e /tmp/p.txt ] ; then
+  source /tmp/p.txt ;
+fi
+pepasswd=${pepasswd:-$pepasswd_def}
 
 version=`puppet --version`
 echo "===Puppet Version Installed=${version}==="

@@ -190,6 +190,9 @@ jobs:
           cd ./spec/fixtures/ ;
           puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || echo ; 
           echo "===Puppet Version Installed=${puppetversion}===" || echo ;
+          echoMsg '!!' 'Prepare Primary server for tests: Access Keys' ;
+          bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
+          bolt script run "spec/support/acceptance/install_pe.sh" -t ssh_nodes  ;
         fi ;
       prepcommand1: >
         cd ./spec/fixtures/ ;
@@ -205,6 +208,17 @@ jobs:
         bundle install ;
         bundle exec 'rake acceptance:setup_servicenow_instance ' ;
         echo "============================After Update from setup_servicenow_instance " ;
+        provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
+        if [ "docker" =  "$provisioner" ] ; then
+          echoMsg '!!' "Adjustment for Docker" ;
+        elif [ "vagrant" =  "$provisioner" ] ; then
+          echoMsg '!!' "Adjustment for Vagrant" ;
+          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g' > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
+          rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
+        else
+          echo "=======SKIPPED Adjustment COS Unsupported provisioner: $provisioner =======" ;
+        fi ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
