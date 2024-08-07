@@ -1,8 +1,8 @@
 acceptance:
-  provisioner: docker
-  images: ['litmusimage/ubuntu:18.04']
+  provisioner: vagrant
+  images: ['generic/ubuntu2204' ]
   vars: |
-    roles: ['master']
+    roles: ['master' ]
 
 
 

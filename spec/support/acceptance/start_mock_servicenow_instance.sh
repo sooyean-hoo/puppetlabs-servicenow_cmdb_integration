@@ -3,6 +3,8 @@
 mkdir -p /tmp/servicenow
 apt install -y curl || yum install -y curl 
 
+# The following Codes are only activated if you place a file @ /tmp/servicenow/start_mock_servicenow_instance.sh. And the file can be empty.
+# This run the servicenow locally.
 if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   export tmpDir=$PWD
   
