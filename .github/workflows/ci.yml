@@ -98,11 +98,19 @@ jobs:
           gem install --force  rake -v 13.2.1 ;
           gem install --force  CFPropertyList  -v 2.3.6  ;
         fi ;
-        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;  
+        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+        echo ;
+        echoMsg '__' 'Inventories'
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master   >> inventory.yaml' > /dev/null  ; 
         echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - servicenow_instance' '>> inventory.yaml' > /dev/null &&
-        cat ./inventory.yaml && 
-        cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        cat $PWD/inventory.yaml && 
+        [ -e $PWD/inventory.yaml  ] && ln -sf $PWD/inventory.yaml $PWD/spec/fixtures/litmus_inventory.yaml ;
+        ls -l $PWD/inventory.yaml || echo ;
+        ls -l $PWD/spec/fixtures/litmus_inventory.yaml || echo ;
+        catMe $PWD/inventory.yaml  || echo ;
+        catMe $PWD/spec/fixtures/litmus_inventory.yaml || echo ;
+        echoMsg '__' ;
+        echo ; 
         echoMsg '!!' "Provision Starts" ;
         bundle install ;
         bundle exec 'rake --tasks' ;
@@ -119,7 +127,7 @@ jobs:
         echo ;
         echoMsg '!!' "Provision Adjustment and Checks Starts" ;
         ssh-keygen -R localhost ; 
-        grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+        grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "docker" =  "$provisioner" ] ; then
           echo "=======DOCKER RUN=======" ;
@@ -159,7 +167,6 @@ jobs:
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
       deploy_peversion: '2021.7.8'
-      deploy_petargetinv: './spec/fixtures/litmus_inventory.yaml'
       deploy_petarget: '127.0.0.1:2222'
       installpecommands: >
         echo "===FailSafe PE Installation, in case the original one fail===" ;
