@@ -216,13 +216,17 @@ jobs:
           echoMsg '!!' "Adjustment for Docker" ;
         elif [ "vagrant" =  "$provisioner" ] ; then
           echoMsg '!!' "Adjustment for Vagrant" ;
-          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g' > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          echoMsg '++' "    Original" ;
+          grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
+          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/2222/g' > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
           rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
         else
           echo "=======SKIPPED Adjustment COS Unsupported provisioner: $provisioner =======" ;
         fi ;
+        echoMsg '++' "    In Use" ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
+        echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo ;
