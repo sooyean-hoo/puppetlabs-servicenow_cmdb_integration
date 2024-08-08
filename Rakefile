@@ -137,9 +137,7 @@ namespace :acceptance do
       puts("")
     end
   end
-  
 
-  
   desc 'Sets up the ServiceNow instance'
   task :setup_servicenow_instance, [:instance, :user, :password, :token] do |_, args|
     instance, user, password, token = args[:instance], args[:user], args[:password], args[:token]
@@ -150,14 +148,15 @@ namespace :acceptance do
       puts("Starting the mock ServiceNow instance at the master (#{master.uri})")
       master.bolt_upload_file('./spec/support/acceptance/servicenow', '/tmp/servicenow')
       
-      ## Old Code# 
-      master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
       
       ## New Code# 
       #master.bolt_upload_file('./spec/support/acceptance/servicenow/Gemfile', '/tmp/servicenow')
       #master.bolt_upload_file('./spec/support/acceptance/servicenow/mock_instance.rb', '/tmp/servicenow')
-      #master.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
-      #master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
+      master.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
+      
+      ## Old Code# 
+      master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')
+      
       ########## 
       
       instance, user, password, token = "#{master.uri}:1080", 'mock_user', 'mock_password', 'mock_token'
