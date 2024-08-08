@@ -228,6 +228,8 @@ jobs:
         echoMsg '++' "    In Use" ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         echoMsg '++'  ;
+        ping_NC_Test localhost     tcp 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow   ;
+        echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo ;
