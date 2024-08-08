@@ -169,6 +169,7 @@ jobs:
       deploy_peversion: '2021.7.8'
       deploy_petarget: '127.0.0.1:2222'
       installpecommands: >
+        source /tmp/download_pe_tarball.sh  loadlib  ;
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
