@@ -58,8 +58,8 @@ jobs:
         VAGRANTRUN="Y" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
-        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh  ;
-        source /tmp/download_pe_tarball.sh  loadlib  ;
+        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  ;
+        source /tmp/v.sh  loadlib  ;
         echo ;
         echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
@@ -169,7 +169,7 @@ jobs:
       deploy_peversion: '2021.7.8'
       deploy_petarget: '127.0.0.1:2222'
       installpecommands: >
-        source /tmp/download_pe_tarball.sh  loadlib  ;
+        source /tmp/v.sh  loadlib  ;
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
@@ -178,8 +178,8 @@ jobs:
         if  [ -z "$version" ] ; then
           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
           apt install -y curl || yum install -y curl ;
-          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
-          source /tmp/download_pe_tarball.sh  loadlib ;
+          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh ;
+          source /tmp/v.sh  loadlib ;
           echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
           touch /tmp/key2share ;
           installPEConsole =SETVALUES= ;
@@ -202,7 +202,7 @@ jobs:
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || echo ; 
         echo "===Puppet Version Installed=${puppetversion}===" || echo ;
       command: >
-        source /tmp/download_pe_tarball.sh  loadlib  ;
+        source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         bundle install ;
         bundle exec 'rake --tasks' ;
@@ -255,8 +255,8 @@ jobs:
 #         if  [ -z "$version" ] ; then
 #           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
 #           apt install -y curl || yum install -y curl ;
-#           curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
-#           source /tmp/download_pe_tarball.sh  loadlib ;
+#           curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh ;
+#           source /tmp/v.sh  loadlib ;
 #           echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
 #           touch /tmp/key2share ;
 #           installPEConsole =SETVALUES= ;
@@ -271,8 +271,8 @@ jobs:
 #       command: >
 #         echo "===Puppet Version Installed=$(puppet --version)===" ;
 #         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
-#         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh  ;
-#         source /tmp/download_pe_tarball.sh  loadlib  ;
+#         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  ;
+#         source /tmp/v.sh  loadlib  ;
 #         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
 #         snappkgs='snapd' ;
 #         vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
