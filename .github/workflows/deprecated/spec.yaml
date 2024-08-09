@@ -16,13 +16,13 @@ on:
 
 jobs:
   Spec:
-    if: ${{ github.repository == 'REPLACED WITH CI.yaml Spec' }}
+    #if: ${{ github.repository == 'REPLACED WITH CI.yaml Spec' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         check: [parallel_spec, 'syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop']
         ruby_version: [2.5.x]
-        puppet_gem_version: [~> 6.0]
+        puppet_gem_version: [~> 7.0]
     steps:
     - uses: actions/checkout@v1
 
@@ -31,7 +31,8 @@ jobs:
         ruby-version: ${{ matrix.ruby_version }}
 
     - name: Spec Tests
-      uses: puppetlabs/action-litmus_spec@master
+      uses: sooyean-hoo/action-litmus_spec@dev_sooyean
       with:
         puppet_gem_version: ${{ matrix.puppet_gem_version }}
         check: ${{ matrix.check }}
+        bundler_version: ' -v 2.4.22'

@@ -1,8 +1,8 @@
 acceptance:
-  provisioner: vagrant
-  images: ['generic/ubuntu2204' ]
+  provisioner: vmpooler
+  images: ['ubuntu-2004-x86_64']
   vars: |
-    roles: ['master' ]
+    roles: ['master']
 
 
 

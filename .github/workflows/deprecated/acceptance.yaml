@@ -18,9 +18,9 @@ jobs:
   LitmusAcceptance:
     env:
       PROVISION_LIST: acceptance
-      ruby_version: 2.5.x
+      ruby_version: 2.7.x
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'puppetlabs/puppetlabs-servicenow_cmdb_integration' }}
+    #if: ${{ github.repository == 'puppetlabs/puppetlabs-servicenow_cmdb_integration' }}
 
     steps:
     - uses: actions/checkout@v1
@@ -28,8 +28,8 @@ jobs:
     - name: Litmus Parallel Acceptance
       run: |
         gem --version
-        gem install bundler
+        gem install bundler  -v 2.4.22
         bundler -v
         bundle install --jobs 4 --retry 2 --path .bundle/gems
-        bundle exec rake litmus:provision_list[$PROVISION_LIST]
+        bundle exec "rake litmus:provision_list[$PROVISION_LIST]"
         bundle exec rake litmus:acceptance:parallel

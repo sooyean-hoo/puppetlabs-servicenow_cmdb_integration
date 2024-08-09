@@ -19,10 +19,8 @@ fixtures:
       "repo": "https://github.com/puppetlabs/puppetlabs-translate.git"
     facts: 'https://github.com/puppetlabs/puppetlabs-facts.git'
     puppet_agent: 'https://github.com/puppetlabs/puppetlabs-puppet_agent.git'
-    provision: 'https://github.com/puppetlabs/provision.git'
     servicenow_tasks: 'https://github.com/puppetlabs/servicenow_tasks.git'
-
-    
-#     provision:
-#       repo: "https://github.com/puppetlabs/provision.git"
-#       ref: "1ddac67b8a6f829c545103185c05291a47e0776e"
+    provision:
+      repo: "https://github.com/puppetlabs/provision.git"
+      ref: "1ddac67b8a6f829c545103185c05291a47e0776e"
+    #provision: 'https://github.com/puppetlabs/provision.git'
