@@ -6,15 +6,17 @@ print(){
 #echo 'running as shell'
 
   ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
-  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  ;
+  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  || which curl ;
   source /tmp/v.sh  loadlib  ;
-
+  VAGRANTRUN="" ;
+  
+      deploy_peversion='2021.7.8' ;
+      deploy_petarget='127.0.0.1:2222' ;
 function      preinstallpecommands(){
         sshverbose="-vvvvvv" ;         sshverbose="" ;
-        VAGRANTRUN="Y" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
-        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  ;
+        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
         source /tmp/v.sh  loadlib  ;
         echo ;
         echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
@@ -85,11 +87,13 @@ function      preinstallpecommands(){
         ssh-keygen -R localhost ; 
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
+        echoMsg '++' "=provisioner=$provisioner=" ;
         if [ "docker" =  "$provisioner" ] ; then
           echo "=======DOCKER RUN=======" ;
           docker ps -a ;
           echo "===== ssh with default passwd based on generate inv ===========" ;
-          sshpass -p root ssh -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p52599 -l root 127.0.0.1 date  ||  echo "FAIL: ssh with default passwd based on generate inv..."  ;
+          bolt script run -t ssh_nodes ./spec/support/acceptance/vhelper.rb ;
+          bolt command run -t ssh_nodes "bash /tmp/v.sh exec installPkg curl " ;
         elif [ "vagrant" =  "$provisioner" ] ; then
           echo "=======VAGRANT RUN=======" ;
           ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
@@ -123,8 +127,6 @@ function      preinstallpecommands(){
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
 }
-      deploy_peversion= '2021.7.8'
-      deploy_petarget= '127.0.0.1:2222'
 function      installpecommands(){
         source /tmp/v.sh  loadlib  ;
         echo "===FailSafe PE Installation, in case the original one fail===" ;
@@ -204,6 +206,7 @@ if  [ "exec" = "$1" ] ; then
   shift ;
   echo "===Executing....$@....." ;
   $@ ; errorid=$?;
+  echo "==errorid=$errorid=" ;
   return; exit $errorid;
 fi;
 exit
@@ -212,3 +215,8 @@ exit
 # lint:endignore
 # rubocop:enable all
 # puts 'running as ruby'
+require './helpers.rb'
+
+module VHelpers
+  extend TargetHelpers
+end
