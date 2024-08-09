@@ -18,7 +18,7 @@ jobs:
   LitmusAcceptance:
     env:
       PROVISION_LIST: acceptance
-      ruby_version: 2.7.x
+      ruby_version: 2.5.x
     runs-on: ubuntu-latest
     #if: ${{ github.repository == 'puppetlabs/puppetlabs-servicenow_cmdb_integration' }}
 

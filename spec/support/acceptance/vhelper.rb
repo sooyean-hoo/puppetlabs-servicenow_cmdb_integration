@@ -1,4 +1,6 @@
-print() {
+# lint:ignore:all
+# rubocop:disable all
+print(){
 =begin
 }
 #echo 'running as shell'
@@ -207,4 +209,6 @@ fi;
 exit
 =end
 }
-#puts 'running as ruby'
+# lint:endignore
+# rubocop:enable all
+# puts 'running as ruby'
