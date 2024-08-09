@@ -21,9 +21,9 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
 
 
 
-  sudo gem install rubygems-update || sudo gem install rubygems-update -v 3.4.22
-  sudo update_rubygems 
-  sudo gem update --system
+  echo sudo gem install rubygems-update || echo sudo gem install rubygems-update -v 3.4.22
+  echo sudo update_rubygems 
+  echo sudo gem update --system
   
   sudo gem uninstall --force ffi 
   sudo gem install --force ffi -- --enable-libffi-alloc
