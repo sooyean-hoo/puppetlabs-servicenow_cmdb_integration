@@ -22,7 +22,7 @@ jobs:
       matrix:
         check: [parallel_spec, 'syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop']
         ruby_version: [2.5.x]
-        puppet_gem_version: [~> 7.0]
+        puppet_gem_version: [~> 6.0]
     steps:
     - uses: actions/checkout@v1
 
@@ -31,7 +31,7 @@ jobs:
         ruby-version: ${{ matrix.ruby_version }}
 
     - name: Spec Tests
-      uses: sooyean-hoo/action-litmus_spec@dev_sooyean
+      uses: puppetlabs/action-litmus_spec@master
       with:
         puppet_gem_version: ${{ matrix.puppet_gem_version }}
         check: ${{ matrix.check }}
