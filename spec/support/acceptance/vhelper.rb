@@ -212,7 +212,7 @@ function      command(){
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo ;
         echo ;
-        (sleep 300 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
+        (sleep 900 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
         echo "============================Setup done, Now Run Tests " ;
         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ; errorid=$? ;
         #### Hardcoded for now 
