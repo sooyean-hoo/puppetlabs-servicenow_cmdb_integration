@@ -195,7 +195,7 @@ function      command(){
         
         #### Hardcoded for now 
         masterip=localhost ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 -L:8140:8140 -L:8143:8143 -L:1080:1080 "sleep 3000 "  &
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "sleep 3000 "  &
         #### 
          
         ping_NC_Test ${masterip}     tcp 2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
