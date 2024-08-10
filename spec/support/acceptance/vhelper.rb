@@ -199,20 +199,24 @@ function      command(){
         
         #### Hardcoded for now 
         masterip=${deploype_ip} ;
+        set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' ;
+        echoMsg '++'    ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "touch /tmp/proxy.txt"  ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "while [ -e /tmp/proxy.txt] ; do sleep 30 ; done ;  "  &
+        sleep 10 ;
         #### 
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
-          masterip=${ipaddrport/:*/}
-          masterport=${ipaddrport/*:/}
-          ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
+          masterip=${ipaddrport/:*/} ;
+          masterport=${ipaddrport/*:/} ;
+          echo ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow    ;
+          ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         done ;
         echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo ;
         echo ;
-        (sleep 900 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
+        (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
         echo "============================Setup done, Now Run Tests " ;
         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ; errorid=$? ;
         #### Hardcoded for now 
