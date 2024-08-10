@@ -151,7 +151,7 @@ function      installpecommands(){
           cd ./spec/fixtures/ ;
           puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || echo ; 
           echo "===Puppet Version Installed=${puppetversion}===" || echo ;
-          echoMsg '!!' 'Prepare Primary server for tests: Access Keys' ;
+          echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
           bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
           ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
           bolt script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;

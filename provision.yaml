@@ -1,11 +1,10 @@
 acceptance:
-  provisioner: docker
-  images: ['litmusimage/ubuntu:22.04']
+  provisioner: vagrant
+  images: ['generic/ubuntu2204' ]
   vars: |
-    roles: ['master']
-    docker_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
-
-
+    roles: ['master' ]
+    vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
 
 
@@ -22,11 +21,13 @@ ddacceptance:
   vars: |
     roles: ['master']
 
+# Cannot run cron service.
 duacceptance:
   provisioner: docker
   images: ['litmusimage/ubuntu:22.04']
   vars: |
     roles: ['master']
+    docker_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
 # NO VAGRANT provisioner
 vvacceptance:
@@ -35,6 +36,7 @@ vvacceptance:
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
 # acceptance:
 #   provisioner: docker
