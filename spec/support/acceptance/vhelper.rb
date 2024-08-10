@@ -8,7 +8,7 @@ print(){
   ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  || which curl ;
   source /tmp/v.sh  loadlib  ;
-  VAGRANTRUN="" ;
+  VAGRANTRUN="Y" ;
   
       deploy_peversion='2021.7.8' ;
       deploy_petarget='127.0.0.1:2222' ;
@@ -191,7 +191,13 @@ function      command(){
         echoMsg '++' 'Connectivity Checks Before  Running the rest'  ;
         echoMeNRun ip addr || echo "IP addr Failed..." ;
         bolt command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
-        masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ; 
+        masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ;
+        
+        #### Hardcoded for now 
+        masterip=localhost ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p2222 -l vagrant 127.0.0.1 -L:8140:8140 -L:8143:8143 -L:1080:1080 "sleep 3000 "  &
+        #### 
+         
         ping_NC_Test ${masterip}     tcp 2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
@@ -200,6 +206,11 @@ function      command(){
         echo ;
         echo "============================Setup done, Now Run Tests " ;
         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ;
+
+        #### Hardcoded for now 
+        
+        #### 
+
 }  
   
 if  [ "exec" = "$1" ] ; then
