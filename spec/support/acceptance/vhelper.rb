@@ -88,7 +88,6 @@ function      preinstallpecommands(){
         echo ;
         echo ;
         echoMsg '!!' "Provision Adjustment and Checks Starts" ;
-        ssh-keygen -R localhost ; 
         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         echoMsg '++' "=provisioner=$provisioner=" ;
@@ -201,6 +200,8 @@ function      command(){
         masterip=${deploype_ip} ;
         set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' ;
         echoMsg '++'    ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
+        echoMsg '++'    ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "touch /tmp/proxy.txt"  ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
         sleep 10 ;
@@ -211,6 +212,9 @@ function      command(){
           echo ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow    ;
           ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         done ;
+        echoMsg '++'  ;
+        echoMsg '++'  ssh-keygen -R ${masterip} ; 
+        ssh-keygen -R ${masterip} ; 
         echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
