@@ -183,7 +183,7 @@ function      command(){
           echoMsg '++' "    Original" ;
           grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
-          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g' | sed -E 's/name: ([^:]+:2222)/name: master/g' > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g' | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E 's/uri: 127.0.0.1:2222/uri: 127.0.0.1/g'  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
           rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
         else
