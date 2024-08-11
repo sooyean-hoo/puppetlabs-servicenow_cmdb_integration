@@ -213,7 +213,9 @@ function      command(){
           echo ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow    ;
           ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         done ;
-        catMe /home/runner/.ssh/known_hosts ;
+        whoami ;
+        catMe $HOME/.ssh/known_hosts ;
+        rm -fr $HOME/.ssh/known_hosts ;
         echoMsg '++'  ;
         echoMsg '++'  ssh-keygen -R ${masterip} ; 
         ssh-keygen -R ${masterip} ; 
