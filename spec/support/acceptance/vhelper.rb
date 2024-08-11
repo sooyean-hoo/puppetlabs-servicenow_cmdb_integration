@@ -216,6 +216,7 @@ function      command(){
         whoami ;
         catMe $HOME/.ssh/known_hosts ;
         rm -fr $HOME/.ssh/known_hosts ;
+        ssh-keyscan -t rsa ${masterip}   >> $HOME/.ssh/known_hosts ;
         echoMsg '++'  ;
         echoMsg '++'  ssh-keygen -R ${masterip} ; 
         ssh-keygen -R ${masterip} ; 
