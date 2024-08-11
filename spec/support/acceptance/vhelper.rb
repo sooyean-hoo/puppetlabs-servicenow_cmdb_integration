@@ -182,8 +182,9 @@ function      command(){
           echoMsg '!!' "Adjustment for Vagrant" ;
           echoMsg '++' "    Original" ;
           grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
+          echo "127.0.0.1 master master " | sudo tee -a /etc/hosts ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
-          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g' | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E 's/uri: 127.0.0.1:2222/uri: 127.0.0.1/g'  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g' | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E 's/uri: 127.0.0.1:2222/uri: master/g'  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
           rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
         else
@@ -214,12 +215,16 @@ function      command(){
           ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         done ;
         whoami ;
+        catMe /etc/hosts ;
         catMe $HOME/.ssh/known_hosts ;
         rm -fr $HOME/.ssh/known_hosts ;
         ssh-keyscan -t rsa ${masterip}   >> $HOME/.ssh/known_hosts ;
+        ssh-keyscan -t rsa master   >> $HOME/.ssh/known_hosts ;
         echoMsg '++'  ;
         echoMsg '++'  ssh-keygen -R ${masterip} ; 
+        echoMsg '++'  ssh-keygen -R master ; 
         ssh-keygen -R ${masterip} ; 
+        ssh-keygen -R master ; 
         echoMsg '++'  ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
