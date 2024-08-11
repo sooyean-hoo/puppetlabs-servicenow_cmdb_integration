@@ -198,7 +198,8 @@ function      command(){
         
         #### Hardcoded for now 
         masterip=${deploype_ip} ;
-        set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' ;
+        echoMsg '++'    ;
+        set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' | grep -v '^ ' ;
         echoMsg '++'    ;
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
         echoMsg '++'    ;
@@ -212,6 +213,7 @@ function      command(){
           echo ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow    ;
           ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
         done ;
+        catMe /home/runner/.ssh/known_hosts ;
         echoMsg '++'  ;
         echoMsg '++'  ssh-keygen -R ${masterip} ; 
         ssh-keygen -R ${masterip} ; 
