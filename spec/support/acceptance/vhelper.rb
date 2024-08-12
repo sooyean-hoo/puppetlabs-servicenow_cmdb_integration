@@ -254,8 +254,12 @@ function      command(){
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
       
-        echoMsg '!!' Package Modules    ;
-        ls -l pkg/*.tar.gz
+        echoMsg '!!' Ownself install Package Modules    ;
+        ls -l pkg/*.tar.gz ;
+        tarfile="pkg/*.tar.gz" ;
+        btarfile=`basename ${tarfile}`
+        scp -i /tmp/myownkey -P${masterport} -l vagrant  pkg/*.tar.gz  ${masterip}:/tmp ;
+        ssh -i /tmp/myownkey -A -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "ls -l /tmp/${btarfile} ; sudo puppet module install /tmp/${btarfile} ; " ;
         echoMsg '!!'  ;
 
         echo ;
