@@ -48,8 +48,8 @@ describe 'node classification' do
       ),
     )
     master.apply_manifest(setup_manifest, catch_failures: true)
-    master_uri=master.uri.gsub(/:[0-9]+/, '') # clean up the port suffix
-    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master.uri}")
+    master_uri = master.uri.gsub(%r{:[0-9]+}, '') # clean up the port suffix
+    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master_uri}")
   end
   after(:all) do
     # Teardown the test environment
