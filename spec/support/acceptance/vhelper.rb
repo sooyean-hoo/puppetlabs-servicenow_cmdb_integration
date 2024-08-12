@@ -190,7 +190,11 @@ function      command(){
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g'   > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           
-          #cat ./spec/fixtures/litmus_inventory.yaml.NEW > cat ./spec/fixtures/litmus_inventory.yaml.TMP ; \
+          cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml.TMP ; \
+            cat ./spec/fixtures/litmus_inventory.yaml.TMP | \
+              sed -E "s/name: ([^:]+)(:2222)/name: ${pehostnameinservicenow}\2/g" | \
+              sed  -E "s/uri: ([^:]+)(:2222)/uri: ${pehostnameinservicenow}\2/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          
           #  cat ./spec/fixtures/litmus_inventory.yaml.TMP | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E "s/uri: 127.0.0.1:2222/uri: ${pehostnameinservicenow}/g" | sed  -E "s/host: 127.0.0.1/host: ${pehostnameinservicenow}/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
