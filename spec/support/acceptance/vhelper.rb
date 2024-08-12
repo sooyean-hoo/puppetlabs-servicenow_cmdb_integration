@@ -226,6 +226,7 @@ function      command(){
         echoMsg '++'  ssh-keygen -R master ; 
         ssh-keygen -R ${masterip} ; 
         ssh-keygen -R ${pehostnameinservicenow} ; 
+        ssh-keyscan -t rsa ${pehostnameinservicenow}   >> $HOME/.ssh/known_hosts ;
         echoMsg '++' 'known_hosts' ;
         catMe $HOME/.ssh/known_hosts ;
         catMe $HOME/.ssh/known_hosts.old ;
