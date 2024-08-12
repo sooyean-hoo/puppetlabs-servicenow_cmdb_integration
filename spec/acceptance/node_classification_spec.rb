@@ -48,8 +48,9 @@ describe 'node classification' do
       ),
     )
     master.apply_manifest(setup_manifest, catch_failures: true)
-    master_uri = master.uri.gsub(%r{:[0-9]+}, '') # clean up the port suffix
-    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master_uri}")
+    # master_uri = master.uri.gsub(%r{:[0-9]+}, '') # clean up the port suffix
+    master_certname = master.run_shell('puppet config print  certname')['stdout'] # Cannot assume certname is always the uri. Hence We ask the node.
+    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master_certname}")
   end
   after(:all) do
     # Teardown the test environment
