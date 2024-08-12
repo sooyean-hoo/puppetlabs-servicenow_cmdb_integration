@@ -222,11 +222,13 @@ function      command(){
         ssh-keyscan -t rsa ${masterip}   >> $HOME/.ssh/known_hosts ;
         ssh-keyscan -t rsa ${pehostnameinservicenow}   >> $HOME/.ssh/known_hosts ;
         echoMsg '++'  ;
-        echoMsg '++'  ssh-keygen -R ${masterip} ; 
         echoMsg '++'  ssh-keygen -R master ; 
-        ssh-keygen -R ${masterip} ; 
-        ssh-keygen -R ${pehostnameinservicenow} ; 
-        ssh-keyscan -t rsa ${pehostnameinservicenow}   >> $HOME/.ssh/known_hosts ;
+        echoMsg '++'  ssh-keygen -R ${pehostnameinservicenow} ; 
+        for i in  127.0.0.1   master   ${masterip}  ${pehostnameinservicenow} ; do
+            echoMsg '++'  "\nssh-keygen -R ${i} ;\nssh-keygen -t rsa ${ip} ;\n" ;
+            ssh-keygen -R ${i} ;      
+            ssh-keyscan -t rsa ${i}   >> $HOME/.ssh/known_hosts ;
+        done ;
         echoMsg '++' 'known_hosts' ;
         catMe $HOME/.ssh/known_hosts ;
         catMe $HOME/.ssh/known_hosts.old ;
