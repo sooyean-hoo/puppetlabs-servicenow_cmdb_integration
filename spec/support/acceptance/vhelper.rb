@@ -188,9 +188,13 @@ function      command(){
           grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
           echo "127.0.0.1 master ${pehostnameinservicenow}" | sudo tee -a /etc/hosts ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
-          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g' | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E "s/uri: 127.0.0.1:2222/uri: ${pehostnameinservicenow}/g" | sed  -E "s/host: 127.0.0.1/host: ${pehostnameinservicenow}/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g'   > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          
+          #cat ./spec/fixtures/litmus_inventory.yaml.NEW > cat ./spec/fixtures/litmus_inventory.yaml.TMP ; \
+          #  cat ./spec/fixtures/litmus_inventory.yaml.TMP | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E "s/uri: 127.0.0.1:2222/uri: ${pehostnameinservicenow}/g" | sed  -E "s/host: 127.0.0.1/host: ${pehostnameinservicenow}/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml ; 
-          rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
+          #rm -fr ./spec/fixtures/litmus_inventory.yaml.NEW ;
         else
           echo "=======SKIPPED Adjustment COS Unsupported provisioner: $provisioner =======" ;
         fi ;
@@ -262,7 +266,7 @@ function      command(){
         tarfile="pkg/*.tar.gz" ;
         btarfile=`basename ${tarfile}`
         scp -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -P${masterport:-2222}   pkg/*.tar.gz  vagrant@${masterip}:/tmp ;
-        ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport:-2222} -l vagrant ${masterip} "ls -l /tmp/${btarfile} ; sudo puppet module install /tmp/${btarfile} ; " ;
+        ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -p${masterport:-2222} -l vagrant ${masterip} "ls -l /tmp/${btarfile} ; sudo puppet module install /tmp/${btarfile} ; " ;
         echoMsg '!!'  ;
 
         echo ;
