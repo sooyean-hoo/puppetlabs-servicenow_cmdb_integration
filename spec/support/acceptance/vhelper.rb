@@ -16,6 +16,10 @@ print(){
       deploype_ip=${deploy_petarget/:*/}
       deploype_port=${deploy_petarget/*:/};
       
+      ping_NC_Test_TESTTARGETS="tcp   2222:vagrantssh 22:ssh 8140:puppetExecutor  1080:ServiceNow             80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP ";
+      pehostnameinservicenow="example.puppet.com" ;
+      
+      
 function      preinstallpecommands(){
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
@@ -166,7 +170,6 @@ function      prepcommand1(){
         echo "===Puppet Version Installed=${puppetversion}===" || echo ;
 }
 function      command(){
-        pehostnameinservicenow="example.puppet.com" ;
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         bundle install ;
@@ -212,8 +215,8 @@ function      command(){
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
-          echo ping_NC_Test ${masterip}     tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow    ;
-          ping_NC_Test ${masterip}          tcp ${masterport}:boltinvconnectport  2222:vagrantssh 22:ssh 80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP 8140:puppetExecutor  1080:ServiceNow  || echo "ping_NC_Test Failed..." ;
+          echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}    ;
+          ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
         done ;
         whoami ;
         catMe /etc/hosts ;
@@ -225,6 +228,7 @@ function      command(){
         echoMsg '++'  ssh-keygen -R master ; 
         echoMsg '++'  ssh-keygen -R ${pehostnameinservicenow} ; 
         for i in  127.0.0.1   master   ${masterip}  ${pehostnameinservicenow} ; do
+            test -z "$i" && continue ;
             echoMsg '++'  "\nssh-keygen -R ${i} ;\nssh-keygen -t rsa ${ip} ;\n" ;
             ssh-keygen -R ${i} ;      
             ssh-keyscan -t rsa ${i}   >> $HOME/.ssh/known_hosts ;
@@ -233,12 +237,23 @@ function      command(){
         catMe $HOME/.ssh/known_hosts ;
         catMe $HOME/.ssh/known_hosts.old ;
         echoMsg '++' ;
+        cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
+          masterip=${ipaddrport/:*/} ;
+          masterport=${ipaddrport/*:/} ;
+          if [ "$masterip" = "$masterport"  ] ; then
+            masterport=2222 ;
+          fi;
+          echoMsg '!!' SSH Test    ;
+          ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working:  vagrant@${masterip}:${masterport}" || echo "Failed:  vagrant@${masterip}:${masterport} ;
+          ssh -i /tmp/myownkey -A -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working HostChecked:  vagrant@${masterip}:${masterport}" || echo "Failed HostChecked:  vagrant@${masterip}:${masterport} ;
+        done ;
+        echo     > $HOME/.ssh/known_hosts ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
         echo ;
         echo ;
         (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
-        echo "============================Setup done, Now Run Tests " ;
+        echoMsg '==' "Setup done, Now Run Tests"  ;
         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ; errorid=$? ;
         #### Hardcoded for now 
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
