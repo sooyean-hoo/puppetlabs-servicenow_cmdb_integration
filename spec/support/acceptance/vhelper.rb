@@ -233,23 +233,31 @@ function      command(){
             ssh-keygen -R ${i} ;      
             ssh-keyscan -t rsa ${i}   >> $HOME/.ssh/known_hosts ;
         done ;
-        echoMsg '++' 'known_hosts' ;
-        catMe $HOME/.ssh/known_hosts ;
-        catMe $HOME/.ssh/known_hosts.old ;
         echoMsg '++' ;
+        echoMsg '!!' SSH Test    ;
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
           if [ "$masterip" = "$masterport"  ] ; then
             masterport=2222 ;
           fi;
-          echoMsg '!!' SSH Test    ;
           ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working:  vagrant@${masterip}:${masterport}" || echo "Failed:  vagrant@${masterip}:${masterport} ;
           ssh -i /tmp/myownkey -A -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working HostChecked:  vagrant@${masterip}:${masterport}" || echo "Failed HostChecked:  vagrant@${masterip}:${masterport} ;
         done ;
+        echoMsg '!!'    ;
         echo     > $HOME/.ssh/known_hosts ;
+
+        echoMsg '++' 'known_hosts' ;
+        catMe $HOME/.ssh/known_hosts ;
+        catMe $HOME/.ssh/known_hosts.old ;
+        echoMsg '++' ;
         bundle exec 'rake acceptance:install_module' ;
         echo DONE bundle exec 'rake acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+      
+        echoMsg '!!' Package Modules    ;
+        ls -l pkg/*.tar.gz
+        echoMsg '!!'  ;
+
         echo ;
         echo ;
         (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
