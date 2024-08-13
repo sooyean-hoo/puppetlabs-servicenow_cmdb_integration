@@ -290,19 +290,23 @@ function      command(){
 function help(){
   echo ;
   echo "Available functions \"$0 exec ....\"  aka :"
-  grep function  $0  |  sed -E 's/function[\ ]+/    /'  | tr -d \(\)\{  | grep -v grep | sort -u ;
-
+  grep function  $0  |  sed -E 's/function[\ ]+/    /'  | tr -d \(\)\{  | grep -v exec | grep -v grep | sort -u ;
+  
+  echo
+  echo
+  echo "Available additional functions ( from /tmp/v.sh) \"$0 exec ....\"  aka :"
+  [ ! -e /tmp/v.sh ] || grep function  /tmp/v.sh  |  sed -E 's/function[\ ]+/    /'  | tr -d \(\)\{  | grep -v regenfns | grep -v grep | sort -u ;  
 }
 if [ "help" = "$1"  -o "--help" = "$1"    ] ; then
   help ;
-  exit 0;
+  return 2> /dev/null || echo ; exit 0;
 fi;
 if  [ "exec" = "$1" ] ; then
   shift ;
   echo "===Executing....$@....." ;
   $@ ; errorid=$?;
   echo "==errorid=$errorid=" ;
-  return; exit $errorid;
+  return 2> /dev/null || echo ; exit $errorid;
 fi;
 exit
 =end
