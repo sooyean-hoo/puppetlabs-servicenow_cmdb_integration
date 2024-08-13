@@ -57,7 +57,7 @@ jobs:
         bash ./spec/support/acceptance/vhelper.rb exec preinstallpecommands ;
       deploy_peversion: '2021.7.8'
       deploy_petarget: 'ssh_nodes'
-      opensourcepuppetversion: 'L'
+      ospversion: 'L'
       installpecommands: >
         bash ./spec/support/acceptance/vhelper.rb exec installpecommands ;
       prepcommand1: >
