@@ -277,13 +277,26 @@ function      command(){
         echo ;
         (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
         echoMsg '==' "Setup done, Now Run Tests"  ;
-        bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ; errorid=$? ;
+        bundle exec 'rake acceptance:run_tests' errorid=$? ;
         #### Hardcoded for now 
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
         #### 
+        
+        bundle exec 'rake acceptance:tear_down'  || echo  "Tear Down also have errors." ;
+
         exit $errorid ;
 }  
-  
+
+function help(){
+  echo ;
+  echo "Available functions \"$0 exec ...."  aka :
+  grep function  $0  |  sed -E 's/function[\ ]+/    /'  | tr -d \(\)\{  | grep -v grep | sort -u ;
+
+}
+if [ "help" = "$1"  -o "--help" = "$1"    ] ; then
+  help ;
+  exit 0;
+fi;
 if  [ "exec" = "$1" ] ; then
   shift ;
   echo "===Executing....$@....." ;
