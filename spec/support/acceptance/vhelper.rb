@@ -5,7 +5,7 @@ print(){
 }
 #echo 'running as shell'
 
-  ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
+  ( which curl || sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  || which curl ;
   source /tmp/v.sh  loadlib  ;
   VAGRANTRUN="Y" ;
@@ -289,7 +289,7 @@ function      command(){
 
 function help(){
   echo ;
-  echo "Available functions \"$0 exec ...."  aka :
+  echo "Available functions \"$0 exec ....\"  aka :"
   grep function  $0  |  sed -E 's/function[\ ]+/    /'  | tr -d \(\)\{  | grep -v grep | sort -u ;
 
 }
