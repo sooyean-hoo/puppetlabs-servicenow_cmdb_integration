@@ -1,0 +1,214 @@
+name: "CI_Opensource"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+      - "dev_sooyean"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+      - "dev_sooyean"
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Spec:
+    uses: "puppetlabs/cat-github-actions/.github/workflows/module_ci.yml@main"
+    secrets: "inherit"
+
+# Firstly, I am not the original author of the Acceptance Tests. It took me 
+# weeks to figure out what is the design and the original author's intentions. 
+# Have fun using 'git blame'.
+
+# The original Acceptance Test is using VMPooler... so it run the VMPooler to 
+# get a machine via SSH... as master. Inside the master, you run a mockup 
+# ServiceNow in a docker to test against. All acceptance tests are to be run on 
+# the master. VMPooler is now deprecated. Hence I am using vagrant to replace 
+# the VMPooler VM, using docker as a replacement has proven to be not working, 
+# as it is hard to have a docker within a docker container. In fact, it is 
+# impossible.
+
+# It is also silly to try to change the test to work with 2 containers: too much
+# changes. The original author use litmus to only provision 1 VM: the master. 
+# The rest of the provision, the servicenow, it did it not via Litmus, but it 
+# still want to use it to manage and access the docker. This is where it is 
+# confusing. There is a 'servicenow_instance' in 
+# spec/support/acceptance/helpers.rb, magically created. It is not mentioned at 
+# all in provision.yaml. It is not created by the litmus, but a script. I would 
+# called it, as a way to hack the litmus. Hence it is as good as how litmus stay
+# constant. If there is any future changes to how litmus ingest the inventory. 
+# It may just fail. Good LUCK.
+
+
+
+  Acceptance:
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+    secrets: "inherit"
+    with:
+      flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'"  # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+      preinstallpecommands: >
+        bash ./spec/support/acceptance/vhelper.rb exec preinstallpecommands ;
+      deploy_peversion: '2021.7.8'
+      deploy_petarget: 'ssh_nodes'
+      opensourcepuppetversion: 'L'
+      installpecommands: >
+        bash ./spec/support/acceptance/vhelper.rb exec installpecommands ;
+      prepcommand1: >
+        bash ./spec/support/acceptance/vhelper.rb exec prepcommand1 ;
+      command: >
+        bash ./spec/support/acceptance/vhelper.rb exec command ;
+
+
+# 
+#   AcceptancePrep:
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+#       installpecommands: >
+#         echo "===FailSafe PE Installation, in case the original one fail===" ;
+#         PEVERSION='2021.7.8' ;
+#         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
+#         version=$(puppet --version) ;
+#         if  [ -z "$version" ] ; then
+#           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
+#           apt install -y curl || yum install -y curl ;
+#           curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh ;
+#           source /tmp/v.sh  loadlib ;
+#           echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
+#           touch /tmp/key2share ;
+#           installPEConsole =SETVALUES= ;
+#           installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
+#           dlPEConsole check ${PEVERSION} ;
+#           dlPEConsole show ${PEVERSION} ;
+#           installPEConsole ;
+#         else
+#           echo "===Puppet Version Installed=${version}===" ;
+#         fi ;
+#       deploy_peversion: '2021.7.8'
+#       command: >
+#         echo "===Puppet Version Installed=$(puppet --version)===" ;
+#         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
+#         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  ;
+#         source /tmp/v.sh  loadlib  ;
+#         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
+#         snappkgs='snapd' ;
+#         vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
+#         echo "=====Pkgs=${pkgs}=============" ;
+#         installPkg $pkgs ;
+#         echo "=====Pkgs=${vagrantpkgs}=============" ;
+#         installPkg $vagrantpkgs ;
+#         echo "=====Pkgs=${snappkgs}=============" ;
+#         installPkg $snappkgs ;
+#         vagrant plugin install vagrant-libvirt ;
+#         vagrant plugin list ;
+#         wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
+#         echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
+#         sudo apt update && sudo apt install ${vagrantpkgs} ;     
+#         echo "======================================" ;
+#         gem install --force  bcrypt_pbkdf --version 1.1.1 ;
+#         gem install --force  ed25519 --version 1.3.0 ;
+#         echo gem install rubygems-update ; 
+#         gem install rubygems-update -v 3.4.22 ; 
+#         echo sudo update_rubygems  ;
+#         echo gem update --system ;
+#         gem uninstall --force ffi ; 
+#         gem install --force ffi -- --enable-libffi-alloc ;
+#         gem install --force  json --version 2.7.2 ; 
+#         echo SKIPPED gem install --force  llhttp-ffi --version 0.5.0 ; 
+#         echo SKIPPED gem install --force  nio4r --version 2.7.3 ; 
+#         echo SKIPPED gem install --force  nkf --version 0.2.0 ; 
+#         gem install --force  racc --version 1.8.1 ; 
+#         gem install --force  rainbow --version 2.2.2 ; 
+#         gem install --force  strscan --version 3.1.0 ;
+#         gem install --force  rake -v 13.2.1 ;
+#         gem install --force  CFPropertyList  -v 2.3.6  ;
+#         mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;  
+#         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          role:\n            - master'   >> inventory.yaml ; 
+#         echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          role:\n            - servicenow_instance'  >> inventory.yaml &&
+#         cat ./inventory.yaml && 
+#         cp -f ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+#         bundle install ;
+#         bundle exec 'rake --tasks' ;
+#         bundle install ;
+#         ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
+#         export VAGRANT_PASSWORD="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!"  ;
+#         bundle exec 'rake acceptance:provision_vms ' ;
+#         ssh-keygen -R localhost ; 
+#         grep -H -n -v -E 'AALINEAANUMBER'  ./inventory.yaml ./spec/fixtures/litmus_inventory.yaml ;
+#         echo "===Proposed Changes===" ;
+#         cat ./spec/fixtures/litmus_inventory.yaml |  yq  '.groups[3].targets[0].config.ssh.private-key="/tmp/myownkey"' | tee  ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
+#         echo "==============" ;
+#         ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
+#         ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
+#         pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
+#         OLDCWD=$(pwd) ;
+#         echo "=====vagrant ssh default===========" ;
+#         pushd `pwd` ; cd spec/fixtures/.vagrant/generic-ubuntu2204-0 ;pwd ;
+#         vagrant ssh default  --command "cat /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
+#         echo "=============Updating keys of vagrant ssh default===========" ;
+#         cat /tmp/myownkey.pub | vagrant ssh default  --command "cat >> /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
+#         cat  ${OLDCWD}/spec/fixtures/litmus_inventory.yaml.proposed >  ${OLDCWD}/spec/fixtures/litmus_inventory.yaml ;
+#         echo "============================After Update" ;
+#         grep -H -n -v -E 'AALINEAANUMBER' ${OLDCWD}/spec/fixtures/litmus_inventory.yaml ;
+#         vagrant ssh default  --command "cat /home/vagrant/.ssh/authorized_keys |  grep -H -n -v -E 'AALINEAANUMBER' " || echo "FAIL: vagrant ssh default.....date" ;
+#         echo "==============" ;
+#                 vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
+#         popd ;
+#         echo "===== ssh with vagrantkey ===========" ;
+#         ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+#         echo "===== ssh with /tmp/myownkey ===========" ;
+#         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
+#         echo "======ssh puppet install====================" ;
+#         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -vvvvvv -p2222 -l vagrant 127.0.0.1 "sudo apt install -y puppet"  ||  echo "FAIL: ssh puppet install..."  ;
+#         echo "==========================" ;
+#         bundle install ;
+#         bundle exec 'rake acceptance:setup_pe_p2 acceptance:setup_servicenow_instance ' ;
+#         echo "============================After Update from setup_servicenow_instance " ;
+#         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
+#         bundle exec 'rake acceptance:install_module' ;
+#         echo bundle exec 'acceptance:provision_vms acceptance:setup_pe_p2 acceptance:setup_servicenow_instance acceptance:install_module' ;
+#         echo "============================Setup done, Now Run Tests " ;
+#         bundle exec 'rake acceptance:run_tests acceptance:tear_down'  ;
+
+#   Acceptance:
+#     needs: "AcceptancePrep"
+#     uses: "puppetlabs/cat-github-actions/.github/workflows/module_acceptance.yml@main"
+#     secrets: "inherit"
+#     with:
+#       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+
+
+
+
+
+
+
+#   V-AcceptanceWithDocker:
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_docker.yml@dev_sooyean"
+#     secrets: "inherit"
+
+# Not working as VMs all down.
+#   Acceptance:
+#     needs: Spec
+#     uses: "puppetlabs/cat-github-actions/.github/workflows/module_acceptance.yml@dev_sooyean"
+#     secrets: "inherit"
+#     with:
+#       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"Ubuntu-18.04\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+
+#   V-Spec:
+#     needs: Spec
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_ci.yml@dev_sooyean"
+#     secrets: "inherit"
+
+#   V-Acceptance:
+#     needs: Spec
+#     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance.yml@dev_sooyean"
+#     secrets: "inherit"
