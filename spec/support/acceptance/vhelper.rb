@@ -399,7 +399,7 @@ namespace :valentepuppet do
 
   desc 'Testing of Parameters'
   task :parametertests, [:para1, :para2] do |_t, paras|
-    #master = VP::Target.new('AAAAAA')
+    # master = VP::Target.new('AAAAAA')
     a = master.uri
     puts "Hello...#{paras[:para1]}...#{paras[:para2]}...#{a}"
 
