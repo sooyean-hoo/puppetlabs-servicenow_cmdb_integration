@@ -353,11 +353,10 @@ module VP
 
   class TargetNotFoundError < StandardError; end
   module TargetHelpers
-    def pemaster
-      require 'pry-byebug' ; binding.pry
+    def master
       target('master', 'acceptance:provision_vms', 'master')
     end
-    module_function :pemaster
+    module_function :master
 
     def servicenow_instance
       target('ServiceNow instance', 'acceptance:setup_servicenow_instance', 'servicenow_instance')
@@ -401,11 +400,11 @@ namespace :valentepuppet do
   desc 'Testing of Parameters'
   task :parametertests, [:para1, :para2] do |_t, paras|
     #master = VP::Target.new('AAAAAA')
-    a = pemaster.uri
+    a = master.uri
     puts "Hello...#{paras[:para1]}...#{paras[:para2]}...#{a}"
 
-    pemaster.run_shell('date')
-    pemaster.run_shell('hostname')
-    pemaster.run_shell('uptime')
+    master.run_shell('date')
+    master.run_shell('hostname')
+    master.run_shell('uptime')
   end
 end

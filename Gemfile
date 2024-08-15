@@ -38,6 +38,10 @@ group :development do
   gem "hashdiff",                                                require: false
   gem "pdk",                                                     require: false
   gem 'github_changelog_generator', '~> 1.16', '>= 1.16.4',      require: false
+  
+  gem 'pry-byebug',                                              require: false
+  gem 'rdebug',                                                  require: false
+  gem 'debase',                                                  require: false
 end
 
 puppet_version = ENV['PUPPET_GEM_VERSION']
