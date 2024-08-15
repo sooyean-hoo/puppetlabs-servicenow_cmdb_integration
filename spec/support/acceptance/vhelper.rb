@@ -320,21 +320,21 @@ exit
 module VP
   require 'puppet_litmus'
   PuppetLitmus.configure!
-  
+
   class Target
     include PuppetLitmus
-  
+
     attr_reader :uri
-  
+
     def initialize(uri)
       @uri = uri
     end
-  
+
     def bolt_config
       inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file
       LitmusHelpers.config_from_node(inventory_hash, @uri)
     end
-  
+
     # Make sure that ENV['TARGET_HOST'] is set to uri
     # before each PuppetLitmus method call. This makes it
     # so if we have an array of targets, say 'agents', then
@@ -350,22 +350,22 @@ module VP
       end
     end
   end
-  
+
   class TargetNotFoundError < StandardError; end
   module TargetHelpers
     def master
       target('master', 'acceptance:provision_vms', 'master')
     end
     module_function :master
-  
+
     def servicenow_instance
       target('ServiceNow instance', 'acceptance:setup_servicenow_instance', 'servicenow_instance')
     end
     module_function :servicenow_instance
-  
+
     def target(name, setup_task, role)
       @targets ||= {}
-  
+
       unless @targets[name]
         # Find the target
         inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file
@@ -380,29 +380,27 @@ module VP
         end
         @targets[name] = Target.new(target_uri)
       end
-  
+
       @targets[name]
     end
     module_function :target
   end
-  
+
   module LitmusHelpers
     extend PuppetLitmus
   end
 end
 
-
 namespace :valentepuppet do
   require 'puppet_litmus/rake_tasks'
-  #require_relative './helpers'
+  # require_relative './helpers'
 
   include VP::TargetHelpers
-  
+
   desc 'Testing of Parameters'
-  task :parametertests, [:para1, :para2] do |t, paras|
-   master = VP::Target.new('AAAAAA')
+  task :parametertests, [:para1, :para2] do |_t, paras|
+    master = VP::Target.new('AAAAAA')
     a = master.uri
     puts "Hello...#{paras[:para1]}...#{paras[:para2]}...#{a}"
   end
-end    
-
+end
