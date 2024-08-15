@@ -71,10 +71,10 @@ function      preinstallpecommands(){
         echo -e '\n  - name: servicenow_instance\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - servicenow_instance' '>> inventory.yaml' > /dev/null &&
         cat $PWD/inventory.yaml && 
         [ -e $PWD/inventory.yaml  ] && ln -sf $PWD/inventory.yaml $PWD/spec/fixtures/litmus_inventory.yaml ;
-        ls -l $PWD/inventory.yaml || echo ;
-        ls -l $PWD/spec/fixtures/litmus_inventory.yaml || echo ;
-        catMe $PWD/inventory.yaml  || echo ;
-        catMe $PWD/spec/fixtures/litmus_inventory.yaml || echo ;
+        ls -l $PWD/inventory.yaml || true ;
+        ls -l $PWD/spec/fixtures/litmus_inventory.yaml || true ;
+        catMe $PWD/inventory.yaml  || true ;
+        catMe $PWD/spec/fixtures/litmus_inventory.yaml || true ;
         echoMsg '__' ;
         echo ; 
         echoMsg '!!' "Provision Starts" ;
@@ -139,7 +139,7 @@ function      installpecommands(){
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || echo ; 
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
         version="NOT NEEDED SO ByPassed" ;
         if  [ -z "$version" ] ; then
           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
@@ -156,8 +156,8 @@ function      installpecommands(){
         else
           oldDIR="$PWD" ;
           cd ./spec/fixtures/ ;
-          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || echo ; 
-          echo "===Puppet Version Installed=${puppetversion}===" || echo ;
+          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
+          echo "===Puppet Version Installed=${puppetversion}===" || true ;
           echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
           bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
           ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
@@ -166,8 +166,8 @@ function      installpecommands(){
 }
 function      prepcommand1(){
         cd ./spec/fixtures/ ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || echo ; 
-        echo "===Puppet Version Installed=${puppetversion}===" || echo ;
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+        echo "===Puppet Version Installed=${puppetversion}===" || true ;
 }
 function      command(){
         source /tmp/v.sh  loadlib  ;
@@ -299,14 +299,14 @@ function help(){
 }
 if [ "help" = "$1"  -o "--help" = "$1"    ] ; then
   help ;
-  return 2> /dev/null || echo ; exit 0;
+  return 2> /dev/null || true ; exit 0;
 fi;
 if  [ "exec" = "$1" ] ; then
   shift ;
   echo "===Executing....$@....." ;
   $@ ; errorid=$?;
   echo "==errorid=$errorid=" ;
-  return 2> /dev/null || echo ; exit $errorid;
+  return 2> /dev/null || true ; exit $errorid;
 fi;
 exit
 =end
