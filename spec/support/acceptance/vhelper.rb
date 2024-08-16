@@ -21,9 +21,13 @@ print(){
       
 
 function      modify_sudo_settings(){
+          echoMsg '**'
+          env ;
+          echoMsg '**'
           sudo sed -i 's/Defaults env_reset//' /etc/sudoers
 }
 function      Create_the_fixtures_directory(){
+          bundle install ;
           bundle exec rake spec_prep
 }
 function      install_actual_bolt(){
@@ -49,14 +53,12 @@ function      installpe(){
 
       
 function      preinstallpecommands(){
+        echo ===cat ${GITHUB_OUTPUT} ; cat ${GITHUB_OUTPUT} || echo "No file ${GITHUB_OUTPUT}"; 
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
         source /tmp/v.sh  loadlib  ;
-        echoMsg '**'
-        env ;
-        echoMsg '**'
         echo ;
         echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
