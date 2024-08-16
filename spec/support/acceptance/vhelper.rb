@@ -5,7 +5,7 @@ print(){
 }
 #echo 'running as shell'
 
-  ( which curl || sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
+  ( which curl || sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) 2> /dev/null  > /dev/null &&
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  || which curl ;
   source /tmp/v.sh  loadlib  ;
   VAGRANTRUN="Y" ;
@@ -50,7 +50,30 @@ function      install_bolt_modules(){
 function      installpe(){
         sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
 }
-
+function       installgems(){
+        if [ -z "$VAGRANTRUN" ] ; then
+          echo "=======SKIPPED VAGRANT Gem Install=======" ;
+        else 
+          echo "======================================" ;
+          gem install --force  bcrypt_pbkdf --version 1.1.1 ;
+          gem install --force  ed25519 --version 1.3.0 ;
+          echo gem install rubygems-update ; 
+          gem install rubygems-update -v 3.4.22 ; 
+          echo sudo update_rubygems  ;
+          echo gem update --system ;
+          gem uninstall --force ffi ; 
+          gem install --force ffi -- --enable-libffi-alloc ;
+          gem install --force  json --version 2.7.2 ; 
+          echo SKIPPED gem install --force  llhttp-ffi --version 0.5.0 ; 
+          echo SKIPPED gem install --force  nio4r --version 2.7.3 ; 
+          echo SKIPPED gem install --force  nkf --version 0.2.0 ; 
+          gem install --force  racc --version 1.8.1 ; 
+          gem install --force  rainbow --version 2.2.2 ; 
+          gem install --force  strscan --version 3.1.0 ;
+          gem install --force  rake -v 13.2.1 ;
+          gem install --force  CFPropertyList  -v 2.3.6  ;
+        fi ;  
+}
       
 function      preinstallpecommands(){
         sshverbose="-vvvvvv" ;         sshverbose="" ;
@@ -73,29 +96,10 @@ function      preinstallpecommands(){
         vagrant plugin list ;
         wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
         echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
-        sudo apt update && sudo apt install ${vagrantpkgs} ;     
-        if [ -z "$VAGRANTRUN" ] ; then
-          echo "=======SKIPPED VAGRANT Gem Install=======" ;
-        else 
-          echo "======================================" ;
-          gem install --force  bcrypt_pbkdf --version 1.1.1 ;
-          gem install --force  ed25519 --version 1.3.0 ;
-          echo gem install rubygems-update ; 
-          gem install rubygems-update -v 3.4.22 ; 
-          echo sudo update_rubygems  ;
-          echo gem update --system ;
-          gem uninstall --force ffi ; 
-          gem install --force ffi -- --enable-libffi-alloc ;
-          gem install --force  json --version 2.7.2 ; 
-          echo SKIPPED gem install --force  llhttp-ffi --version 0.5.0 ; 
-          echo SKIPPED gem install --force  nio4r --version 2.7.3 ; 
-          echo SKIPPED gem install --force  nkf --version 0.2.0 ; 
-          gem install --force  racc --version 1.8.1 ; 
-          gem install --force  rainbow --version 2.2.2 ; 
-          gem install --force  strscan --version 3.1.0 ;
-          gem install --force  rake -v 13.2.1 ;
-          gem install --force  CFPropertyList  -v 2.3.6  ;
-        fi ;
+        sudo apt update && sudo apt install ${vagrantpkgs} ;  
+          
+        #VAGRANTRUN=$VAGRANTRUN installgems
+        
         mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
         echo ;
         echoMsg '__' 'Inventories'
