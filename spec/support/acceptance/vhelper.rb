@@ -53,7 +53,6 @@ function      installpe(){
 
       
 function      preinstallpecommands(){
-        echo ===cat ${GITHUB_OUTPUT} ; cat ${GITHUB_OUTPUT} || echo "No file ${GITHUB_OUTPUT}"; 
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
@@ -444,12 +443,8 @@ namespace :valentepuppet do
   # Task For the Standard Breakdown of the Acceptance Test Stages.
   desc 'Provision environment'
   task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
-    `bash ./spec/support/acceptance/vhelper.rb exec modify_sudo_settings ;`
-    `bash ./spec/support/acceptance/vhelper.rb exec Create_the_fixtures_directory ;`
-    `bash ./spec/support/acceptance/vhelper.rb exec install_actual_bolt ;`
-    `bash ./spec/support/acceptance/vhelper.rb exec install_bolt_modules ;`
-    `bash ./spec/support/acceptance/vhelper.rb exec preinstallpecommands ;`
-    `bash ./spec/support/acceptance/vhelper.rb exec installpe ;`
+    puts 'Provisioning.......... environment'
+    `bash ./spec/support/acceptance/vhelper.rb exec runChain + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +  preinstallpecommands + installpe +`
   end
 
   desc 'Install Puppet agent'
