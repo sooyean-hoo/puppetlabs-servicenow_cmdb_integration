@@ -444,7 +444,8 @@ namespace :valentepuppet do
   desc 'Provision environment'
   task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
     puts 'Provisioning.......... environment'
-    `bash ./spec/support/acceptance/vhelper.rb exec runChain + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +  preinstallpecommands + installpe +`
+    # `bash ./spec/support/acceptance/vhelper.rb exec runChain + echoMsg == Prep Install Start  + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules + `
+    `bash ./spec/support/acceptance/vhelper.rb exec runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +`
   end
 
   desc 'Install Puppet agent'
