@@ -19,10 +19,35 @@ print(){
       ping_NC_Test_TESTTARGETS="tcp   2222:vagrantssh 22:ssh 8140:puppetExecutor  1080:ServiceNow             80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP ";
       pehostnameinservicenow="example.puppet.com" ;
       
-      
+
+function      modify_sudo_settings(){
+          sudo sed -i 's/Defaults env_reset//' /etc/sudoers
+}
+function      Create_the_fixtures_directory(){
+          bundle exec rake spec_prep
+}
+function      install_actual_bolt(){
+          wget https://apt.puppet.com/puppet-tools-release-jammy.deb
+          sudo -E dpkg -i puppet-tools-release-jammy.deb
+          sudo -E apt-get update 
+          sudo -E apt-get -y install puppet-bolt
+          sudo -E apt-get -y install curl || sudo -E yum install -y curl || apt-get -y install curl || yum install -y curl
+          sudo -E apt-get -y install cron
+          sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan show
+}
+function      install_bolt_modules(){
+          sudo -E mkdir -p  spec/fixtures/modules
+          sudo -E echo ln -s spec/fixtures/modules .modules
+          sudo -E /usr/local/bin/bolt project init my_project --modules jarretlavallee-deploy_pe,puppetlabs-peadm,aursu-puppet
+          sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add jarretlavallee-deploy_pe
+          sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add puppetlabs-peadm
+          sudo -E chmod a+rw ./inventory.yaml
+}                
 function      installpe(){
         sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
-}      
+}
+
+      
 function      preinstallpecommands(){
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
@@ -416,7 +441,11 @@ namespace :valentepuppet do
 
   # Task For the Standard Breakdown of the Acceptance Test Stages.
   desc 'Provision environment'
-  task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, paras|
+  task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
+    `bash ./spec/support/acceptance/vhelper.rb exec modify_sudo_settings ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec Create_the_fixtures_directory ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec install_actual_bolt ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec install_bolt_modules ;`
     `bash ./spec/support/acceptance/vhelper.rb exec preinstallpecommands ;`
     `bash ./spec/support/acceptance/vhelper.rb exec installpe ;`
   end
