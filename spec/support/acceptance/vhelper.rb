@@ -19,11 +19,11 @@ print(){
       ping_NC_Test_TESTTARGETS="tcp   2222:vagrantssh 22:ssh 8140:puppetExecutor  1080:ServiceNow             80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP ";
       pehostnameinservicenow="example.puppet.com" ;
       
+    echoMsg '++'
+    env ;
+    echoMsg '++'
 
 function      modify_sudo_settings(){
-          echoMsg '**'
-          env ;
-          echoMsg '**'
           sudo sed -i 's/Defaults env_reset//' /etc/sudoers
 }
 function      Create_the_fixtures_directory(){
@@ -349,6 +349,7 @@ exit
 
 ## Implemented own versions: require_relative './helpers.rb'
 
+
 module VP
   require 'puppet_litmus'
   PuppetLitmus.configure!
@@ -425,6 +426,7 @@ end
 
 namespace :valentepuppet do
   require 'puppet_litmus/rake_tasks'
+  require 'English'
   # require_relative './helpers'
 
   include VP::TargetHelpers
@@ -444,23 +446,34 @@ namespace :valentepuppet do
   desc 'Provision environment'
   task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
     puts 'Provisioning.......... environment'
-    `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == Prep Install Start  + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +" `
-    `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
+    # `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == Prep Install Start  + modify_sudo_settings + "`
+    # `bash ./spec/support/acceptance/vhelper.rb exec "runChain + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +" `
+    output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
+    if $CHILD_STATUS.success?
+      puts output
+    else
+      abort 'error: could not execute command'
+    end
   end
 
   desc 'Install Puppet agent'
   task :install_agent__task do # , [:matrix_collection] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `
   end
 
   desc 'Install module'
   task :install_module__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `
   end
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec command `
+    output = `bash ./spec/support/acceptance/vhelper.rb exec command `
+    if $CHILD_STATUS.success?
+      puts output
+    else
+      abort 'error: could not execute command'
+    end
   end
 
   desc 'Remove test environment'

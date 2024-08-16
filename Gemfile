@@ -42,6 +42,7 @@ group :development do
   gem 'pry-byebug',                                              require: false
   gem 'rdebug',                                                  require: false
   gem 'debase',                                                  require: false
+  gem 'english', '~> 0.7.1',                                     require: false
 end
 
 puppet_version = ENV['PUPPET_GEM_VERSION']
