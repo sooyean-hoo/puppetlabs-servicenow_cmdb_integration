@@ -20,12 +20,18 @@ print(){
       pehostnameinservicenow="example.puppet.com" ;
       
       
+function      installpe(){
+        sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
+}      
 function      preinstallpecommands(){
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
         curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
         source /tmp/v.sh  loadlib  ;
+        echoMsg '**'
+        env ;
+        echoMsg '**'
         echo ;
         echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
@@ -368,7 +374,7 @@ module VP
 
       unless @targets[name]
         # Find the target
-        inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file
+        inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file '/Users/valente/tmp/m/a.yaml'
         targets = LitmusHelpers.find_targets(inventory_hash, nil)
         target_uri = targets.find do |target|
           vars = LitmusHelpers.vars_from_node(inventory_hash, target) || {}
@@ -406,5 +412,32 @@ namespace :valentepuppet do
     master.run_shell('date')
     master.run_shell('hostname')
     master.run_shell('uptime')
+  end
+
+  # Task For the Standard Breakdown of the Acceptance Test Stages.
+  desc 'Provision environment'
+  task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, paras|
+    `bash ./spec/support/acceptance/vhelper.rb exec preinstallpecommands ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec installpe ;`
+  end
+
+  desc 'Install Puppet agent'
+  task :install_agent__task do # , [:matrix_collection] do |_t, paras|
+    `bash ./spec/support/acceptance/vhelper.rb exec installpecommands ;`
+  end
+
+  desc 'Install module'
+  task :install_module__task do # , [:para1, :para2] do |_t, paras|
+    `bash ./spec/support/acceptance/vhelper.rb exec prepcommand1 ;`
+  end
+
+  desc 'Run acceptance tests'
+  task :acceptance__task do # , [:para1, :para2] do |_t, paras|
+    `bash ./spec/support/acceptance/vhelper.rb exec command ;`
+  end
+
+  desc 'Remove test environment'
+  task :tear_down__task do # , [:para1, :para2] do |_t, paras|
+    `bash ./spec/support/acceptance/vhelper.rb exec command ;`
   end
 end
