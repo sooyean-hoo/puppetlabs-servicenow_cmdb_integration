@@ -62,6 +62,6 @@ jobs:
       install_agent__task: 'valentepuppet:install_agent__task'
       install_module__task: 'valentepuppet:install_module__task'
       acceptance__task: 'valentepuppet:acceptance__task'
-      tear_down__task: 'acceptance:tear_down'
+      tear_down__task: 'valentepuppet:tear_down__task'
 
 

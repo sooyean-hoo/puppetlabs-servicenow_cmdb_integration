@@ -19,9 +19,9 @@ print(){
       ping_NC_Test_TESTTARGETS="tcp   2222:vagrantssh 22:ssh 8140:puppetExecutor  1080:ServiceNow             80:http 443:https 4433:nodeClassifier             8081:puppetDB_TCP ";
       pehostnameinservicenow="example.puppet.com" ;
       
-    echoMsg '++'
-    env ;
-    echoMsg '++'
+#     echoMsg '++'
+#     env ;
+#     echoMsg '++'
 
 function      modify_sudo_settings(){
           sudo sed -i 's/Defaults env_reset//' /etc/sudoers
@@ -471,6 +471,12 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
+    # puts `bash ./spec/support/acceptance/vhelper.rb exec "command" `
+    puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
+  end
+
+  desc 'Run acceptance tests_ old'
+  task :aa_acceptance__task do # , [:para1, :para2] do |_t, paras|
     output = `bash ./spec/support/acceptance/vhelper.rb exec command `
     if $CHILD_STATUS.success?
       puts output
@@ -481,6 +487,6 @@ namespace :valentepuppet do
 
   desc 'Remove test environment'
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec command `
+    puts 'torn down'
   end
 end
