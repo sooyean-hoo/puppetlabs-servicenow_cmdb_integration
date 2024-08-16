@@ -349,7 +349,6 @@ exit
 
 ## Implemented own versions: require_relative './helpers.rb'
 
-
 module VP
   require 'puppet_litmus'
   PuppetLitmus.configure!
