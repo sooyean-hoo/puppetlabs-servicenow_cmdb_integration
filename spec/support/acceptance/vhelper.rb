@@ -444,27 +444,27 @@ namespace :valentepuppet do
   desc 'Provision environment'
   task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
     puts 'Provisioning.......... environment'
-    # `bash ./spec/support/acceptance/vhelper.rb exec runChain + echoMsg == Prep Install Start  + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules + `
-    `bash ./spec/support/acceptance/vhelper.rb exec runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +`
+    `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == Prep Install Start  + modify_sudo_settings + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +" `
+    `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
   end
 
   desc 'Install Puppet agent'
   task :install_agent__task do # , [:matrix_collection] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec installpecommands ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `
   end
 
   desc 'Install module'
   task :install_module__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec prepcommand1 ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `
   end
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec command ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec command `
   end
 
   desc 'Remove test environment'
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
-    `bash ./spec/support/acceptance/vhelper.rb exec command ;`
+    `bash ./spec/support/acceptance/vhelper.rb exec command `
   end
 end
