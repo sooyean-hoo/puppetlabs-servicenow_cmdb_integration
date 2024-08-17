@@ -492,7 +492,7 @@ namespace :valentepuppet do
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
     puts stdout.read.to_s
-    
+
     if wait_thr.value.success?
       stdin.close
       stdout.close
