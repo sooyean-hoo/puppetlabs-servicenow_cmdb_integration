@@ -449,8 +449,18 @@ namespace :valentepuppet do
   desc 'Provision environment'
   task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
     puts 'Provisioning.......... environment'
-    # `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == Prep Install Start  + modify_sudo_settings + "`
-    # `bash ./spec/support/acceptance/vhelper.rb exec "runChain + Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +" `
+    cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
+    cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
+    cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
+
+    output = `#{cmds}`
+    if $CHILD_STATUS.success?
+      puts output
+    else
+      abort 'error: could not execute command'
+    end
+    
     output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
     if $CHILD_STATUS.success?
       puts output
@@ -471,18 +481,7 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
-    # puts `bash ./spec/support/acceptance/vhelper.rb exec "command" `
     puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
-  end
-
-  desc 'Run acceptance tests_ old'
-  task :aa_acceptance__task do # , [:para1, :para2] do |_t, paras|
-    output = `bash ./spec/support/acceptance/vhelper.rb exec command `
-    if $CHILD_STATUS.success?
-      puts output
-    else
-      abort 'error: could not execute command'
-    end
   end
 
   desc 'Remove test environment'

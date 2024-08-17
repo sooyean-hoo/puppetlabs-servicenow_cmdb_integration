@@ -56,6 +56,7 @@ jobs:
     with:
       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
       continueintoproposedsteps: true
+      continuewithownsetupsteps: false
       #deploy_peversion: '2021.7.8'
       #deploy_petarget: 'ssh_nodes'
       provision_environment__task: 'valentepuppet:provision_environment__task'
