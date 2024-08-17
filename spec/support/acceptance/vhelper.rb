@@ -317,9 +317,15 @@ function      command(){
         #### Hardcoded for now 
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
         #### 
+
+        exit $errorid ;
+}
+
+function      postcommand(){
         
         bundle exec "rake acceptance:tear_down"  || echo  "Tear Down also have errors." ;
-
+        
+        errorid=$? ;
         exit $errorid ;
 }  
 
@@ -492,6 +498,6 @@ namespace :valentepuppet do
 
   desc 'Remove test environment'
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
-    puts 'torn down'
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `
   end
 end
