@@ -494,7 +494,7 @@ namespace :valentepuppet do
     puts stdout.read.to_s
     if wait_thr.success?
       exit(true)
-    else 
+    else
       puts "Error level was: #{wait_thr.exitstatus}\n#{stderr.read}"
       exit wait_thr.value.exitstatus
     end
