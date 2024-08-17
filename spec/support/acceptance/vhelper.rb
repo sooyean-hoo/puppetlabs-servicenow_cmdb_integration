@@ -490,12 +490,19 @@ namespace :valentepuppet do
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
-    _stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
+    stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
     puts stdout.read.to_s
-    if wait_thr.success?
+    
+    if wait_thr.value.success?
+      stdin.close
+      stdout.close
+      stderr.close
       exit(true)
     else
       puts "Error level was: #{wait_thr.exitstatus}\n#{stderr.read}"
+      stdin.close
+      stdout.close
+      stderr.close
       exit wait_thr.value.exitstatus
     end
   end
