@@ -460,7 +460,7 @@ namespace :valentepuppet do
     else
       abort 'error: could not execute command'
     end
-    
+
     output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
     if $CHILD_STATUS.success?
       puts output

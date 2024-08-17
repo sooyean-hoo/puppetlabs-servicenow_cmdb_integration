@@ -65,4 +65,3 @@ jobs:
       acceptance__task: 'valentepuppet:acceptance__task'
       tear_down__task: 'valentepuppet:tear_down__task'
 
-
