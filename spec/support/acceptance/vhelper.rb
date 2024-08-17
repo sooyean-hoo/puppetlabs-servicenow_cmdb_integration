@@ -314,15 +314,15 @@ function      command(){
         (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
         echoMsg '==' "Setup done, Now Run Tests"  ;
         bundle exec "rake acceptance:run_tests" ; errorid=$? ;
-        #### Hardcoded for now 
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
-        #### 
-
+        echo "rake acceptance:run_tests done with errid=$errorid " ;
         exit $errorid ;
 }
 
 function      postcommand(){
         
+        #### Hardcoded for now 
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
+        #### 
         bundle exec "rake acceptance:tear_down"  || echo  "Tear Down also have errors." ;
         
         errorid=$? ;
