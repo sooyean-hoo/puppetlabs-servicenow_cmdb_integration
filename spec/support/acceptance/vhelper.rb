@@ -492,8 +492,12 @@ namespace :valentepuppet do
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     _stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
     puts stdout.read.to_s
-    puts "Error level was: #{wait_thr.exitstatus}\n#{stderr.read}" unless wait_thr.success?
-    exit wait_thr.value.exitstatus
+    if wait_thr.success?
+      exit(true)
+    else 
+      puts "Error level was: #{wait_thr.exitstatus}\n#{stderr.read}"
+      exit wait_thr.value.exitstatus
+    end
   end
 
   desc 'Remove test environment'
