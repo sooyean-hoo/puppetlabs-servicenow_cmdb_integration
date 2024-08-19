@@ -454,8 +454,11 @@ namespace :valentepuppet do
 
   # Task For the Standard Breakdown of the Acceptance Test Stages.
   desc 'Provision environment'
-  task :provision_environment__task do # , [:platformprovider, :platforms_images, :docker_runopts] do |_t, par
+  task :provision_environment__task, [:platformprovider, :platforms_images, :docker_runopts] do |_t, paras|
     puts 'Provisioning.......... environment'
+
+    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_images].gsub(%r{[-.]}, '_').downcase}" # Set for Provision to pick up
+
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
