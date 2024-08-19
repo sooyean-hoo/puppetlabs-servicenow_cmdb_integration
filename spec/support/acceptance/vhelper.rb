@@ -76,8 +76,29 @@ function       installgems(){
 }
 function      matrix_from_metadata(){
         matrix_from_metadata_v2  $@ ;
-        cat ${GITHUB_OUTPUT} ${GITHUB_OUTPUT}.tmp ;
-        cat ${GITHUB_OUTPUT} | grep matrix | sed -E 's/matrix=//g' | jq 
+        cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
+        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq | tee cat ${GITHUB_OUTPUT}.json
+  
+  
+        cat > ${GITHUB_OUTPUT}.add  <<__EMD
+{
+  "platforms": [
+    {
+      "label": "OracleLinux-8",
+      "provider": "vagrant",
+      "image": "litmusimage/oraclelinux:8"
+    },
+    {
+      "label": "Scientific-8",
+      "provider": "vagrant",
+      "image": "litmusimage/scientificlinux:8"
+    }
+   ]
+}
+__EMD
+      jq -s '.[0] * .[1]' ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add 
+      cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
+        > ${GITHUB_OUTPUT}
 }
     
 function      preinstallpecommands(){
