@@ -483,6 +483,18 @@ namespace :valentepuppet do
     else
       abort 'error: could not execute command'
     end
+
+    inventoryfile = './spec/fixtures/litmus_inventory.yaml'
+    invcontent = ''
+    if File.exist?(inventoryfile)
+      File.open(inventoryfile, 'r') do |f|
+        f.each_line do |line|
+          invcontent += line unless %r{^[ ]*#}.match?(line)
+        end
+      end
+      puts "===Actual=Contents=#{inventoryfile}===\n#{invcontent}"
+    end
+    exit 404 if invcontent.empty?
   end
 
   desc 'Install Puppet agent'
