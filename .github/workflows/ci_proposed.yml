@@ -50,17 +50,18 @@ jobs:
 # It may just fail. Good LUCK.
 
   Acceptance:
-    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_custom.yml@dev_sooyean"
     secrets: "inherit"
     with:
-      flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
-      continueintoproposedsteps: true
-      continuewithownsetupsteps: false
-      #deploy_peversion: '2021.7.8'
-      #deploy_petarget: 'ssh_nodes'
       provision_environment__task: 'valentepuppet:provision_environment__task'
       install_agent__task: 'valentepuppet:install_agent__task'
       install_module__task: 'valentepuppet:install_module__task'
       acceptance__task: 'valentepuppet:acceptance__task'
       tear_down__task: 'valentepuppet:tear_down__task'
+      matrix_from_metadata: 'bash ./spec/support/acceptance/vhelper.rb exec matrix_from_metadata'
 
+      # flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"OracleLinux-7\",\"Scientific-7\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+      # continueintoproposedsteps: true
+      # continuewithownsetupsteps: false
+      # deploy_peversion: '2021.7.8'
+      # deploy_petarget: 'ssh_nodes'

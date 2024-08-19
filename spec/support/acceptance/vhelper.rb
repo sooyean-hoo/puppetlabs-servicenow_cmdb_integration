@@ -77,7 +77,7 @@ function       installgems(){
 function      matrix_from_metadata(){
         matrix_from_metadata_v2  $@ ;
         cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
-        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq | tee cat ${GITHUB_OUTPUT}.json
+        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -c | tee cat ${GITHUB_OUTPUT}.json
   
   
         cat > ${GITHUB_OUTPUT}.add  <<__EMD
@@ -96,9 +96,15 @@ function      matrix_from_metadata(){
    ]
 }
 __EMD
-      jq -s '.[0] * .[1]' ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add 
-      cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
-        > ${GITHUB_OUTPUT}
+      cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -c -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
+        > ${GITHUB_OUTPUT}.newjson
+
+      echo "=====================GITHUB_OUTPUT======================="
+      cat ${GITHUB_OUTPUT}
+      echo "========================================================="
+  
+      echo "matrix=$(cat ${GITHUB_OUTPUT}.newjson )" > ${GITHUB_OUTPUT}  ;
+      grep 'spec_matrix=' ${GITHUB_OUTPUT}.tmp  >> ${GITHUB_OUTPUT}  ; 
 }
     
 function      preinstallpecommands(){
