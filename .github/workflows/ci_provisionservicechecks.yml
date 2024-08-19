@@ -1,0 +1,37 @@
+name: "CI_provisionservice_checks"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+      - "dev_**"
+      - "release/**"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+      - "dev_**"
+      - "release/**"
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Spec:
+    uses: "puppetlabs/cat-github-actions/.github/workflows/module_ci.yml@main"
+    secrets: "inherit"
+
+  Acceptance:
+    needs: Spec
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_custom.yml@dev_sooyean"
+    secrets: "inherit"
+    with:
+      flags: " --exclude-platforms '[\"RedHat-7\",\"RedHat-8\",\"SLES-12\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+      install_agent__task: 'valentepuppet:skipme'
+      install_module__task: 'valentepuppet:skipme'
+      acceptance__task: 'valentepuppet:skipme'
+
