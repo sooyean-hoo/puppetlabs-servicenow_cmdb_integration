@@ -502,7 +502,7 @@ namespace :valentepuppet do
       stderr.close
       exit(true)
     else
-      puts "Error level was: #{wait_thr.exitstatus}\n#{stderr.read}"
+      puts "Error level was: #{wait_thr.value.exitstatus}\n#{stderr.read}"
       stdin.close
       stdout.close
       stderr.close
