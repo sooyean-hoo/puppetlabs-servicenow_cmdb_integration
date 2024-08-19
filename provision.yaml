@@ -34,7 +34,7 @@ acceptance_vbox_centos_7:
     vagrant_password: 'piepiepiepiepiePIE51!'
     vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
-acceptance_vbox_centos_8:
+acceptance_vbox_centos_stream8:
   provisioner: vagrant
   images: ['generic/centos8' ]
   vars: |

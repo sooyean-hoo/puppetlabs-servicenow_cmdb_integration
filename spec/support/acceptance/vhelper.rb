@@ -459,10 +459,10 @@ namespace :valentepuppet do
 
   # Task For the Standard Breakdown of the Acceptance Test Stages.
   desc 'Provision environment'
-  task :provision_environment__task, [:platformprovider, :platforms_images, :docker_runopts] do |_t, paras|
+  task :provision_environment__task, [:platformprovider, :platforms_image, :docker_runopts] do |_t, paras|
     puts 'Provisioning.......... environment'
 
-    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_images].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
+    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
     puts ".......... PROVISION_LIST=#{ENV['PROVISION_LIST']}"
 
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
