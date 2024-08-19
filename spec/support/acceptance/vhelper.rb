@@ -98,7 +98,9 @@ function      matrix_from_metadata(){
 __EMD
       cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -c -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
         > ${GITHUB_OUTPUT}.newjson
-
+  
+      echo "=====================GITHUB_OUTPUT - original============"
+      cat ${GITHUB_OUTPUT}.json
       echo "=====================GITHUB_OUTPUT======================="
       cat ${GITHUB_OUTPUT}
       echo "========================================================="
