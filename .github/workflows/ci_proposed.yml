@@ -49,7 +49,6 @@ jobs:
 # constant. If there is any future changes to how litmus ingest the inventory. 
 # It may just fail. Good LUCK.
 
-
   Acceptance:
     uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_prep.yml@dev_sooyean"
     secrets: "inherit"
