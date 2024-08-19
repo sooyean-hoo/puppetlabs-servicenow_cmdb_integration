@@ -73,7 +73,7 @@ acceptance_vbox_oraclelinux_7:
 
 acceptance_vbox_sles_12:
   provisioner: vagrant
-  images: ['idar/sles12' ]
+  images: ['bb_sdet/sles12sp4' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
