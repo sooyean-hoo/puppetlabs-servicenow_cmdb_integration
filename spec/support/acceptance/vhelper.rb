@@ -454,7 +454,7 @@ namespace :valentepuppet do
 
   desc 'PlaceHolder for Skipping'
   task :skipme, [:para1, :para2] do |_t, paras|
-    puts "Skipping...#{paras[:para1]}...#{paras[:para2]}......"
+    puts "Skipping...with.para1:#{paras[:para1]}...para2:#{paras[:para2]}......"
   end
 
   # Task For the Standard Breakdown of the Acceptance Test Stages.
@@ -462,7 +462,7 @@ namespace :valentepuppet do
   task :provision_environment__task, [:platformprovider, :platforms_images, :docker_runopts] do |_t, paras|
     puts 'Provisioning.......... environment'
 
-    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_images].gsub(%r{[-.]}, '_').downcase}" # Set for Provision to pick up
+    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_images].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
     puts ".......... PROVISION_LIST=#{ENV['PROVISION_LIST']}"
 
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
