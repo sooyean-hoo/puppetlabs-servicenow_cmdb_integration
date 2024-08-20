@@ -187,7 +187,7 @@ function      preinstallpecommands(){
           pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
           OLDCWD=$(pwd) ;
           echo "=====vagrant ssh default===========" ;
-          pushd `pwd` ; cd spec/fixtures/.vagrant/generic-ubuntu2204-0 ;pwd ;
+          pushd `pwd` ; ls -l spec/fixtures/.vagrant/* ; cd spec/fixtures/.vagrant/* ;pwd ;
           vagrant ssh default  --command "cat /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
           echo "=============Updating keys of vagrant ssh default===========" ;
           cat /tmp/myownkey.pub | vagrant ssh default  --command "cat >> /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
