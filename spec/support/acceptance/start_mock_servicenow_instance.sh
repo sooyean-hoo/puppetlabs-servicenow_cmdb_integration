@@ -57,7 +57,11 @@ status=$?
 
 if [ "$status" == "7" ] ; then
     apt-get -qq update -y 1>&- 2>&-
-    apt-get install -qq docker.io -y 1>&- 2>&-
+    apt-get install -qq docker.io -y 1>&- 2>&- || (    
+     sudo yum install -y yum-utils ;
+     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo ;
+     installPkg docker* ;
+     )
 fi
 
 set -e
