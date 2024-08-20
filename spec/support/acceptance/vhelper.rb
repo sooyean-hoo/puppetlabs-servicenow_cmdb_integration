@@ -216,29 +216,29 @@ function      installpecommands(){
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
         version="NOT NEEDED SO ByPassed" ;
-        if  [ -z "$version" ] ; then
-          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
-          apt install -y curl || yum install -y curl ;
-          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
-          source /tmp/v.sh  loadlib ;
-          cleanse_dlPEConsole ;
-          echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
-          touch /tmp/key2share ;
-          installPEConsole =SETVALUES= ;
-          installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
-          dlPEConsole check ${PEVERSION} ;
-          dlPEConsole show ${PEVERSION}  ;
-          installPEConsole 2> /dev/null  > /dev/null ;
-        else
-          oldDIR="$PWD" ;
-          cd ./spec/fixtures/ ;
-          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
-          echo "===Puppet Version Installed=${puppetversion}===" || true ;
-          echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
-          bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
-          ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
-          bolt script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
-        fi ;
+#        if  [ -z "$version" ] ; then
+#          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
+#          apt install -y curl || yum install -y curl ;
+#          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
+#          source /tmp/v.sh  loadlib ;
+#  
+#          cleanse_dlPEConsole ;
+#          echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
+#          touch /tmp/key2share ;
+#          installPEConsole =SETVALUES= ;
+#          installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
+#          dlPEConsole check ${PEVERSION} ;
+#          dlPEConsole show ${PEVERSION}  ;
+#          installPEConsole 2> /dev/null  > /dev/null ;
+#        fi ;
+        oldDIR="$PWD" ;
+        cd ./spec/fixtures/ ;
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
+        echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
+        bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
+        ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
+        bolt script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
 }
 function      prepcommand1(){
         cd ./spec/fixtures/ ;

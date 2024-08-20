@@ -44,6 +44,7 @@ if [ -z "$version" ]; then
     export DOWNLOAD_VERSION=${PE_RELEASE}
     export tmpDir="$PWD" ;
 
+    
     cd $tmpDir && rm -fr ./puppet*.gz  &&   pwd && \
     cat /tmp/download_pe_tarball.sh | bash - ;
     ls -l "./puppet*.gz"
@@ -64,6 +65,7 @@ if [ -z "$version" ]; then
     
     touch $tmpDir/occkeys
 
+    cleanse_dlPEConsole
     cd $tmpDir && rm -fr ./puppet*.gz  &&   pwd 
     dlPEConsole_SetParameters ${PE_RELEASE} && \
     dlPEConsole ${PE_RELEASE}  | tee  /tmp/aaaa.txt
