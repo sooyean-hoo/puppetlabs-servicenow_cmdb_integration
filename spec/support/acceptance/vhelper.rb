@@ -5,8 +5,8 @@ print(){
 }
 #echo 'running as shell'
 
-  ( which curl || sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) 2> /dev/null  > /dev/null &&
-  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  || which curl ;
+  ( which curl || sudo apt install -y curl 2> /dev/null  > /dev/null || sudo yum install -y curl 2> /dev/null  > /dev/null  || apt install -y curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null ) 2> /dev/null  > /dev/null &&
+  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  || which curl ;
   source /tmp/v.sh  loadlib  ;
   VAGRANTRUN="Y" ;
   
@@ -31,12 +31,12 @@ function      Create_the_fixtures_directory(){
           bundle exec rake spec_prep
 }
 function      install_actual_bolt(){
-          wget https://apt.puppet.com/puppet-tools-release-jammy.deb
-          sudo -E dpkg -i puppet-tools-release-jammy.deb
-          sudo -E apt-get update 
-          sudo -E apt-get -y install puppet-bolt
-          sudo -E apt-get -y install curl || sudo -E yum install -y curl || apt-get -y install curl || yum install -y curl
-          sudo -E apt-get -y install cron
+          wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
+          sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
+          sudo -E apt-get update  2> /dev/null  > /dev/null
+          sudo -E apt-get -y install puppet-bolt 2> /dev/null  > /dev/null
+          sudo -E apt-get -y install curl 2> /dev/null  > /dev/null || sudo -E yum install -y curl  2> /dev/null  > /dev/null || apt-get -y install curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null
+          sudo -E apt-get -y install cron 2> /dev/null  > /dev/null
           sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan show
 }
 function      install_bolt_modules(){
@@ -219,15 +219,16 @@ function      installpecommands(){
         if  [ -z "$version" ] ; then
           echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
           apt install -y curl || yum install -y curl ;
-          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh ;
+          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
           source /tmp/v.sh  loadlib ;
+          cleanse_dlPEConsole ;
           echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
           touch /tmp/key2share ;
           installPEConsole =SETVALUES= ;
           installPEConsole - =SETVALUES==PRECHECK==UNTAR==PRECONFIG=PRECONFIG2=  ;
           dlPEConsole check ${PEVERSION} ;
-          dlPEConsole show ${PEVERSION} ;
-          installPEConsole ;
+          dlPEConsole show ${PEVERSION}  ;
+          installPEConsole 2> /dev/null  > /dev/null ;
         else
           oldDIR="$PWD" ;
           cd ./spec/fixtures/ ;
