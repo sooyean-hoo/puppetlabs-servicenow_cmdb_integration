@@ -41,6 +41,66 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   exit $? ;
 fi
 
+function oraclelinuxrepo(){
+  test -d /etc/yum.repos.d || return 404    # Exclude non Yum - Driven OS
+  
+      # # Adding CentOS Extras to Oracle Enterprise Linux
+      # 
+      # If you want to install a package like Docker Community Edition on OEL, you'll have to add the CentOS Extras repo, which as of release 7 is built-in to CentOS and not added on later like EPEL is. As a result, instructions for adding it to EL7 are hard to find. This should work for any build of Enterprise Linux that does not already include the CentOS Extras repo. I have absolutely no idea if it's apporpriate to use this repo on a build of Linux *other* than CentOS, but it should be.
+      # 
+      # This was tested on Oracle Enterprise Linux 7, but should be copy-pastable on any version or EL build assuming things don't change too much.
+      # 
+      # ## Download the CentOS GPG Key
+      # 
+      # ```bash
+      # Get OS Release number
+      OS_RELEASE=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release))
+      OS_RELEASE_MAJOR=$(echo $OS_RELEASE | cut -d. -f1)
+      
+      # Download the GPG key and save locally
+      curl -s https://www.centos.org/keys/RPM-GPG-KEY-CentOS-$OS_RELEASE_MAJOR | sudo tee /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$OS_RELEASE_MAJOR
+      
+      # ```
+      ## Create the repo file
+      # 
+      # A bash implementation of [this stackoverflow answer](https://unix.stackexchange.com/a/52683/209779):
+      # 
+      # ```bash
+      # Get OS Release number
+      OS_RELEASE=$(rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release))
+      OS_RELEASE_MAJOR=$(echo $OS_RELEASE | cut -d. -f1)
+      # Create the repo file
+      cat << EOF | sudo tee /etc/yum.repos.d/centos-extras.repo
+#additional packages that may be useful
+[extras]
+name=CentOS-$OS_RELEASE_MAJOR - Extras
+mirrorlist=http://mirrorlist.centos.org/?release=$OS_RELEASE_MAJOR&arch=\$basearch&repo=extras
+#baseurl=http://mirror.centos.org/centos/$OS_RELEASE_MAJOR/extras/\$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$OS_RELEASE_MAJOR
+priority=1
+EOF
+      # ```
+      
+      ## Build the repo cache
+      
+      #```bash
+      sudo yum -q makecache -y --disablerepo='*' --enablerepo='extras' || 
+      (
+        sudo sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo ;
+        sudo sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo ;
+        sudo sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo ;
+
+        echo "sslverify=false" | sudo tee -a /etc/yum.conf
+        sudo yum upgrade -y ;
+      )
+      #```
+      
+}
+
+
+
 
 
 
@@ -78,6 +138,9 @@ if [ "$status" != "0"    ] ; then
   status=$?
   if [ "$status" == "6"    ] ; then
     echoMsg '!!' Docker for RedHat
+    
+    # Enabled Extra Repo......
+    
     sudo yum remove docker \
                   docker-client \
                   docker-client-latest \
@@ -88,12 +151,25 @@ if [ "$status" != "0"    ] ; then
                   docker-engine \
                   podman \
                   runc
-    sudo yum makecache fast ;
-    sudo yum install -y yum-utils
-    sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
-    pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+    sudo yum install -y yum-utils ; 
     
-    installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) ;
+    (( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
+      sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+    )|| (
+        oraclelinuxrepo ;
+        pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin" ;
+    
+        installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) || ( 
+        curl -O https://raw.githubusercontent.com/AlmaLinux/almalinux-deploy/master/almalinux-deploy.sh | sudo bash -  ;
+        ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
+         sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+        )     
+      )
+     )
+    
+    
+    
+    
     
   fi
 fi; 
@@ -118,9 +194,9 @@ if [ "$status" == "7"    ] ; then
                   docker-engine \
                   runc
     
-    sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
+    yes a | sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
     
-    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   sudo zypper install -y  docker
+    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y  docker
     sudo systemctl start docker
     
 fi; 
