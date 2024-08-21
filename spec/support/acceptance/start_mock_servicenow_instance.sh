@@ -55,12 +55,13 @@ trap cleanup EXIT
 rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null)
 status=$?
 
-if [ "$status" == "7" ] ; then
+if [ "$status" == "7" -o "$status" == "2"  ] ; then
     apt-get -qq update -y 1>&- 2>&-
-    apt-get install -qq docker.io -y 1>&- 2>&- || (    
+    apt-get install -qq docker.io -y 1>&- 2>&- || (
+     sudo yum makecache fast ;
      sudo yum install -y yum-utils ;
-     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo ;
-     installPkg docker* ;
+     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo || sudo curl https://download.docker.com/linux/centos/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
+     installPkg docker* || installPkg podman-docker ;
      )
 fi
 

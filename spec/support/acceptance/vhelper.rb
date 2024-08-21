@@ -255,7 +255,8 @@ function      command(){
         bundle exec 'rake acceptance:setup_pe_p2' ;
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
-        bundle exec 'rake acceptance:setup_servicenow_instance ' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "docker" =  "$provisioner" ] ; then
@@ -552,6 +553,8 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke
+
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
