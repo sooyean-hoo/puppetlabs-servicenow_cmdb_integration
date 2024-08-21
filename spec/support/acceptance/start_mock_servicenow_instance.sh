@@ -121,7 +121,8 @@ function enableDocker(){
     echoMsg '!!' Docker for SLES
     
     opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
-    sudo zypper addrepo $opensuse_repo
+    sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo $opensuse_repo
+    echoMsg '++' "Done zypper addrepo0"
     
     sudo zypper remove docker \
                     docker-client \
@@ -133,16 +134,19 @@ function enableDocker(){
                     docker-engine \
                     runc
       
-      yes a | sudo zypper addrepo --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
+      yes a | sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
 a
 a
 __EEE
-    sudo zypper --gpg-auto-import-keys ref
-    
+
+    echoMsg '++' "Done zypper addrepo1"
+  
     echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
     echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
+
+    sudo zypper --gpg-auto-import-keys ref
     
-    echo "Done zypper addrepo"
+    echoMsg '++' "Done zypper addrepo2"
     yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y   docker   || true
 
   fi; 
