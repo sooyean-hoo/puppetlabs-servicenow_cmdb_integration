@@ -245,6 +245,12 @@ function      prepcommand1(){
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
 }
+function      setupServiceNowServer(){
+        bundle install ;
+        echoMsg '!!' "Creating ServiceNow Server......."    ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
+}
 function      command(){
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
@@ -253,10 +259,7 @@ function      command(){
         bundle exec 'rake --tasks' ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2' ;
-        bundle install ;
-        echoMsg '!!' "Creating ServiceNow Server......."    ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
+        setupServiceNowServer
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "docker" =  "$provisioner" ] ; then

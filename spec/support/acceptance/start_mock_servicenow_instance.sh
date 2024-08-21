@@ -164,8 +164,8 @@ if [ "$status" != "0"    ] ; then
         ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
          sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
         )     
-      )
      )
+
     
     
     
@@ -194,9 +194,20 @@ if [ "$status" == "7"    ] ; then
                   docker-engine \
                   runc
     
-    yes a | sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
+    yes a | sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo << __EEE
+a
+a
+__EEE
     
-    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y  docker
+    echo "Done zypper addrepo"
+    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin << __EEE
+a
+a
+__EEE \
+||   yes a | sudo zypper install -y  docker << __EEE
+a
+a
+__EEE
     sudo systemctl start docker
     
 fi; 
