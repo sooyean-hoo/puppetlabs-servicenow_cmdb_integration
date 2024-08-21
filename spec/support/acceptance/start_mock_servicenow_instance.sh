@@ -107,9 +107,48 @@ function enableDocker(){
      echoMsg '!!' Docker for Ubuntu
   
       apt-get -qq update -y 1>&- 2>&-
-      apt-get install -qq docker.io -y 1>&- 2>&- 
+      apt-get install -qq docker.io -y 1>&- 2>&-
+      
   fi
+
+  which apt-get && return ;
   
+  rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+  status=$?
+
+# SLES Version
+  if [ "$status" == "7"    ] ; then
+    echoMsg '!!' Docker for SLES
+    
+    opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
+    sudo zypper addrepo $opensuse_repo
+    
+    sudo zypper remove docker \
+                    docker-client \
+                    docker-client-latest \
+                    docker-common \
+                    docker-latest \
+                    docker-latest-logrotate \
+                    docker-logrotate \
+                    docker-engine \
+                    runc
+      
+      yes a | sudo zypper addrepo --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
+a
+a
+__EEE
+    sudo zypper --gpg-auto-import-keys ref
+    
+    echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
+    echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
+    
+    echo "Done zypper addrepo"
+    yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y   docker   || true
+
+  fi; 
+  which zypper && return ;
+
+
   rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
   status=$?
   
@@ -149,52 +188,12 @@ function enableDocker(){
     fi
   fi; 
 
-  rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
-  status=$?
-
-# SLES Version
-  if [ "$status" == "7"    ] ; then
-    echoMsg '!!' Docker for SLES
-  
-    opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
-    sudo zypper addrepo $opensuse_repo
-    
-    sudo zypper remove docker \
-                    docker-client \
-                    docker-client-latest \
-                    docker-common \
-                    docker-latest \
-                    docker-latest-logrotate \
-                    docker-logrotate \
-                    docker-engine \
-                    runc
-      
-      yes a | sudo zypper addrepo --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
-a
-a
-__EEE
-    sudo zypper --gpg-auto-import-keys ref
-    
-    echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
-    echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
-    
-    echo "Done zypper addrepo"
-    yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin << __EEE
-a
-a
-__EEE \
-||   yes a | sudo zypper install -y   docker << __EEE
-a
-a
-__EEE
-    sudo systemctl start docker
-    
-  fi; 
+  sudo systemctl start docker  || installPkg podman-docker || true ;
 
 }
 
 
-enableDocker
+enableDocker || true
 
 
 
