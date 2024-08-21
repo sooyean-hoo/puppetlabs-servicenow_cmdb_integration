@@ -52,18 +52,26 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null)
+rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
 status=$?
 
-if [ "$status" == "7" -o "$status" == "2"  ] ; then
+if [ "$status" == "7"    ] ; then
     apt-get -qq update -y 1>&- 2>&-
-    apt-get install -qq docker.io -y 1>&- 2>&- || (
+    apt-get install -qq docker.io -y 1>&- 2>&- 
+fi
+
+# Redhat Version
+
+if [ "$status" != "0"    ] ; then
+  rep=$(curl -s  /var/run/docker.sock http://ping > /dev/null )
+  status=$?
+  if [ "$status" == "6"    ] ; then
      sudo yum makecache fast ;
      sudo yum install -y yum-utils ;
-     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo || sudo curl https://download.docker.com/linux/centos/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
-     installPkg docker* || installPkg podman-docker ;
-     )
-fi
+     sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
+     installPkg docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) ;
+  fi
+fi; 
 
 set -e
 
