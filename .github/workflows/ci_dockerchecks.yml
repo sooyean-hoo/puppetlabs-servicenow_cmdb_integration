@@ -1,0 +1,38 @@
+name: "CI_dockerchecks"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+      - "dev_**"
+      - "release/**"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+      - "dev_**"
+      - "release/**"
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Spec:
+    uses: "puppetlabs/cat-github-actions/.github/workflows/module_ci.yml@main"
+    secrets: "inherit"
+
+  Acceptance:
+    needs: Spec
+    uses: "sooyean-hoo/cat-github-actions/.github/workflows/module_acceptance_custom.yml@dev_sooyean"
+    secrets: "inherit"
+    with:
+      provision_environment__task: 'valentepuppet:provision_environment__task'
+      install_agent__task: 'valentepuppet:skipme'
+      install_module__task: 'valentepuppet:skipme'
+      acceptance__task: 'acceptance:setup_servicenow_instance'
+      tear_down__task: 'valentepuppet:tear_down__task'
+
