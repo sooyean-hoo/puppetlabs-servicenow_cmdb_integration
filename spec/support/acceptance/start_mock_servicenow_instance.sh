@@ -3,6 +3,9 @@
 mkdir -p /tmp/servicenow
 apt install -y curl || yum install -y curl 
 
+curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
+source /tmp/download_pe_tarball.sh  loadlib
+
 # The following Codes are only activated if you place a file @ /tmp/servicenow/start_mock_servicenow_instance.sh. And the file can be empty.
 # This run the servicenow locally.
 if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
@@ -11,8 +14,6 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   cd /tmp/servicenow/
 
   
-  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
-  source /tmp/download_pe_tarball.sh  loadlib
      
   for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler  \
       git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    ; do
@@ -52,26 +53,86 @@ function cleanup() {
 }
 trap cleanup EXIT
 
+
+
+
+
+
+
 rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
 status=$?
 
 if [ "$status" == "7"    ] ; then
+   echoMsg '!!' Docker for Ubuntu
+
     apt-get -qq update -y 1>&- 2>&-
     apt-get install -qq docker.io -y 1>&- 2>&- 
 fi
 
-# Redhat Version
+rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+status=$?
 
+# Redhat Version
 if [ "$status" != "0"    ] ; then
   rep=$(curl -s  /var/run/docker.sock http://ping > /dev/null )
   status=$?
   if [ "$status" == "6"    ] ; then
-     sudo yum makecache fast ;
-     sudo yum install -y yum-utils ;
-     sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
-     installPkg docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) ;
+    echoMsg '!!' Docker for RedHat
+    sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine \
+                  podman \
+                  runc
+    sudo yum makecache fast ;
+    sudo yum install -y yum-utils
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ;
+    pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+    
+    installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) ;
+    
   fi
 fi; 
+
+rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+status=$?
+
+# SLES Version
+if [ "$status" == "7"    ] ; then
+  echoMsg '!!' Docker for SLES
+
+  opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
+  sudo zypper addrepo $opensuse_repo
+  
+  sudo zypper remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine \
+                  runc
+    
+    sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
+    
+    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   sudo zypper install -y  docker
+    sudo systemctl start docker
+    
+fi; 
+
+
+
+
+
+
+
+
+
 
 set -e
 

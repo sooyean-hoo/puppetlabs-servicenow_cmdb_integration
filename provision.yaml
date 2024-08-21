@@ -16,6 +16,22 @@ acceptance_vbox_ubuntu_22_04:
     vagrant_password: 'piepiepiepiepiePIE51!'
     vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
+acceptance_vbox_ubuntu_20_04:
+  provisioner: vagrant
+  images: ['generic/ubuntu2004' ]
+  vars: |
+    roles: ['master' ]
+    vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
+
+acceptance_vbox_ubuntu_21_04:
+  provisioner: vagrant
+  images: ['generic/ubuntu2104' ]
+  vars: |
+    roles: ['master' ]
+    vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
+
 acceptance_vbox_ubuntu_18_04:
   provisioner: vagrant
   images: ['generic/ubuntu1804' ]
@@ -59,6 +75,14 @@ acceptance_vbox_rhel_8:
     vagrant_password: 'piepiepiepiepiePIE51!'
     vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
 
+acceptance_vbox_rhel_9:
+  provisioner: vagrant
+  images: ['generic/rhel9' ]
+  vars: |
+    roles: ['master' ]
+    vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
+
 
 ##  Cannot find  generic version for OracleLinux-7, SLES-12, Scientific-7,  so  Skipped them in tests.
 ## So use some other version.
@@ -78,6 +102,15 @@ acceptance_vbox_sles_12:
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
     vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
+
+acceptance_vbox_sles_15:
+  provisioner: vagrant
+  images: ['cion/sles15_minimal' ]
+  vars: |
+    roles: ['master' ]
+    vagrant_password: 'piepiepiepiepiePIE51!'
+    vagrant_run_opts: ["-p 80:80", "-p 443:443", "-p 5432:5432","-p 8170:8170","-p 8143:8143", "-p 4433:4433","-p 8081:8081","-p 8142:8142", "-p 8140:8140","--privileged", "-v /var/run/docker.sock:/var/run/docker.sock" ]
+
 
 acceptance_vbox_scientificlinux_7:
   provisioner: vagrant
