@@ -98,9 +98,103 @@ EOF
       #```
       
 }
+function enableDocker(){
+  
+  rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+  status=$?
+  
+  if [ "$status" == "7"    ] ; then
+     echoMsg '!!' Docker for Ubuntu
+  
+      apt-get -qq update -y 1>&- 2>&-
+      apt-get install -qq docker.io -y 1>&- 2>&- 
+  fi
+  
+  rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+  status=$?
+  
+  # Redhat Version
+  if [ "$status" != "0"    ] ; then
+    rep=$(curl -s  /var/run/docker.sock http://ping > /dev/null )
+    status=$?
+    if [ "$status" == "6"    ] ; then
+      echoMsg '!!' Docker for RedHat
+      
+      # Enabled Extra Repo......
+      
+      sudo yum remove docker \
+                    docker-client \
+                    docker-client-latest \
+                    docker-common \
+                    docker-latest \
+                    docker-latest-logrotate \
+                    docker-logrotate \
+                    docker-engine \
+                    podman \
+                    runc
+      sudo yum install -y yum-utils ; 
+      
+      (( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
+        sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+      )|| (
+          oraclelinuxrepo ;
+          pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin" ;
+      
+          installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) || ( 
+          curl -O https://raw.githubusercontent.com/AlmaLinux/almalinux-deploy/master/almalinux-deploy.sh | sudo bash -  ;
+          ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
+           sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+          )     
+       )
+    fi
+  fi; 
+
+  rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
+  status=$?
+
+# SLES Version
+  if [ "$status" == "7"    ] ; then
+    echoMsg '!!' Docker for SLES
+  
+    opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
+    sudo zypper addrepo $opensuse_repo
+    
+    sudo zypper remove docker \
+                    docker-client \
+                    docker-client-latest \
+                    docker-common \
+                    docker-latest \
+                    docker-latest-logrotate \
+                    docker-logrotate \
+                    docker-engine \
+                    runc
+      
+      yes a | sudo zypper addrepo --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
+a
+a
+__EEE
+    sudo zypper --gpg-auto-import-keys ref
+    
+    echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
+    echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
+    
+    echo "Done zypper addrepo"
+    yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin << __EEE
+a
+a
+__EEE \
+||   yes a | sudo zypper install -y   docker << __EEE
+a
+a
+__EEE
+    sudo systemctl start docker
+    
+  fi; 
+
+}
 
 
-
+enableDocker
 
 
 
@@ -112,114 +206,6 @@ function cleanup() {
   rm -rf /tmp/servicenow
 }
 trap cleanup EXIT
-
-
-
-
-
-
-
-rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
-status=$?
-
-if [ "$status" == "7"    ] ; then
-   echoMsg '!!' Docker for Ubuntu
-
-    apt-get -qq update -y 1>&- 2>&-
-    apt-get install -qq docker.io -y 1>&- 2>&- 
-fi
-
-rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
-status=$?
-
-# Redhat Version
-if [ "$status" != "0"    ] ; then
-  rep=$(curl -s  /var/run/docker.sock http://ping > /dev/null )
-  status=$?
-  if [ "$status" == "6"    ] ; then
-    echoMsg '!!' Docker for RedHat
-    
-    # Enabled Extra Repo......
-    
-    sudo yum remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine \
-                  podman \
-                  runc
-    sudo yum install -y yum-utils ; 
-    
-    (( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
-      sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
-    )|| (
-        oraclelinuxrepo ;
-        pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin" ;
-    
-        installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) || ( 
-        curl -O https://raw.githubusercontent.com/AlmaLinux/almalinux-deploy/master/almalinux-deploy.sh | sudo bash -  ;
-        ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
-         sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
-        )     
-     )
-
-    
-    
-    
-    
-    
-  fi
-fi; 
-
-rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
-status=$?
-
-# SLES Version
-if [ "$status" == "7"    ] ; then
-  echoMsg '!!' Docker for SLES
-
-  opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
-  sudo zypper addrepo $opensuse_repo
-  
-  sudo zypper remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine \
-                  runc
-    
-    yes a | sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo << __EEE
-a
-a
-__EEE
-    
-    echo "Done zypper addrepo"
-    yes a | sudo zypper install -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin << __EEE
-a
-a
-__EEE \
-||   yes a | sudo zypper install -y  docker << __EEE
-a
-a
-__EEE
-    sudo systemctl start docker
-    
-fi; 
-
-
-
-
-
-
-
-
-
 
 set -e
 
