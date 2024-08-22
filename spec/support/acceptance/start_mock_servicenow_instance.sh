@@ -120,6 +120,21 @@ function enableDocker(){
   if [ "$status" == "7"    ] ; then
     echoMsg '!!' Docker for SLES
     
+    sudo zypper addrepo http://download.opensuse.org/tumbleweed/repo/oss/ OSS
+    sudo zypper addrepo http://download.opensuse.org/tumbleweed/repo/non-oss/ NON-OSS
+    sudo zypper addrepo http://download.opensuse.org/update/tumbleweed/ UPDATE
+    sudo zypper addrepo https://download.opensuse.org/repositories/system:snappy/openSUSE_Tumbleweed/system:snappy.repo
+    sudo zypper addrepo https://download.opensuse.org/repositories/network:im:signal/openSUSE_Tumbleweed/network:im:signal.repo
+    sudo zypper addrepo https://download.opensuse.org/repositories/hardware:razer/openSUSE_Tumbleweed/hardware:razer.repo
+    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    sudo zypper addrepo https://packages.microsoft.com/yumrepos/vscode vscode
+    sudo zypper addrepo  http://repo.vivaldi.com/archive/rpm/x86_64 vivaldi
+    sudo zypper refresh
+    sudo zypper install snapd
+    
+    sudo suse_register --restore-repos
+    sudo zypper ls; sudo zypper refresh --services ; zypper ref -s
+    
     opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
     sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo $opensuse_repo
     echoMsg '++' "Done zypper addrepo0"
@@ -132,8 +147,9 @@ function enableDocker(){
                     docker-latest-logrotate \
                     docker-logrotate \
                     docker-engine \
-                    runc
+                    runc || true 
       
+      sudo zypper search docker  || true 
       yes a | sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
 a
 a
@@ -148,6 +164,10 @@ __EEE
     
     echoMsg '++' "Done zypper addrepo2"
     yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y   docker   || true
+
+    for p in docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  ; do
+        sudo zypper install  -y  $p || true ;
+    done ;
 
   fi; 
   which zypper && return ;

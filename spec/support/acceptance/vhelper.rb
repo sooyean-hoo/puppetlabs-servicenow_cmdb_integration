@@ -23,12 +23,25 @@ print(){
 #     env ;
 #     echoMsg '++'
 
+function      setupruby(){
+          [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
+          source /tmp/v.sh  loadlib  ;
+          rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
+}
 function      modify_sudo_settings(){
           sudo sed -i 's/Defaults env_reset//' /etc/sudoers
 }
 function      Create_the_fixtures_directory(){
           bundle install ;
           bundle exec rake spec_prep
+}
+function      disableApparmor(){
+          if command -v apparmor_parser >/dev/null ; then
+            sudo find /etc/apparmor.d/ -maxdepth 1 -type f -exec ln -sf {} /etc/apparmor.d/disable/ \;
+            sudo apparmor_parser -R /etc/apparmor.d/disable/* || true
+            sudo systemctl disable apparmor
+            sudo systemctl stop apparmor
+          fi
 }
 function      install_actual_bolt(){
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
@@ -511,6 +524,8 @@ namespace :valentepuppet do
 
     ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
     puts ".......... PROVISION_LIST=#{ENV['PROVISION_LIST']}"
+    puts "..........................#{paras[:platforms_image]}===>===#{ENV['PROVISION_LIST']}"
+    puts "..........................#{paras[:platformprovider]}===>===vagrant"
 
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
