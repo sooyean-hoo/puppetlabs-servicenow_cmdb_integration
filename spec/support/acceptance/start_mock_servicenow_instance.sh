@@ -100,6 +100,29 @@ EOF
       #```
       
 }
+function dockerconveniencescript(){
+    id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+
+  if [ -z "$id"    ] ; then
+    ## https://docs.docker.com/engine/install/rhel/#install-using-the-convenience-script
+    echoMsg '!!' Docker Not install or Running....Last Try with convenience script
+    
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+  fi;
+  echo ;
+  
+  sudo systemctl start docker ;
+  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+
+  if [ -z "$id"    ] ; then
+    echoMsg '!!'
+    echoMsg '!!'
+    echoMsg '!!' Docker Not install or Running....
+    echoMsg '!!'
+    echoMsg '!!'
+  fi;
+}
 function enableDocker(){
   
   rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
@@ -113,7 +136,7 @@ function enableDocker(){
       
   fi
 
-  which apt-get && return ;
+  which apt-get && return ; ## All done for the Ubuntu and Debian
   
   rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
   status=$?
@@ -193,8 +216,16 @@ function enableDocker(){
     sudo systemctl start docker ;
     docker --help  2> /dev/null > /dev/null  || (   sudo zypper remove ${zypperInstOpts}  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  && yes 1 | sudo zypper install  ${zypperInstOpts}  docker ) ;
     dockercmd="sudo docker" ;
+    
+    
+    dockerconveniencescript
+    
   fi; 
-  which zypper && return ;
+
+  
+
+
+  which zypper && return ; ## All done for the SLES
 
 
   rep=$(curl -s --unix-socket /var/run/docker.sock http://ping > /dev/null )
@@ -237,28 +268,7 @@ function enableDocker(){
   fi; 
 
   sudo systemctl start docker  || installPkg podman-docker || true ;
-
-  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
-
-  if [ -z "$id"    ] ; then
-    ## https://docs.docker.com/engine/install/rhel/#install-using-the-convenience-script
-    echoMsg '!!' Docker Not install or Running....Last Try with convenience script
-    
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-  fi;
-  echo ;
-  
-  sudo systemctl start docker ;
-  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
-
-  if [ -z "$id"    ] ; then
-    echoMsg '!!'
-    echoMsg '!!'
-    echoMsg '!!' Docker Not install or Running....
-    echoMsg '!!'
-    echoMsg '!!'
-  fi;
+  dockerconveniencescript
 }
 
 
