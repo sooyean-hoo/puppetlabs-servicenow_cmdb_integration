@@ -1,5 +1,7 @@
 #!/bin/bash
 
+dockercmd="docker"
+
 mkdir -p /tmp/servicenow
 apt install -y curl || yum install -y curl 
 
@@ -119,27 +121,46 @@ function enableDocker(){
 # SLES Version
   if [ "$status" == "7"    ] ; then
     echoMsg '!!' Docker for SLES
+
+    zypperRepoOpts="--no-gpg-checks --gpg-auto-import-keys --non-interactive-include-reboot-patches  "
+    zypperOpts="--non-interactive --no-gpg-checks --gpg-auto-import-keys --non-interactive-include-reboot-patches"
+    zypperInstOpts="--force-resolution -y"
     
-    sudo zypper addrepo http://download.opensuse.org/tumbleweed/repo/oss/ OSS
-    sudo zypper addrepo http://download.opensuse.org/tumbleweed/repo/non-oss/ NON-OSS
-    sudo zypper addrepo http://download.opensuse.org/update/tumbleweed/ UPDATE
-    sudo zypper addrepo https://download.opensuse.org/repositories/system:snappy/openSUSE_Tumbleweed/system:snappy.repo
-    sudo zypper addrepo https://download.opensuse.org/repositories/network:im:signal/openSUSE_Tumbleweed/network:im:signal.repo
-    sudo zypper addrepo https://download.opensuse.org/repositories/hardware:razer/openSUSE_Tumbleweed/hardware:razer.repo
-    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-    sudo zypper addrepo https://packages.microsoft.com/yumrepos/vscode vscode
-    sudo zypper addrepo  http://repo.vivaldi.com/archive/rpm/x86_64 vivaldi
-    sudo zypper refresh
-    sudo zypper install snapd
+    sudo zypper  ${zypperRepoOpts} addrepo http://download.opensuse.org/tumbleweed/repo/oss/ OSS
+    sudo zypper  ${zypperRepoOpts} addrepo http://download.opensuse.org/tumbleweed/repo/non-oss/ NON-OSS
+    sudo zypper  ${zypperRepoOpts} addrepo http://download.opensuse.org/update/tumbleweed/ UPDATE
+    
+   sudo zypper  ${zypperRepoOpts} addrepo https://download.opensuse.org/repositories/system:snappy/openSUSE_Tumbleweed/system:snappy.repo
+   sudo zypper  ${zypperRepoOpts} addrepo https://download.opensuse.org/repositories/network:im:signal/openSUSE_Tumbleweed/network:im:signal.repo
+   sudo zypper  ${zypperRepoOpts} addrepo https://download.opensuse.org/repositories/hardware:razer/openSUSE_Tumbleweed/hardware:razer.repo
+
+    sudo rpm --import  https://packages.microsoft.com/keys/microsoft.asc
+    sudo zypper  ${zypperRepoOpts} addrepo https://packages.microsoft.com/yumrepos/vscode vscode
+    sudo zypper  ${zypperRepoOpts} addrepo http://repo.vivaldi.com/archive/rpm/x86_64 vivaldi
+    sudo zypper ${zypperOpts} refresh
+    sudo zypper install ${zypperInstOpts}  snapd
     
     sudo suse_register --restore-repos
-    sudo zypper ls; sudo zypper refresh --services ; zypper ref -s
+    sudo zypper ls; sudo zypper ${zypperOpts}  refresh --services  
+
+    sudo zypper ${zypperOpts} ref -s
     
     opensuse_repo="https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
-    sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo $opensuse_repo
+    sudo zypper  ${zypperRepoOpts} addrepo $opensuse_repo
     echoMsg '++' "Done zypper addrepo0"
     
-    sudo zypper remove docker \
+    
+    
+     sudo zypper install  ${zypperInstOpts}  docker docker-bash-completion  docker-rootless-extras iptables-backend-nft ;
+     
+    sudo usermod -aG docker  vagrant
+    sudo usermod -aG root  vagrant
+    sudo systemctl start docker ;
+    
+    sudo docker ps ;    
+    which docker  && return ;
+    
+    sudo zypper remove ${zypperInstOpts}  docker \
                     docker-client \
                     docker-client-latest \
                     docker-common \
@@ -150,25 +171,28 @@ function enableDocker(){
                     runc || true 
       
       sudo zypper search docker  || true 
-      yes a | sudo zypper addrepo --non-interactive  --gpgcheck-allow-unsigned-repo  --enable  https://download.docker.com/linux/sles/docker-ce.repo << __EEE
-a
-a
-__EEE
-
+      sudo zypper ${zypperOpts} addrepo  https://download.docker.com/linux/sles/docker-ce.repo
+      
     echoMsg '++' "Done zypper addrepo1"
   
-    echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
-    echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
+#     echo pkg_gpgcheck = off  | sudo tee -a /etc/zypp/zypp.conf
+#     echo repo_gpgcheck = off | sudo tee -a /etc/zypp/zypp.conf
 
     sudo zypper --gpg-auto-import-keys ref
-    
+    sudo zypper ls; sudo zypper ${zypperOpts}  refresh --services  
+
     echoMsg '++' "Done zypper addrepo2"
-    yes a | sudo zypper install  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install -y   docker   || true
+    yes a | sudo zypper install  ${zypperInstOpts}  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ||   yes a | sudo zypper install ${zypperInstOpts}   docker   || true
 
     for p in docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  ; do
-        sudo zypper install  -y  $p || true ;
+        sudo zypper install  ${zypperInstOpts}   $p || true ;
     done ;
 
+    sudo usermod -aG docker  vagrant
+    sudo usermod -aG root  vagrant
+    sudo systemctl start docker ;
+    docker --help  2> /dev/null > /dev/null  || (   sudo zypper remove ${zypperInstOpts}  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  && yes 1 | sudo zypper install  ${zypperInstOpts}  docker ) ;
+    dockercmd="sudo docker" ;
   fi; 
   which zypper && return ;
 
@@ -214,6 +238,27 @@ __EEE
 
   sudo systemctl start docker  || installPkg podman-docker || true ;
 
+  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+
+  if [ -z "$id"    ] ; then
+    ## https://docs.docker.com/engine/install/rhel/#install-using-the-convenience-script
+    echoMsg '!!' Docker Not install or Running....Last Try with convenience script
+    
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+  fi;
+  echo ;
+  
+  sudo systemctl start docker ;
+  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+
+  if [ -z "$id"    ] ; then
+    echoMsg '!!'
+    echoMsg '!!'
+    echoMsg '!!' Docker Not install or Running....
+    echoMsg '!!'
+    echoMsg '!!'
+  fi;
 }
 
 
@@ -232,17 +277,17 @@ trap cleanup EXIT
 
 set -e
 
-id=`docker ps -q -f name=mock_servicenow_instance -f status=running`
+id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
 
 if [ ! -z "$id" ] ; then
   echo "Killing the current mock ServiceNow container (id = ${id}) ..."
-  docker rm --force ${id}
+  ${dockercmd} rm --force ${id}
 fi
 
-docker build /tmp/servicenow -t mock_servicenow_instance
-docker run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&-
+${dockercmd} build /tmp/servicenow -t mock_servicenow_instance
+${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&-
 
-id=`docker ps -q -f name=mock_servicenow_instance -f status=running`
+id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
 
 if [ -z "$id" ] ; then
   echo 'Mock ServiceNow container start failed.'
