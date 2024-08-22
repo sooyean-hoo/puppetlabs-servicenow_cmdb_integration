@@ -44,7 +44,7 @@ acceptance_vbox_ubuntu_18_04:
 
 acceptance_vbox_centos_7:
   provisioner: vagrant
-  images: ['generic/centos7' ]
+  images: ['williamyeh/centos7-docker' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -61,7 +61,7 @@ acceptance_vbox_centos_stream8:
 
 acceptance_vbox_rhel_7:
   provisioner: vagrant
-  images: ['generic/rhel7' ]
+  images: ['secnix/rhel7-docker' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -69,7 +69,7 @@ acceptance_vbox_rhel_7:
 
 acceptance_vbox_rhel_8:
   provisioner: vagrant
-  images: ['generic/rhel8' ]
+  images: ['tilteddev/rhel8-docker-helm' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -77,7 +77,7 @@ acceptance_vbox_rhel_8:
 
 acceptance_vbox_rhel_9:
   provisioner: vagrant
-  images: ['generic/rhel9' ]
+  images: ['Nauman3S/rhel9' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -89,7 +89,7 @@ acceptance_vbox_rhel_9:
 
 acceptance_vbox_oraclelinux_7:
   provisioner: vagrant
-  images: ['Rendanic/oraclelinux-7.x' ]
+  images: ['lbeneduzi/oracleLinux7Docker' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'

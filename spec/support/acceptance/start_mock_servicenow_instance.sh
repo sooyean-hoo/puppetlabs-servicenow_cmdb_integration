@@ -23,13 +23,14 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   cd /tmp/servicenow/
 
   
-     
+  
   for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler  \
       git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    ; do
     installPkg $p ;
   done ;
-
-
+  touch  ~/.bashrc
+  rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
+  source ~/.bashrc
 
   echo sudo gem install rubygems-update || echo sudo gem install rubygems-update -v 3.4.22
   echo sudo update_rubygems 
@@ -117,6 +118,7 @@ function dockerconveniencescript(){
     
     curl -fsSL https://get.docker.com -o get-docker.sh
     sudo sh get-docker.sh
+    sudo yum-config-manager --save --setopt=docker-ce-stable.skip_if_unavailable=true ;
   fi;
   echo ;
   
@@ -252,7 +254,7 @@ function enableDocker(){
       grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/centos-extras.repo
       grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel-testing.repo      
 
-      sudo yum update
+      sudo yum update -y
       sudo yum search docker
       
       sudo yum remove -y docker \
@@ -268,7 +270,7 @@ function enableDocker(){
       sudo yum install -y yum-utils ; 
       
       (( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
-        sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+        sudo yum install --skip-broken --nobest  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
       )|| (
           oraclelinuxrepo ;
         # RHEL remove Extra Repo......
@@ -290,20 +292,29 @@ function enableDocker(){
 #         sudo yum update
           
           ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
-           sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+           sudo yum install --skip-broken --nobest  -y  docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
           )     
        )
     fi
   fi; 
 
   sudo systemctl start docker  || installPkg podman-docker || true ;
+  echo "Try dockerconveniencescript"
   dockerconveniencescript
 }
 
+which ${dockercmd} || enableDocker || true
 
-enableDocker || true
 
+# which docker || { 
+#   echo "TRY LOCAL with $0  LOCALRUN" ;
+#   nohup $0  LOCALRUN  > /tmp/mock_servicenow_instance.log & 
+#   sleep 3 ;
+#   echo HELO | curl -q "telnet://127.0.0.1:1080" ;
+#   exit $? ;
+# }
 
+echoMsg '++' ORIGINAL CODES STARTS
 
 
 function cleanup() {
@@ -330,12 +341,7 @@ id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
 
 if [ -z "$id" ] ; then
   echo 'Mock ServiceNow container start failed.'
-  
-  echo "TRY LOCAL with $0  LOCALRUN" ;
-  nohup $0  LOCALRUN  > /tmp/mock_servicenow_instance.log & ;
-  sleep 3 ;
-  echo HELO | curl -q "telnet://127.0.0.1:1080" ;
-  exit $? ;
+  exit 1 ;
 fi
 
 echo 'Mock ServiceNow container start succeeded.'
