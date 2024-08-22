@@ -8,6 +8,13 @@ apt install -y curl || yum install -y curl
 curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
 source /tmp/download_pe_tarball.sh  loadlib
 
+
+if [  "$1" = "LOCALRUN"     ] ; then
+  echo  > /tmp/servicenow/start_mock_servicenow_instance.sh ;
+fi ;
+
+
+
 # The following Codes are only activated if you place a file @ /tmp/servicenow/start_mock_servicenow_instance.sh. And the file can be empty.
 # This run the servicenow locally.
 if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
@@ -40,6 +47,7 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
 
   bundle install --without development test
   bundle exec ruby ./mock_instance.rb
+  
   exit $? ;
 fi
 
@@ -239,8 +247,15 @@ function enableDocker(){
       echoMsg '!!' Docker for RedHat
       
       # Enabled Extra Repo......
+
+      # RHEL remove Extra Repo......
+      grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/centos-extras.repo
+      grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel-testing.repo      
+
+      sudo yum update
+      sudo yum search docker
       
-      sudo yum remove docker \
+      sudo yum remove -y docker \
                     docker-client \
                     docker-client-latest \
                     docker-common \
@@ -256,12 +271,26 @@ function enableDocker(){
         sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
       )|| (
           oraclelinuxrepo ;
+        # RHEL remove Extra Repo......
+         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/centos-extras.repo
+#         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel-testing.repo      
+#         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel.repo      
+#         sudo yum update
+
+          
           pkgs="docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin" ;
       
           installPkg $pkgs || ( sudo yum-config-manager --disablerepo docker-ce-stable ; rm -f /etc/yum.repos.d/docker-ce.repo ; installPkg podman-docker  ) || ( 
           curl -O https://raw.githubusercontent.com/AlmaLinux/almalinux-deploy/master/almalinux-deploy.sh | sudo bash -  ;
+
+          # RHEL remove Extra Repo......
+         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/centos-extras.repo
+#         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel-testing.repo      
+#         grep 'Red Hat Enterprise' /etc/os-release  && sudo rm -fr /etc/yum.repos.d/epel.repo      
+#         sudo yum update
+          
           ( sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo || sudo curl --add-repo https://download.docker.com/linux/rhel/docker-ce.repo    -o  /etc/yum.repos.d/docker-ce.repo ) &&
-           sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+           sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
           )     
        )
     fi
@@ -301,7 +330,12 @@ id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
 
 if [ -z "$id" ] ; then
   echo 'Mock ServiceNow container start failed.'
-  exit 1
+  
+  echo "TRY LOCAL with $0  LOCALRUN" ;
+  nohup $0  LOCALRUN  > /tmp/mock_servicenow_instance.log & ;
+  sleep 3 ;
+  echo HELO | curl -q "telnet://127.0.0.1:1080" ;
+  exit $? ;
 fi
 
 echo 'Mock ServiceNow container start succeeded.'
