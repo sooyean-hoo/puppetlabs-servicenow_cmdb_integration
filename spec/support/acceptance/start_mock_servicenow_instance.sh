@@ -3,7 +3,7 @@
 dockercmd="docker"
 
 mkdir -p /tmp/servicenow
-apt install -y curl || yum install -y curl 
+which curl || ( apt install -y curl || yum install -y curl  )
 
 curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
 source /tmp/download_pe_tarball.sh  loadlib
