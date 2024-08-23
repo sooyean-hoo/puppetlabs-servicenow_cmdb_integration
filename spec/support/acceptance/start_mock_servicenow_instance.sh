@@ -345,10 +345,24 @@ if [ ! -z "$id" ] ; then
 fi
 
 ${dockercmd} build /tmp/servicenow -t mock_servicenow_instance || true
-${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&- || true
 
+id=""
+n=1
+while [ -z "${id}" ] ; do
+  echo \
+  ${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance  | tee /tmp/servicenow/d.sh ; 
+  ${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&- || \
+  bash /tmp/servicenow/d.sh    || true
+  sleep $(( n * 3  ))
+  id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true ;
+  echo  "======after=$(( n * 3  ))secs====id=$id" ;
+  n=$((n + 1)) ;
+  if [ $n -gt 3 ] ; then
+    id='000000' ;
+  fi; 
+done ;
 
-id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true
+id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true ;
 echo  "=======id=$id"
 
 if [ -z "$id" ] ; then
