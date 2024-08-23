@@ -324,8 +324,6 @@ which ${dockercmd} || enableDocker || true
 #   exit $? ;
 # }
 
-echoMsg '++' ORIGINAL CODES STARTS
-
 
 function cleanup() {
   # bolt_upload_file isn't idempotent, so remove this directory
@@ -337,17 +335,21 @@ trap cleanup EXIT
 
 set -e
 
-id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+echoMsg '++' ORIGINAL CODES STARTS
+
+id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true
 
 if [ ! -z "$id" ] ; then
   echo "Killing the current mock ServiceNow container (id = ${id}) ..."
   ${dockercmd} rm --force ${id}
 fi
 
-${dockercmd} build /tmp/servicenow -t mock_servicenow_instance
-${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&-
+${dockercmd} build /tmp/servicenow -t mock_servicenow_instance || true
+${dockercmd} run -d --rm -p 1080:1080 --name mock_servicenow_instance mock_servicenow_instance 1>&- 2>&- || true
 
-id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running`
+
+id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true
+echo  "=======id=$id"
 
 if [ -z "$id" ] ; then
   echo 'Mock ServiceNow container start failed.'
