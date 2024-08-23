@@ -174,6 +174,7 @@ namespace :acceptance do
     # Update the inventory file
     puts('Updating the inventory.yaml file with the ServiceNow instance credentials')
     inventory_hash = LitmusHelpers.inventory_hash_from_inventory_file
+    inventory_hash ||= { 'groups' => [] }
     servicenow_group = inventory_hash['groups'].find { |g| g['name'] =~ %r{servicenow} }
     unless servicenow_group
       servicenow_group = { 'name' => 'servicenow_nodes' }
