@@ -357,7 +357,7 @@ while [ -z "${id}" ] ; do
   id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true ;
   echo  "======after=$(( n * 3  ))secs====id=$id" ;
   n=$((n + 1)) ;
-  if [ $n -gt 3 ] ; then
+  if [ $n -gt 7 ] ; then
     id='000000' ;
   fi; 
 done ;

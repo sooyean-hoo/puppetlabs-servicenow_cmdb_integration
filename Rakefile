@@ -141,7 +141,7 @@ namespace :acceptance do
   end
 
   desc 'Sets up the ServiceNow instance'
-  task :setup_servicenow_instance, [:instance, :user, :password, :token] do |_, args|
+  task :setup_servicenow_instance, [:instance, :user, :password, :token, :createby] do |_, args|
     instance, user, password, token = args[:instance], args[:user], args[:password], args[:token]
     if instance.nil?
       # Start the mock ServiceNow instance. If an instance has already been started,
@@ -192,6 +192,7 @@ namespace :acceptance do
       },
       'vars' => {
         'roles' => ['servicenow_instance'],
+        'createby' => args[:createby],
       }
     }]
     write_to_inventory_file(inventory_hash, 'inventory.yaml')

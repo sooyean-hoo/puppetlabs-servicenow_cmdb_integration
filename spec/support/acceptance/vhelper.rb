@@ -625,7 +625,7 @@ namespace :valentepuppet do
       end
     end
     servicenow_host_uri = 'localhost'
-    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token')
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token', 'setup_servicenow_host_docker')
   end
 
   desc 'Test ServiceNow host with sample Data'
@@ -676,6 +676,6 @@ namespace :valentepuppet do
       end
     end
     servicenow_host_uri = servicenow_host.uri.split(':')[0]
-    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token')
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token', 'setup_servicenow_host_docker')
   end
 end

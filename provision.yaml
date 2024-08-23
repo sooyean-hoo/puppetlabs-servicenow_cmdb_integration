@@ -98,7 +98,7 @@ acceptance_vbox_rhel_9:
 
 acceptance_vbox_oraclelinux_7:
   provisioner: vagrant
-  images: ['lbeneduzi/oracleLinux7Docker' ]
+  images: ['generic/oracle7' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
