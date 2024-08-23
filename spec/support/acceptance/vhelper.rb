@@ -43,6 +43,11 @@ function      disableApparmor(){
             sudo systemctl stop apparmor
           fi
 }
+function      setup_servicenow_host(){
+          cp -fvr ./spec/support/acceptance/servicenow  /tmp/
+          chmod a+x ./spec/support/acceptance/start_mock_servicenow_instance.sh
+          ./spec/support/acceptance/start_mock_servicenow_instance.sh
+}
 function      install_actual_bolt(){
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
@@ -614,8 +619,7 @@ namespace :valentepuppet do
         next
       rescue TargetNotFoundError
         # This means that we haven't set up the servicenow_host docker
-        `cp -fvr ./spec/support/acceptance/servicenow  /tmp/`
-        `bash ./spec/support/acceptance/start_mock_servicenow_instance.sh`
+        puts `bash ./spec/support/acceptance/vhelper.rb exec setup_servicenow_host`
       end
     end
     servicenow_host_uri = 'localhost'

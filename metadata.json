@@ -27,7 +27,8 @@
       "operatingsystemrelease": [
         "7",
         "8"
-      ]
+      ],
+      "eol": "CentOS Stream 8 end of builds is May 31, 2024. CentOS Linux 7 end of life is June 30, 2024. Centos has reach EOL.... All repo are not working. Hence PE dependency cannot be installed."
     },
     {
       "operatingsystem": "OracleLinux",
@@ -55,12 +56,6 @@
         "7"
       ],
       "eol": "CentOS Stream 8 end of builds is May 31, 2024. CentOS Linux 7 end of life is June 30, 2024."
-    },  
-    {
-      "operatingsystem": "CentOS",
-      "operatingsystemrelease": [
-        "7"
-      ]
     },
     {
       "operatingsystem": "RedHat",
