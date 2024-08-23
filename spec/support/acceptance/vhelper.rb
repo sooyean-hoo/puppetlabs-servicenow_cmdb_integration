@@ -604,13 +604,14 @@ namespace :valentepuppet do
     puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `
   end
 
+  # rubocop:disable all
   ### Litmus Helper
   desc 'Sets up the ServiceNow host'
   task :setup_servicenow_host do
     if File.exist?('inventory.yaml')
       # Check if a servicenow_host docker's already been setup
       begin
-        uri = servicenow_host.uri
+        uri = servicenow_host.uri # an exception occurs here
         puts("A servicenow_host VM at '#{uri}' has already been set up")
         next
       rescue VP::TargetNotFoundError
@@ -621,4 +622,5 @@ namespace :valentepuppet do
     Rake::Task['litmus:provision_list'].invoke(provision_list)
     Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host.uri}:1080", 'mock_user', 'mock_password', 'mock_token')
   end
+  # rubocop:enable all
 end
