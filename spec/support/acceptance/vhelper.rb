@@ -266,9 +266,11 @@ function      prepcommand1(){
 function      setupServiceNowServer(){
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host ' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' ;
         [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
+  
+        bundle exec 'rake valentepuppet:test_servicenow_host' ;
 }
 function      command(){
         source /tmp/v.sh  loadlib  ;
@@ -625,25 +627,27 @@ namespace :valentepuppet do
     servicenow_host_uri = 'localhost'
     Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token')
   end
-  
+
   desc 'Test ServiceNow host with sample Data'
   task :test_servicenow_host do
-    cmdb_table= 'cmdb_ci' 
-    certname_field= 'fqdn'
+    cmdb_table = 'cmdb_ci'
+    certname_field = 'fqdn'
 
-    testfield='location'
-    teststring='KoKo_NI_ISEKAI_DESU_616'
-    
+    testfield = 'location'
+    teststring = 'KoKo_NI_ISEKAI_DESU_616'
+
     fields_template = JSON.parse(File.read('spec/support/acceptance/cmdb_record_template.json'))
     fields_template['attributes'] = cmdb_table
     fields_template[testfield] = teststring
+    # rubocop:disable all
     begin
       CMDBHelpers.create_target_record(servicenow_instance, fields_template, table: cmdb_table, certname_field: certname_field)
     rescue
       # This means record exist.
     end
+    # rubocop:enable all
     cmdb_record = CMDBHelpers.get_target_record(servicenow_instance)
-    puts "TESTING......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{ cmdb_record[testfield] == teststring ? "same" : "different" })"
+    puts "TESTING......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
   end
 
   desc 'Sets up the ServiceNow host with docker'
