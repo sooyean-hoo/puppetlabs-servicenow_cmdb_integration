@@ -154,7 +154,7 @@ namespace :acceptance do
       ## New Code# 
       master.bolt_upload_file('./spec/support/acceptance/servicenow/Gemfile', '/tmp/servicenow')
       master.bolt_upload_file('./spec/support/acceptance/servicenow/mock_instance.rb', '/tmp/servicenow')
-      #master.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
+      # master.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
       
       ## Old Code# 
       master.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')

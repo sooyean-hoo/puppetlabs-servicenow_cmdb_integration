@@ -3,13 +3,15 @@
 dockercmd="docker"
 
 mkdir -p /tmp/servicenow
-which curl || ( apt install -y curl || yum install -y curl  )
+which curl || ( apt install -y curl || yum install -y curl  ) || true
+which sudo || ( apt install -y sudo || yum install -y sudo  ) || true
 
-curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh 
-source /tmp/download_pe_tarball.sh  loadlib
+curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh   || true
+source /tmp/download_pe_tarball.sh  loadlib  || true
 
 
 if [  "$1" = "LOCALRUN"     ] ; then
+  mkdir -p /tmp/servicenow/ ;
   echo  > /tmp/servicenow/start_mock_servicenow_instance.sh ;
 fi ;
 
@@ -21,34 +23,42 @@ if [ -e  /tmp/servicenow/start_mock_servicenow_instance.sh ] ; then
   export tmpDir=$PWD
   
   cd /tmp/servicenow/
-
+  sudoCMD=`which sudo`
+  pushd $PWD
   
+  rubyCMD=`which ruby` 
+  bundleCMD=`which bundle`
   
-  for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler  \
-      git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    ; do
-    installPkg $p ;
-  done ;
-  touch  ~/.bashrc
-  rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
-  source ~/.bashrc
-
-  echo sudo gem install rubygems-update || echo sudo gem install rubygems-update -v 3.4.22
-  echo sudo update_rubygems 
-  echo sudo gem update --system
+  if [ -z "${bundleCMD}" ] ; then
+    for p in ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-bundler   sudo  \
+        git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake    ; do
+      installPkg $p ;
+    done ;
+    touch  $HOME/.bashrc
+    rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
+    source $HOME/.bashrc
   
-  sudo gem uninstall --force ffi 
-  sudo gem install --force ffi -- --enable-libffi-alloc
-
-#   bundle add  puma -v "~> 4.3.12"
-#   for g in       eventmachine reel  rackup rubygems-tasks  ; do 
-#     bundle add  $g ; 
-#   done ;
-
+    echo ${sudoCMD} gem install rubygems-update || echo ${sudoCMD} gem install rubygems-update -v 3.4.22
+    echo ${sudoCMD} update_rubygems 
+    echo ${sudoCMD} gem update --system
+    
+    ${sudoCMD} gem uninstall --force ffi 
+    ${sudoCMD} gem install --force ffi -- --enable-libffi-alloc
   
+    # bundle add  puma -v "~> 4.3.12"
+    # for g in       eventmachine reel  rackup rubygems-tasks  ; do 
+    #   bundle add  $g ; 
+    # done ;
+  fi;
 
-  bundle install --without development test
-  bundle exec ruby ./mock_instance.rb
+  popd;
   
+  bundle update
+  bundle install --without development test || (  bundle config set --local without 'development test'  && bundle install )
+  nohup bundle exec ruby ./mock_instance.rb 2>&1   > /tmp/mock_instance.rb.log &
+  
+  sleep 10 ;
+  cat /tmp/mock_instance.rb.log ;
   exit $? ;
 fi
 

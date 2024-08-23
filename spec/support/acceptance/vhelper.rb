@@ -262,6 +262,7 @@ function      setupServiceNowServer(){
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
+        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host ' ;
         [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
 }
 function      command(){
@@ -453,7 +454,7 @@ module VP
     end
   end
 
-  class TargetNotFoundError < StandardError; end
+  # class TargetNotFoundError < StandardError; end
   module TargetHelpers
     def master
       target('master', 'acceptance:provision_vms', 'master')
@@ -602,23 +603,51 @@ namespace :valentepuppet do
     puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `
   end
 
-  # rubocop:disable all
   ### Litmus Helper
   desc 'Sets up the ServiceNow host'
   task :setup_servicenow_host do
     if File.exist?('inventory.yaml')
       # Check if a servicenow_host docker's already been setup
       begin
-        uri = servicenow_host.uri # an exception occurs here
-        puts("A servicenow_host VM at '#{uri}' has already been set up")
-        next
-      rescue VP::TargetNotFoundError
-        # Pass-thru, this means that we haven't set up the servicenow_host docker
+        uri = servicenow_instance.uri # an exception occurs here
+        puts("A servicenow_instance VM at '#{uri}' has already been set up")
+        next 
+      rescue TargetNotFoundError
+        # This means that we haven't set up the servicenow_host docker
+        `cp -fvr ./spec/support/acceptance/servicenow  /tmp/`
+        `bash ./spec/support/acceptance/start_mock_servicenow_instance.sh`      
       end
     end
-    provision_list = 'acceptance_docker_servicenow'
-    Rake::Task['litmus:provision_list'].invoke(provision_list)
-    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host.uri}:1080", 'mock_user', 'mock_password', 'mock_token')
+    servicenow_host_uri='localhost'
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token')
   end
-  # rubocop:enable all
+  
+  desc 'Sets up the ServiceNow host with docker'
+  task :setup_servicenow_host_docker do
+    if File.exist?('inventory.yaml')
+      # Check if a servicenow_host docker's already been setup
+      begin
+        uri = servicenow_host.uri # an exception occurs here
+        puts("A servicenow_host VM at '#{uri}' has already been set up")
+        next 
+      rescue TargetNotFoundError
+        # This means that we haven't set up the servicenow_host docker
+        provision_list = 'acceptance_docker_servicenow'
+        Rake::Task['litmus:provision_list'].invoke(provision_list)
+          
+        puts("Starting the mock ServiceNow instance at the servicenow_host (#{servicenow_host.uri})")
+        servicenow_host.bolt_upload_file('./spec/support/acceptance/servicenow', '/tmp/servicenow')
+        
+        ## New Code# 
+        servicenow_host.bolt_upload_file('./spec/support/acceptance/servicenow/Gemfile', '/tmp/servicenow')
+        servicenow_host.bolt_upload_file('./spec/support/acceptance/servicenow/mock_instance.rb', '/tmp/servicenow')
+        servicenow_host.bolt_upload_file('./spec/support/acceptance/start_mock_servicenow_instance.sh', '/tmp/servicenow')
+
+        ## Old Code# 
+        servicenow_host.bolt_run_script('spec/support/acceptance/start_mock_servicenow_instance.sh')          
+      end
+    end
+    servicenow_host_uri=servicenow_host.uri.split(':')[0]
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token')
+  end
 end
