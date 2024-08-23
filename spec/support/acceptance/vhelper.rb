@@ -262,6 +262,11 @@ function      setupServiceNowServer(){
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance ' ;
+        
+        if [ -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] ; then
+          echoMsg '!!' "Creating FailSafe ServiceNow Server......."    ;
+          bundle exec 'rake valentepuppet:setup_servicenow_host'
+        fi ;
         [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
 }
 function      command(){
@@ -465,6 +470,12 @@ module VP
     end
     module_function :servicenow_instance
 
+    def servicenow_host
+      target('ServiceNow host', 'valentepuppet:setup_servicenow_host', 'servicenow_host')
+    end
+    module_function :servicenow_host
+
+
     def target(name, setup_task, role)
       @targets ||= {}
 
@@ -596,4 +607,22 @@ namespace :valentepuppet do
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
     puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `
   end
+
+  ### Litmus Helper
+  desc 'Sets up the ServiceNow host'
+  task :setup_servicenow_host do
+    if File.exist?('inventory.yaml')
+      # Check if a servicenow_host docker's already been setup
+      begin
+        uri = servicenow_host.uri
+        puts("A servicenow_host VM at '#{uri}' has already been set up")
+        next
+      rescue TargetNotFoundError
+        # Pass-thru, this means that we haven't set up the servicenow_host docker
+      end
+    end
+    provision_list = 'acceptance_docker_servicenow'
+    Rake::Task['litmus:provision_list'].invoke(provision_list)
+    Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host.uri}:1080", 'mock_user', 'mock_password', 'mock_token')
+  end  
 end
