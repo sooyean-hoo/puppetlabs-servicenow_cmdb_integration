@@ -139,6 +139,13 @@ ___E
 fi
 
   ## Finalize configuration
+  
+  puppetcmd=`find /opt  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
+  which puppet  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
+  
+  source $HOME/.bashrc
+  export PATH="$(dirname  ${puppetcmd:-/usr/bin/ls} ):$PATH"
+
   echo “Finalize PE install”
   puppet agent -t
 
