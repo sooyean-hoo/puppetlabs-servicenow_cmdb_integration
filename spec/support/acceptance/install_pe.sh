@@ -140,8 +140,10 @@ fi
 
   ## Finalize configuration
   
-  puppetcmd=`find /opt  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
-  which puppet  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
+  puppetcmd=`find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
+  puppet infra --help  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
+  
+  which puppet
   
   source $HOME/.bashrc
   export PATH="$(dirname  ${puppetcmd:-/usr/bin/ls} ):$PATH"
