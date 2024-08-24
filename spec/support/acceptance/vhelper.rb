@@ -565,6 +565,7 @@ namespace :valentepuppet do
     cmds += ' runlogged /tmp/provision.txt +'
     cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
     cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
+    cmds += " catMe /tmp/provision.txt  +"
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
@@ -608,6 +609,9 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
+    puts 'File.read("/tmp/provision.txt")' if File.exist?("/tmp/provision.txt")
+    puts File.read("/tmp/provision.txt") if File.exist?("/tmp/provision.txt")
+
     Rake::Task['acceptance:setup_servicenow_instance'].invoke
 
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')

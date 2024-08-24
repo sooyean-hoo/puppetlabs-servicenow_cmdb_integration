@@ -106,7 +106,7 @@ acceptance_vbox_oraclelinux_7:
 
 acceptance_vbox_sles_12:
   provisioner: vagrant
-  images: ['alchemy-solutions/sles12' ]
+  images: ['wandisco/sles-12.5-64' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
