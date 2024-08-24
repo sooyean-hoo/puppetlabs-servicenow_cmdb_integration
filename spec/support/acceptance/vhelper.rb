@@ -437,7 +437,8 @@ if  [ "exec" = "$1" ] ; then
   echo "===Executing....$@....." ;
   $@ ; errorid=$?;
   echo "==errorid=$errorid=" ;
-  return 2> /dev/null || true ; exit $errorid;
+  #return 2> /dev/null || true ; 
+  exit $errorid;
 fi;
 exit
 =end
@@ -615,14 +616,18 @@ namespace :valentepuppet do
 
     if File.exist?(provisiontxtfile)
       if %r{bunutu}.match?(File.read(provisiontxtfile))
+        puts 'Inside Primary Server as a container: Creating ServiceNow Server.......'
         Rake::Task['acceptance:setup_servicenow_instance'].invoke
       else
+        puts 'Inside GitHub Runner as a container: Creating ServiceNow Server.......'
         Rake::Task['valentepuppet:setup_servicenow_host'].invoke
       end
     end
 
-    Rake::Task['acceptance:setup_servicenow_instance'].invoke
+    puts 'Testing ServiceNow Server.......'
+    Rake::Task['acceptance:test_servicenow_host'].invoke
 
+    puts 'Acceptance Test Continues........'
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
