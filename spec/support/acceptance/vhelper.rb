@@ -266,11 +266,21 @@ function      prepcommand1(){
 function      setupServiceNowServer(){
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' ;
-        [ ! -z  "$(grep servicenow_nodes ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
+        
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
+  
+        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' ;
+          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
+  
+        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' ;
+          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
+  
+        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )    ;
+          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
   
         bundle exec 'rake valentepuppet:test_servicenow_host' ;
+        
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
 }
 function      command(){
         source /tmp/v.sh  loadlib  ;
