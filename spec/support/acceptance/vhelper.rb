@@ -114,6 +114,9 @@ function      matrix_from_metadata(){
    ]
 }
 __EMD
+  
+      echo '{  "platforms": [] }' > ${GITHUB_OUTPUT}.add ; Remove addition
+  
       cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -cM -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
         > ${GITHUB_OUTPUT}.newjson
   
@@ -290,7 +293,9 @@ function      command(){
         bundle exec 'rake --tasks' ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2' ;
+  
         setupServiceNowServer
+  
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "docker" =  "$provisioner" ] ; then

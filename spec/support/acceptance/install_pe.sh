@@ -142,23 +142,28 @@ fi
   
   puppetcmd=`find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
   puppet infra --help  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
-  
-  which puppet
+
+  echo "puppetcmd=$puppetcmd"   
   
   source $HOME/.bashrc
   export PATH="$(dirname  ${puppetcmd:-/usr/bin/ls} ):$PATH"
+  which puppet
 
   echo “Finalize PE install”
   puppet agent -t
 
 
-  puppet infra console_password --password=${pepasswd}
+  puppet infra console_password --password=${pepasswd} || /opt/puppetlabs/bin/puppet infra console_password --password=${pepasswd}
 
   ## Create and configure Certs
   echo "autosign = true" >> /etc/puppetlabs/puppet/puppet.conf
 
   ## Setup the RBAC token
-  echo "${pepasswd}" | puppet access login --lifetime 1y --username admin
+  echo "${pepasswd}" | puppet access login --lifetime 1y --username admin || \
+  echo "${pepasswd}" | /opt/puppetlabs/bin/puppet access login --lifetime 1y --username admin
+
+  echo "====PUPPETTOKEN===="
+  ls -l ~/.puppetlabs/token
 
 version=`puppet --version`
 
