@@ -267,17 +267,20 @@ function      prepcommand1(){
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
 }
 function      setupServiceNowServer(){
+  
+        source /tmp/provision.txt
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         aptcmd = `which apt` ;
+  
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
-          if [  -z  "${aptcmd}" ]    ; then
-            echoMsg '__' "Inside GitHub Runner as a container: Creating ServiceNow Server......."    ;
-            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
-          else
+          if [[  $platforms_image =~ bunutu ]]    ; then
             echoMsg '__' "Inside Primary Server as a container: Creating ServiceNow Server......."    ;
             [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
+          else
+            echoMsg '__' "Inside GitHub Runner as a container: Creating ServiceNow Server......."    ;
+            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
           fi ;
         fi
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
@@ -554,6 +557,9 @@ namespace :valentepuppet do
     puts "..........................#{paras[:platformprovider]}===>===vagrant"
 
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' runlogged /tmp/provision.txt +'
+    cmds += " runlogged /tmp/provision.txt  platforms_image='#{paras[:platforms_image]}'   +"
+    cmds += " runlogged /tmp/provision.txt  platformprovider='#{paras[:platformprovider]}'   +"
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
