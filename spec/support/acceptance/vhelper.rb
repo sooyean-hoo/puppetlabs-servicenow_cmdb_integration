@@ -563,8 +563,8 @@ namespace :valentepuppet do
 
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' runlogged /tmp/provision.txt +'
-    cmds += " runlogged /tmp/provision.txt  platforms_image='#{paras[:platforms_image]}'   +"
-    cmds += " runlogged /tmp/provision.txt  platformprovider='#{paras[:platformprovider]}'   +"
+    cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
+    cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
@@ -578,7 +578,7 @@ namespace :valentepuppet do
 
     output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
     if $CHILD_STATUS.success?
-      puts output
+      puts output.gsub('\n', "\n")
     else
       abort 'error: could not execute command'
     end
@@ -598,12 +598,12 @@ namespace :valentepuppet do
 
   desc 'Install Puppet agent'
   task :install_agent__task do # , [:matrix_collection] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `.gsub('\n', "\n")
   end
 
   desc 'Install module'
   task :install_module__task do # , [:para1, :para2] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `.gsub('\n', "\n")
   end
 
   desc 'Run acceptance tests'
@@ -613,7 +613,7 @@ namespace :valentepuppet do
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
-    puts stdout.read.to_s
+    puts stdout.read.to_s.gsub('\n', "\n")
 
     if wait_thr.value.success?
       stdin.close
@@ -647,7 +647,7 @@ namespace :valentepuppet do
         # This means that we haven't set up the servicenow_host docker
         cmd = 'bash ./spec/support/acceptance/vhelper.rb exec setup_servicenow_host'
         stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
-        puts stdout.read.to_s
+        puts stdout.read.to_s.gsub('\n', "\n")
 
         if wait_thr.value.success?
           stdin.close
