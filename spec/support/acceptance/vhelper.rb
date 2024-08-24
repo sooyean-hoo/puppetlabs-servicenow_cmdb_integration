@@ -271,7 +271,7 @@ function      setupServiceNowServer(){
         source /tmp/provision.txt
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
-        aptcmd = `which apt` ;
+        aptcmd=`which apt` ;
   
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
@@ -294,8 +294,11 @@ function      command(){
         bundle exec 'rake --tasks' ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2' ;
-  
-        setupServiceNowServer
+
+
+        echoMsg '==' Starting Servicenow Server 
+        setupServiceNowServer 2>&1  > /tmp/sss.txt; 
+        cat /tmp/sss.txt; 
   
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
