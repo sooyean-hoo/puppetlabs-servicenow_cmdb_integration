@@ -334,7 +334,8 @@ function cleanup() {
 trap cleanup EXIT
 
 set -e
-
+echoMsg '__'  || true
+env  || true
 echoMsg '++' ORIGINAL CODES STARTS
 
 id=`${dockercmd} ps -q -f name=mock_servicenow_instance -f status=running` || true
@@ -345,6 +346,9 @@ if [ ! -z "$id" ] ; then
 fi
 
 ${dockercmd} build /tmp/servicenow -t mock_servicenow_instance || true
+echoMsg '__' ${dockercmd}  || true
+${dockercmd} image ls  || true
+echoMsg '__'  || true
 
 id=""
 n=1

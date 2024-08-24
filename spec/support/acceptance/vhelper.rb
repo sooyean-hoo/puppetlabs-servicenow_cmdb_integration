@@ -276,9 +276,11 @@ function      setupServiceNowServer(){
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
           if [[  $platforms_image =~ bunutu ]]    ; then
+            export sss_location="Inside Primary Server as a container:" ;
             echoMsg '__' "Inside Primary Server as a container: Creating ServiceNow Server......."    ;
             [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
           else
+            export sss_location="Inside GitHub Runner as a container:" ;
             echoMsg '__' "Inside GitHub Runner as a container: Creating ServiceNow Server......."    ;
             [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
           fi ;
