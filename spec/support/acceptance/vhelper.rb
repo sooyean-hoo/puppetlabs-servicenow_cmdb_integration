@@ -565,7 +565,7 @@ namespace :valentepuppet do
     cmds += ' runlogged /tmp/provision.txt +'
     cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
     cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
-    cmds += " catMe /tmp/provision.txt  +"
+    cmds += ' catMe /tmp/provision.txt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
@@ -609,8 +609,17 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
-    puts 'File.read("/tmp/provision.txt")' if File.exist?("/tmp/provision.txt")
-    puts File.read("/tmp/provision.txt") if File.exist?("/tmp/provision.txt")
+    provisiontxtfile = '/tmp/provision.txt'
+    puts "File.read(#{provisiontxtfile})" if File.exist?(provisiontxtfile)
+    puts File.read(provisiontxtfile) if File.exist?(provisiontxtfile)
+
+    if File.exist?(provisiontxtfile)
+      if %r{bunutu}.match?(File.read(provisiontxtfile))
+        Rake::Task['acceptance:setup_servicenow_instance'].invoke
+      else
+        Rake::Task['valentepuppet:setup_servicenow_host'].invoke
+      end
+    end
 
     Rake::Task['acceptance:setup_servicenow_instance'].invoke
 
@@ -637,17 +646,17 @@ namespace :valentepuppet do
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
     puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `.gsub('\n', "\n")
   end
-#
-# end of Rake Tasks
-#
-#
-#
-#
-#
-#
-#
-#
-# ### Litmus Helper
+  #
+  # end of Rake Tasks
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  # ### Litmus Helper
   desc 'Sets up the ServiceNow host'
   task :setup_servicenow_host do
     if File.exist?('inventory.yaml')
