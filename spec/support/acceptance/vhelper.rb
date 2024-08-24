@@ -269,23 +269,19 @@ function      prepcommand1(){
 function      setupServiceNowServer(){
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
-        
+        aptcmd = `which apt` ;
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
-  
-        echoMsg '__' "Inside Puppet Main Server: Creating ServiceNow Server......."    ;
-        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
-          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
-
-        echoMsg '__' "Inside GitHub Runner: Creating ServiceNow Server......."    ;
-        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
-          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
-  
-        [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || ( echoMsg '!!' "Failed: Creating ServiceNow Server" && exit 404 )  || true    ;
-          grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
-
+        if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
+          if [  -z  "${aptcmd}" ]    ; then
+            echoMsg '__' "Inside GitHub Runner as a container: Creating ServiceNow Server......."    ;
+            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
+          else
+            echoMsg '__' "Inside Primary Server as a container: Creating ServiceNow Server......."    ;
+            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
+          fi ;
+        fi
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
-
-        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml  || true 
 }
 function      command(){
         source /tmp/v.sh  loadlib  ;
