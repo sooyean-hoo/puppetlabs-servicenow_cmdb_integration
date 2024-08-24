@@ -571,7 +571,7 @@ namespace :valentepuppet do
 
     output = `#{cmds}`
     if $CHILD_STATUS.success?
-      puts output
+      puts output.gsub('\n', "\n")
     else
       abort 'error: could not execute command'
     end
@@ -621,7 +621,7 @@ namespace :valentepuppet do
       stderr.close
       exit(true)
     else
-      puts "Error level was: #{wait_thr.value.exitstatus}\n#{stderr.read}"
+      puts "Error level was: #{wait_thr.value.exitstatus}\n#{stderr.read}".gsub('\n', "\n")
       stdin.close
       stdout.close
       stderr.close
@@ -631,10 +631,19 @@ namespace :valentepuppet do
 
   desc 'Remove test environment'
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `.gsub('\n', "\n")
   end
-
-  ### Litmus Helper
+#
+# end of Rake Tasks
+#
+#
+#
+#
+#
+#
+#
+#
+# ### Litmus Helper
   desc 'Sets up the ServiceNow host'
   task :setup_servicenow_host do
     if File.exist?('inventory.yaml')
