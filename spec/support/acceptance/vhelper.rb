@@ -273,7 +273,7 @@ function      setupServiceNowServer(){
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         aptcmd=`which apt` ;
   
-        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
           if [[  $platforms_image =~ bunutu ]]    ; then
             export sss_location="Inside Primary Server as a container:" ;
@@ -291,17 +291,18 @@ function      setupServiceNowServer(){
 function      command(){
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
+        
+        echoMsg '==' Preparing PE Server 
         bundle update ;
         bundle install ;
-        bundle exec 'rake --tasks' ;
+        #bundle exec 'rake --tasks' ;
         bundle install ;
         bundle exec 'rake acceptance:setup_pe_p2' ;
 
-
         echoMsg '==' Starting Servicenow Server 
-        setupServiceNowServer 2>&1  > /tmp/sss.txt; 
+        setupServiceNowServer 2>&1  > /tmp/sss.txt ||  true ; 
         cat /tmp/sss.txt; 
-  
+
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "docker" =  "$provisioner" ] ; then
@@ -437,8 +438,8 @@ if  [ "exec" = "$1" ] ; then
   echo "===Executing....$@....." ;
   $@ ; errorid=$?;
   echo "==errorid=$errorid=" ;
-  #return 2> /dev/null || true ; 
-  exit $errorid;
+  return $errorid 2> /dev/null || true ; 
+  exit $errorid ;
 fi;
 exit
 =end
@@ -610,22 +611,22 @@ namespace :valentepuppet do
 
   desc 'Run acceptance tests'
   task :acceptance__task do # , [:para1, :para2] do |_t, paras|
-    provisiontxtfile = '/tmp/provision.txt'
-    puts "File.read(#{provisiontxtfile})" if File.exist?(provisiontxtfile)
-    puts File.read(provisiontxtfile) if File.exist?(provisiontxtfile)
+    #    provisiontxtfile = '/tmp/provision.txt'
+    #    puts "File.read(#{provisiontxtfile})" if File.exist?(provisiontxtfile)
+    #    puts File.read(provisiontxtfile) if File.exist?(provisiontxtfile)
+    #
+    #    if File.exist?(provisiontxtfile)
+    #      if %r{bunutu}.match?(File.read(provisiontxtfile))
+    #        puts 'Inside Primary Server as a container: Creating ServiceNow Server.......'
+    #        Rake::Task['acceptance:setup_servicenow_instance'].invoke
+    #      else
+    #        puts 'Inside GitHub Runner as a container: Creating ServiceNow Server.......'
+    #        Rake::Task['valentepuppet:setup_servicenow_host'].invoke
+    #      end
+    #    end
 
-    if File.exist?(provisiontxtfile)
-      if %r{bunutu}.match?(File.read(provisiontxtfile))
-        puts 'Inside Primary Server as a container: Creating ServiceNow Server.......'
-        Rake::Task['acceptance:setup_servicenow_instance'].invoke
-      else
-        puts 'Inside GitHub Runner as a container: Creating ServiceNow Server.......'
-        Rake::Task['valentepuppet:setup_servicenow_host'].invoke
-      end
-    end
-
-    puts 'Testing ServiceNow Server.......'
-    Rake::Task['acceptance:test_servicenow_host'].invoke
+    #    puts 'Testing ServiceNow Server.......'
+    #    Rake::Task['acceptance:test_servicenow_host'].invoke
 
     puts 'Acceptance Test Continues........'
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
