@@ -267,25 +267,38 @@ function      prepcommand1(){
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
 }
 function      setupServiceNowServer(){
+ 
+        echoMsg '__' "Pre-Checking Inventory files......."    ;
+        ls -l $PWD/inventory.yaml || true ;
+        ls -l $PWD/spec/fixtures/litmus_inventory.yaml || true ;
+
+        [ ! -e $PWD/inventory.yaml ] && echo -e "---\ngroups: []" > $PWD/inventory.yaml || true ;
+        [ -e $PWD/inventory.yaml  -a ! -e $PWD/spec/fixtures/litmus_inventory.yaml  ] && ln -sf $PWD/inventory.yaml $PWD/spec/fixtures/litmus_inventory.yaml  || true ;
+        grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml || true ;  
+        echoMsg '__'
   
         source /tmp/provision.txt
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         aptcmd=`which apt` ;
-  
-        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true
+ 
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || echo true
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
           if [[  $platforms_image =~ bunutu ]]    ; then
             export sss_location="Inside Primary Server as a container:" ;
             echoMsg '__' "Inside Primary Server as a container: Creating ServiceNow Server......."    ;
-            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
+            # [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || 
+            bundle exec 'rake acceptance:setup_servicenow_instance' || true ;
           else
             export sss_location="Inside GitHub Runner as a container:" ;
             echoMsg '__' "Inside GitHub Runner as a container: Creating ServiceNow Server......."    ;
-            [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
+            # [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || 
+            bundle exec 'rake valentepuppet:setup_servicenow_host' || true  ;
+            
           fi ;
         fi
-        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true 
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || echo "STILL No servicenow_instance in  ./spec/fixtures/litmus_inventory.yaml " ;
+  
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
 }
 function      command(){
@@ -334,16 +347,22 @@ function      command(){
         bolt command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
         masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ;
         
-        #### Hardcoded for now 
+        #### Hardcoded for now
+        source /tmp/provision.txt || true ;
+        if [[  $platforms_image =~ bunutu ]]    ; then
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
+        else
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 " ;
+        fi ;
         masterip=${deploype_ip} ;
         echoMsg '++'    ;
         set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' | grep -v '^ ' ;
         echoMsg '++'    ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
         echoMsg '++'    ;
-        echoMsg '!!' "Activating the Port Fwding: -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080  "    ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "touch /tmp/proxy.txt"  ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} -L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080 "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
+        echoMsg '!!' "Activating the Port Fwding: ${portsfwdOptions}  "    ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "touch /tmp/proxy.txt"  ;
+        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
         sleep 10 ;
         #### 
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
@@ -673,11 +692,15 @@ namespace :valentepuppet do
         next
       rescue TargetNotFoundError
         # This means that we haven't set up the servicenow_host docker
-        cmd = 'bash ./spec/support/acceptance/vhelper.rb exec setup_servicenow_host'
+        cmd = 'bash ./spec/support/acceptance/vhelper.rb exec setup_servicenow_host ||  true  '
         stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
         puts stdout.read.to_s.gsub('\n', "\n")
 
         if wait_thr.value.success?
+          puts('  Creating entry for servicenow_instance inventory')
+          servicenow_host_uri = 'localhost'
+          Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token', 'setup_servicenow_host_docker')
+
           stdin.close
           stdout.close
           stderr.close

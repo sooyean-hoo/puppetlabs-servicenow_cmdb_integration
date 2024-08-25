@@ -192,7 +192,7 @@ namespace :acceptance do
       },
       'vars' => {
         'roles' => ['servicenow_instance'],
-        'createby' => args[:createby],
+        'createby' => args[:createby].to_s,
       }
     }]
     write_to_inventory_file(inventory_hash, 'inventory.yaml')
