@@ -362,7 +362,7 @@ function      command(){
         if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
-          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 " ;
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080:127.0.0.1:1080" ;
         fi ;
         masterip=${deploype_ip} ;
         echoMsg '++'    ;
