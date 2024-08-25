@@ -277,14 +277,19 @@ function      setupServiceNowServer(){
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml || true ;  
         echoMsg '__'
   
-        source /tmp/provision.txt
+        source /tmp/provision.txt ; 
+        if [ -z "$platforms_image" ] ; then
+          platforms_image=`grep platform:  ./spec/fixtures/litmus_inventory.yaml     ` ;
+        fi;
+        set | grep -E '^platforms_image=' ;
+
         bundle install ;
         echoMsg '!!' "Creating ServiceNow Server......."    ;
         aptcmd=`which apt` ;
- 
-        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || echo true
+  
+        grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || true
         if [  -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ]    ; then
-          if [[  $platforms_image =~ bunutu ]]    ; then
+          if [[  $platforms_image =~ buntu ]]    ; then
             export sss_location="Inside Primary Server as a container:" ;
             echoMsg '__' "Inside Primary Server as a container: Creating ServiceNow Server......."    ;
             # [ ! -z  "$(grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml )" ] || 
@@ -349,7 +354,12 @@ function      command(){
         
         #### Hardcoded for now
         source /tmp/provision.txt || true ;
-        if [[  $platforms_image =~ bunutu ]]    ; then
+         if [ -z "$platforms_image" ] ; then
+           platforms_image=`grep platform:  ./spec/fixtures/litmus_inventory.yaml     ` ;
+         fi;
+         set | grep -E '^platforms_image=' ;
+  
+        if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 " ;
@@ -737,7 +747,8 @@ namespace :valentepuppet do
     end
     # rubocop:enable all
     cmdb_record = CMDBHelpers.get_target_record(servicenow_instance)
-    puts "TESTING......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
+    h1 = 'TESTING SERVICENOW SERVER'
+    puts "#{h1}......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
   end
 
   desc 'Sets up the ServiceNow host with docker'
