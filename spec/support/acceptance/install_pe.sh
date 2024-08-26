@@ -46,7 +46,7 @@ if [ -z "$version" ]; then
 
     
     cd $tmpDir && rm -fr ./puppet*.gz  &&   pwd && \
-    cat /tmp/download_pe_tarball.sh | bash - ;
+    cat /tmp/download_pe_tarball.sh | bash -                2>&1 |  grep -v '.... .......... ....' ;
     ls -l "./puppet*.gz"
     cp -f "./puppet*.gz" ${TAR_FILE}
     echo "Done the CURL one "
@@ -140,10 +140,11 @@ fi
 
   ## Finalize configuration
   
-  puppetcmd=`find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
-  puppet infra --help  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
+  # puppetcmd=`find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | head -1`
+  # puppet infra --help  || echo 'export PATH='$(dirname  ${puppetcmd:-/usr/bin/ls} )':$PATH'  >> $HOME/.bashrc
 
-  echo "puppetcmd=$puppetcmd"   
+  # echo "Post-Installation puppetcmd=$puppetcmd"   
+  echoMsg '__' "Post-Installation"
   
   source $HOME/.bashrc
   export PATH="$(dirname  ${puppetcmd:-/usr/bin/ls} ):$PATH"
@@ -151,19 +152,19 @@ fi
 
   
   
-  echoMsg '!!' "Getting Path to be recognised as a command"  
+  echoMsg '!!' "Getting Path to be recognised as a command"
 whichpuppet=`which puppet`
 if [ -z "${whichpuppet}" ] ; then
   find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | while read whichpuppetposs ; do
     echo "Try ${whichpuppetposs}"
     (puppet --version && puppet infra --help > /dev/null &&  puppet access login --help  > /dev/null ) || 
     (
-      export PATH="$(dirname  ${whichpuppetposs:-/usr/bin/ls} ):$PATH" && 
+      export PATH="$(dirname  ${whichpuppetposs:-/usr/bin/ls} ):$PATH" &&  \
       ( 
-        (puppet --version && puppet infra console_password --help > /dev/null &&  puppet access login --help  > /dev/null ) 
+        (puppet --version && puppet infra console_password --help > /dev/null &&  puppet access login --help  > /dev/null ) \
               && 
         echo "PATH=$PATH" >> $HOME/.bashrc  && echo "Added ${whichpuppetposs:-/usr/bin/ls} to env:PATH and  $HOME/.bashrc "  
-      ) 
+      )  \
       || echo FAIL in getting puppet in the Path of $PATH 
     ) ;
   done ;

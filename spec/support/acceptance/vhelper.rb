@@ -242,7 +242,7 @@ function      installpecommands(){
 #          apt install -y curl || yum install -y curl ;
 #          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
 #          source /tmp/v.sh  loadlib ;
-#  
+#
 #          cleanse_dlPEConsole ;
 #          echo -e "srcgitKey='/tmp/key2share'\ndisplay_local_time=true\nadminpasswd=\"$pepasswd\"" > /tmp/installPEConsole.SETVALUES.txt ;
 #          touch /tmp/key2share ;
@@ -633,7 +633,7 @@ namespace :valentepuppet do
 
   desc 'Install Puppet agent'
   task :install_agent__task do # , [:matrix_collection] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" `.gsub('\n', "\n")
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" 2>&1 |  grep -v '.... .......... ....' `.gsub('\n', "\n")
   end
 
   desc 'Install module'
