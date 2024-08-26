@@ -70,11 +70,13 @@ function      installpe(){
         [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
         source /tmp/v.sh  loadlib  ;
   
-        uninstallPkg puppet
-        uninstallPkg e-installer
-        uninstallPkg pe-modules
-        uninstallPkg puppet-agent
-        uninstallPkg rubygem-puppet
+        uninstallPkg puppet || true ;
+        uninstallPkg pe-installer || true ;
+        uninstallPkg pe-modules || true ;
+        uninstallPkg puppet-agent || true ;
+        uninstallPkg rubygem-puppet  || true ;
+
+        installPkg dnf  || true ;
 __END
         chmod a+x /tmp/deploy_pePrep ;
         sudo -E /usr/local/bin/bolt  script run  /tmp/deploy_pePrep -t ${deploy_petarget}    || echo "============== PE deploy_pe PrepFailed  ==============" ;     
@@ -667,12 +669,12 @@ namespace :valentepuppet do
       abort 'error: could not execute command'
     end
 
-    output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
-    if $CHILD_STATUS.success?
-      puts output.gsub('\n', "\n")
-    else
-      abort 'error: could not execute command'
-    end
+#    output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
+#    if $CHILD_STATUS.success?
+#      puts output.gsub('\n', "\n")
+#    else
+#      abort 'error: could not execute command'
+#    end
 
     inventoryfile = './spec/fixtures/litmus_inventory.yaml'
     invcontent = ''

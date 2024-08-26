@@ -21,6 +21,7 @@ installPkg git git-core zlib* zlib*-dev g++     patch                    libyaml
 installPkg git curl autoconf bison build-essential \
   libssl-dev libyaml-dev libreadline6-dev zlib1g-dev \
   libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev  
+installPkg dnf
 
   
 if [ -z "$version" ]; then
@@ -109,25 +110,15 @@ ___E
   
   touch /tmp/occkeys
   
+  
+  
+  
+  
   echo installPEConsole  ${stages}
-  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
-  puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
-  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
-  puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
-  
-  
-  
-  delivery.puppetlabs.net
-  
-  echo "================="
-  cat /etc/hosts
-  echo "================="
-  cat /etc/hostname
-  echo "================="
 
   cd ${PE_FILE_NAME}
   echo "================="
-  cat ./conf.d/pe.conf
+  grep -H -n -v -E 'AALINEAANUMBER' ./conf.d/pe.conf
   echo "================="
   printf 'y' | ./puppet-enterprise-installer
 
@@ -180,6 +171,23 @@ fi ;
 
 
   which puppet || true
+
+
+  echo “Config Hostsname”
+  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
+  puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
+  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
+  puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
+  puppet resource host   rhel7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " >> /etc/hosts
+  puppet resource host   rhel8.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " >> /etc/hosts
+  puppet resource host   rhel9.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " >> /etc/hosts
+  puppet resource host   oracle7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " >> /etc/hosts
+  echo "================="
+  grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts
+  echo "================="
+  grep -H -n -v -E 'AALINEAANUMBER' /etc/hostname
+  echo "================="
+
 
   
   echo “Finalize PE install”
