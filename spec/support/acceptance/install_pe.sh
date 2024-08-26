@@ -163,7 +163,7 @@ if [ -z "${whichpuppet}" ] ; then
       ( 
         (puppet --version && puppet infra console_password --help > /dev/null &&  puppet access login --help  > /dev/null ) \
               && 
-        echo "PATH=$PATH" >> $HOME/.bashrc  && echo "Added ${whichpuppetposs:-/usr/bin/ls} to env:PATH and  $HOME/.bashrc "  
+        echo "export PATH=$PATH" >> $HOME/.bashrc  && echo "Added ${whichpuppetposs:-/usr/bin/ls} to env:PATH and  $HOME/.bashrc "  
       )  \
       || echo FAIL in getting puppet in the Path of $PATH 
     ) ;

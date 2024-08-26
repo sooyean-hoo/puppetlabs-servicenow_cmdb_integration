@@ -66,6 +66,18 @@ function      install_bolt_modules(){
           sudo -E chmod a+rw ./inventory.yaml
 }                
 function      installpe(){
+        cat > /tmp/deploy_pePrep << '__END'
+        [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
+        source /tmp/v.sh  loadlib  ;
+  
+        uninstallPkg puppet
+        uninstallPkg e-installer
+        uninstallPkg pe-modules
+        uninstallPkg puppet-agent
+        uninstallPkg rubygem-puppet
+__END
+        chmod a+x /tmp/deploy_pePrep ;
+        sudo -E /usr/local/bin/bolt  script run  /tmp/deploy_pePrep -t ${deploy_petarget}    || echo "============== PE deploy_pe PrepFailed  ==============" ;     
         sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
 }
 function       installgems(){
@@ -265,6 +277,50 @@ function      prepcommand1(){
         cd ./spec/fixtures/ ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
+  
+        if [[ $puppetversion =~ command.not.found  ]] ; then
+          
+  
+          cat > /tmp/psetup.sh << '__END'
+  whichpuppet=`which puppet`
+  if [ -z "${whichpuppet}" ] ; then
+    find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | while read whichpuppetposs ; do
+      echo "Try ${whichpuppetposs}"
+      (puppet --version && puppet infra --help > /dev/null &&  puppet access login --help  > /dev/null ) || 
+      (
+        export PATH="$(dirname  ${whichpuppetposs:-/usr/bin/ls} ):$PATH" &&  \
+        ( 
+          (puppet --version && puppet infra console_password --help > /dev/null &&  puppet access login --help  > /dev/null ) \
+                && 
+          echo "export PATH=$(dirname  ${whichpuppetposs:-/usr/bin/ls} ):\$PATH" | tee -a $HOME/.profile >> $HOME/.bashrc  && echo "Added ${whichpuppetposs:-/usr/bin/ls} to env:PATH and  $HOME/.bashrc "  
+        )  \
+        || echo FAIL in getting puppet in the Path of $PATH 
+      ) ;
+    done ;
+    
+    if [ ! -x /usr/bin/puppet ] ; then 
+      cat | sudo tee /usr/bin/puppet << EE
+    export PATH=$PATH:\$PATH ;
+    /opt/puppetlabs/bin/puppet \$@  ;
+EE
+      sudo chmod a+x /usr/bin/puppet ;
+    fi ;
+  fi ;
+  
+  grep -H -n -v -E 'AALINEAANUMBER' $HOME/.profile  $HOME/.bashrc
+  
+  echo Msg '__' PATH
+  source $HOME/.bashrc
+  echo -e "\n\nPATH=$PATH  \n\t puppet cmd in path Test with version $(puppet --version)"
+  echo Msg '!!'
+__END
+          chmod a+x /tmp/psetup.sh ;
+          bolt script run  /tmp/psetup.sh  -t ssh_nodes   || true ; 
+          
+  puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+          echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        fi;
+  
 }
 function      setupServiceNowServer(){
  
