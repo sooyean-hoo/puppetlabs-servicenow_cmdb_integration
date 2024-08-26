@@ -154,7 +154,7 @@ fi
   echoMsg '!!' "Getting Path to be recognised as a command"  
 whichpuppet=`which puppet`
 if [ -z "${whichpuppet}" ] ; then
-  find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | read whichpuppetposs ; do
+  find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | while read whichpuppetposs ; do
     echo "Try ${whichpuppetposs}"
     (puppet --version && puppet infra --help > /dev/null &&  puppet access login --help  > /dev/null ) || 
     (
@@ -194,9 +194,13 @@ fi ;
   echo "${pepasswd}" | puppet access login --lifetime 1y --username admin || \
   echo "${pepasswd}" | /opt/puppetlabs/bin/puppet access login --lifetime 1y --username admin
 
+
   echo "====PUPPETTOKEN===="
   ls -l ~/.puppetlabs/token
 
+  echo "====PUPPET INFRA STATUS===="
+  puppet infra status
+  
 version=`puppet --version`
 
 if [ -z "$version" ];  then

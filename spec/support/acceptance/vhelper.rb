@@ -303,6 +303,9 @@ function      setupServiceNowServer(){
           fi ;
         fi
         grep servicenow_instance ./spec/fixtures/litmus_inventory.yaml || echo "STILL No servicenow_instance in  ./spec/fixtures/litmus_inventory.yaml " ;
+        
+        cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g' > ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
+        cat ./spec/fixtures/litmus_inventory.yaml.tmp > ./spec/fixtures/litmus_inventory.yaml ; rm -fr ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
   
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
 }
