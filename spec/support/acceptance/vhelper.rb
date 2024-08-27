@@ -267,9 +267,11 @@ function      installpecommands(){
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ;
+        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+  
         version="NOT NEEDED SO ByPassed" ;
-#        if  [ -z "$version" ] ; then
+#        if  [ -z "$version" -o "$primaryservername" ] ; then
 #          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
 #          apt install -y curl || yum install -y curl ;
 #          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
@@ -288,6 +290,9 @@ function      installpecommands(){
         cd ./spec/fixtures/ ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        echo "===Puppet Server Name=${primaryservername}==="
+
         echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
         bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
         ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
@@ -297,6 +302,8 @@ function      prepcommand1(){
         cd ./spec/fixtures/ ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        echo "===Puppet Server Name=${primaryservername}==="
   
         if [[ $puppetversion =~ command.not.found  ]] ; then
           
@@ -337,8 +344,12 @@ __END
           chmod a+x /tmp/psetup.sh ;
           bolt script run  /tmp/psetup.sh  -t ssh_nodes   || true ; 
           
-  puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
           echo "===Puppet Version Installed=${puppetversion}===" || true ;
+  
+          primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+          echo "===Puppet Server Name=${primaryservername}==="
+ 
         fi;
   
 }
@@ -475,6 +486,9 @@ function      command(){
         echoMsg '__' "Required ${checkno} : PE Server Check" ;  checkno=$((${checkno:-0} + 1 )) ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        echo "===Puppet Server Name=${primaryservername}==="
+  
         bolt command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
         echoMsg '__' ;
   

@@ -7,6 +7,9 @@ if [ -e /tmp/p.txt ] ; then
 fi
 pepasswd=${pepasswd:-$pepasswd_def}
 
+primaryservername=`puppet infra status | grep Primary:`
+echo "===Puppet Server Name=${primaryservername}==="
+
 version=`puppet --version`
 echo "===Puppet Version Installed=${version}==="
 
@@ -24,7 +27,7 @@ installPkg git curl autoconf bison build-essential \
 installPkg dnf
 
   
-if [ -z "$version" ]; then
+if [ -z "$version" -o -z "$primaryservername"  ]; then
   
   PE_RELEASE=2019.8.1
   PE_RELEASE=2023.7.0
@@ -215,8 +218,9 @@ fi ;
   puppet infra status
   
 version=`puppet --version`
+primaryservername=`puppet infra status | grep Primary:`
 
-if [ -z "$version" ];  then
-  echo 'puppet install failed'
+if [ -z "$version" -o -z "$primaryservername" ];  then
+  echo 'Puppet Server install failed'
   exit 1
 fi
