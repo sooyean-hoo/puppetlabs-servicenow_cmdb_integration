@@ -174,14 +174,14 @@ fi ;
 
 
   echo “Config Hostsname”
-  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
-  puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
-  puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
-  puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
-  puppet resource host   rhel7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " >> /etc/hosts
-  puppet resource host   rhel8.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " >> /etc/hosts
-  puppet resource host   rhel9.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " >> /etc/hosts
-  puppet resource host   oracle7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " >> /etc/hosts
+  puppet resource host   `puppet config print certname`  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
+  puppet resource host   puppet  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
+  puppet resource host   `puppet config print certname`  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
+  puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
+  puppet resource host   rhel7.localdomain  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " >> /etc/hosts
+  puppet resource host   rhel8.localdomain  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " >> /etc/hosts
+  puppet resource host   rhel9.localdomain  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " >> /etc/hosts
+  puppet resource host   oracle7.localdomain  ip=127.0.0.1 2> /dev/null || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " >> /etc/hosts
   echo "================="
   grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts
   echo "================="
@@ -203,6 +203,10 @@ fi ;
   echo "${pepasswd}" | puppet access login --lifetime 1y --username admin || \
   echo "${pepasswd}" | /opt/puppetlabs/bin/puppet access login --lifetime 1y --username admin
 
+
+  echo "====FIREWALL===="
+  systemctl disable firewalld || sudo systemctl disable firewalld
+  systemctl status firewalld  || sudo systemctl status firewalld
 
   echo "====PUPPETTOKEN===="
   ls -l ~/.puppetlabs/token
