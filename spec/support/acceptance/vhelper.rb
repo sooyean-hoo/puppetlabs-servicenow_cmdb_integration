@@ -462,6 +462,17 @@ function      command(){
         done ;
         whoami ;
         catMe /etc/hosts ;
+  
+        echoMsg '__' "Required 1 : Mock ServiceServer Check" ;
+        bundle exec 'rake valentepuppet:test_servicenow_host'  || true ;
+        echoMsg '__' ;
+
+        echoMsg '__' "Required 2 : PE Server Check" ;
+        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
+        echo "===Puppet Version Installed=${puppetversion}===" || true ;
+        bolt command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
+        echoMsg '__' ;
+  
         catMe $HOME/.ssh/known_hosts ;
         rm -fr $HOME/.ssh/known_hosts ;
         ssh-keyscan -t rsa ${masterip}   >> $HOME/.ssh/known_hosts ;
