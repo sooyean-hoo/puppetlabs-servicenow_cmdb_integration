@@ -243,6 +243,24 @@ function      preinstallpecommands(){
         else
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
+  
+  
+        echo “Config Hostsname on the Runner”
+        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
+        puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
+        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
+        puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
+        puppet resource host   rhel7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " >> /etc/hosts
+        puppet resource host   rhel8.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " >> /etc/hosts
+        puppet resource host   rhel9.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " >> /etc/hosts
+        puppet resource host   oracle7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " >> /etc/hosts
+        echo "================="
+        grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts
+        echo "================="
+        grep -H -n -v -E 'AALINEAANUMBER' /etc/hostname
+        echo "================="
+
+  
 }
 function      installpecommands(){
         source /tmp/v.sh  loadlib  ;
