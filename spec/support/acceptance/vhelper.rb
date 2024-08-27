@@ -246,18 +246,18 @@ function      preinstallpecommands(){
   
   
         echo “Config Hostsname on the Runner”
-        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" >> /etc/hosts
-        puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" >> /etc/hosts
-        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" >> /etc/hosts
-        puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " >> /etc/hosts
-        puppet resource host   rhel7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " >> /etc/hosts
-        puppet resource host   rhel8.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " >> /etc/hosts
-        puppet resource host   rhel9.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " >> /etc/hosts
-        puppet resource host   oracle7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " >> /etc/hosts
+        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   puppet  ip=127.0.0.1 || echo  "127.0.0.1 puppet puppet" | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1  `puppet config print certname`  `puppet config print certname`" | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   `hostname`.delivery.puppetlabs.net  ip=127.0.0.1 || echo  "127.0.0.1 `hostname`.delivery.puppetlabs.net   `hostname`.delivery.puppetlabs.net " | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   rhel7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel7.localdomain   rhel7.localdomain " | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   rhel8.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel8.localdomain   rhel8.localdomain " | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   rhel9.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 rhel9.localdomain   rhel9.localdomain " | sudo tee -a  /etc/hosts > /dev/null || true
+        puppet resource host   oracle7.localdomain  ip=127.0.0.1 || echo  "127.0.0.1 oracle7.localdomain   oracle7.localdomain " | sudo tee -a  /etc/hosts > /dev/null || true
         echo "================="
-        grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts
+        sudo grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts || true
         echo "================="
-        grep -H -n -v -E 'AALINEAANUMBER' /etc/hostname
+        sudo grep -H -n -v -E 'AALINEAANUMBER' /etc/hostname || true
         echo "================="
 
   
