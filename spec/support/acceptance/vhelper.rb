@@ -842,6 +842,7 @@ namespace :valentepuppet do
     end
     # rubocop:enable all
     cmdb_record = CMDBHelpers.get_target_record(servicenow_instance)
+    CMDBHelpers.delete_target_record(servicenow_instance, table: cmdb_table, certname_field: certname_field)
     h1 = 'TESTING SERVICENOW SERVER'
     puts "#{h1}......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
   end
