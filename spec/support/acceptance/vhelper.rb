@@ -424,6 +424,8 @@ function      command(){
         else
           echo "=======SKIPPED Adjustment COS Unsupported provisioner: $provisioner =======" ;
         fi ;
+          
+        echoMsg '__' "Required ${checkno} : Inventory Checks: PE server name/uri should be example.puppet.com ";  checkno=$((${checkno:-0} + 1 )) ;
         echoMsg '++' "    In Use" ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         echoMsg '++' 'Connectivity Checks Before  Running the rest'  ;
@@ -436,13 +438,15 @@ function      command(){
          if [ -z "$platforms_image" ] ; then
            platforms_image=`grep platform:  ./spec/fixtures/litmus_inventory.yaml     ` ;
          fi;
-         set | grep -E '^platforms_image=' ;
-  
-        if [[  $platforms_image =~ buntu ]]    ; then
+
+         echoMsg '__' "Required ${checkno} : Platform Checks, Make sure Ports are fwded correctly -L:1080...for Ubuntu, -R:1008... for others";  checkno=$((${checkno:-0} + 1 )) ;
+         if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080:127.0.0.1:1080" ;
         fi ;
+        set | grep -E '^platforms_image=|portsfwdOptions=' ;
+
         masterip=${deploype_ip} ;
         echoMsg '++'    ;
         set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' | grep -v '^ ' ;
@@ -457,17 +461,18 @@ function      command(){
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
+          echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports";  checkno=$((${checkno:-0} + 1 )) ;
           echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}    ;
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
         done ;
         whoami ;
         catMe /etc/hosts ;
   
-        echoMsg '__' "Required 1 : Mock ServiceServer Check" ;
+        echoMsg '__' "Required ${checkno} : Mock ServiceServer Check" ; checkno=$((${checkno:-0} + 1 )) ;
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true ;
         echoMsg '__' ;
 
-        echoMsg '__' "Required 2 : PE Server Check" ;
+        echoMsg '__' "Required ${checkno} : PE Server Check" ;  checkno=$((${checkno:-0} + 1 )) ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
         bolt command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
