@@ -107,7 +107,49 @@ function       installgems(){
           gem install --force  CFPropertyList  -v 2.3.6  ;
         fi ;  
 }
-function      matrix_from_metadata(){ # Switch to ofter version using the 1st parameters v1=matrix_from_metadata, v2=matrix_from_metadata_v2, v3=matrix_from_metadata_v3
+function      matrix_from_metadata(){
+        matrix_from_metadata_v2  $@ ;
+        cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
+        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
+  
+  
+        cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
+{
+  "platforms": [
+    {
+      "label": "OracleLinux-8",
+      "provider": "vagrant",
+      "image": "litmusimage/oraclelinux:8"
+    },
+    {
+      "label": "Scientific-8",
+      "provider": "vagrant",
+      "image": "litmusimage/scientificlinux:8"
+    }
+   ]
+}
+__EMD
+  
+      echo '{  "platforms": [] }' > ${GITHUB_OUTPUT}.add ; Remove addition
+  
+      cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -cM -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
+        > ${GITHUB_OUTPUT}.newjson
+  
+      echo "=====================GITHUB_OUTPUT - original JSON===================="
+      cat ${GITHUB_OUTPUT}.json
+      echo "=====================GITHUB_OUTPUT - FINAL JSON======================="
+      cat ${GITHUB_OUTPUT}.newjson
+      echo "======================================================================"
+  
+      echo "matrix=$(cat ${GITHUB_OUTPUT}.newjson )" > ${GITHUB_OUTPUT}  ;
+      grep 'spec_matrix=' ${GITHUB_OUTPUT}.tmp  >> ${GITHUB_OUTPUT}  ; 
+
+      echo "=====================GITHUB_OUTPUT======================="
+      cat ${GITHUB_OUTPUT}
+      echo "========================================================="
+
+}
+function      oldmatrix_from_metadata(){ # Switch to ofter version using the 1st parameters v1=matrix_from_metadata, v2=matrix_from_metadata_v2, v3=matrix_from_metadata_v3
        tmpexedir=/tmp  
      
        matrix_from_metadata_v1_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix_from_metadata'
