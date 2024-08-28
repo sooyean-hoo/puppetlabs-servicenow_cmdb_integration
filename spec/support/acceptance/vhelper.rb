@@ -117,7 +117,18 @@ function      matrix_from_metadata(){ # Switch to ofter version using the 1st pa
 
        matrix_from_metadataCMD2DL=""
        matrix2DL=""
+       if  [[  "$@" =~ [-]*help   ]] ; then
+         cat << __EMD
 
+  =Switching to other version of matrix_from_metadata:
+    -v1 = matrix_from_metadata
+    -v2 = matrix_from_metadata_v2
+    -v3 = matrix_from_metadata_v3
+  
+   --help = Show this help and call active version of matrix_from_metadata for help.
+  
+__EMD
+       fi ;
        if [[  $1 =~ v[1-3]   ]] ; then
           case $1 in
           -v1)
