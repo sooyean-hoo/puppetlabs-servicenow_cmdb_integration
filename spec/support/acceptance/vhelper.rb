@@ -49,6 +49,7 @@ function      setup_servicenow_host(){
           ./spec/support/acceptance/start_mock_servicenow_instance.sh ||  true ;
 }
 function      install_actual_bolt(){
+          bundle exec gem uninstall --force bolt || gem uninstall --force bolt ;
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E apt-get update  2> /dev/null  > /dev/null
@@ -106,10 +107,56 @@ function       installgems(){
           gem install --force  CFPropertyList  -v 2.3.6  ;
         fi ;  
 }
-function      matrix_from_metadata(){
-        matrix_from_metadata_v2  $@ ;
-        cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
-        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
+function      matrix_from_metadata(){ # Switch to ofter version using the 1st parameters v1=matrix_from_metadata, v2=matrix_from_metadata_v2, v3=matrix_from_metadata_v3
+       tmpexedir=/tmp  
+     
+       matrix_from_metadata_v1_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix_from_metadata'
+       matrix_from_metadata_v2_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix_from_metadata_v2'
+       matrix_from_metadata_v3_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix_from_metadata_v3'
+       matrix_json_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix.json'
+
+       matrix_from_metadataCMD2DL=""
+       matrix2DL=""
+
+       if [[  $1 =~ v[1-3]   ]] ; then
+          case $1 in
+          -v1)
+            matrix_from_metadataCMD2DL=${matrix_from_metadata_v1_url}
+            echo "=====================matrix_from_metadata - activated===================="
+          ;;
+          -v2)
+            matrix_from_metadataCMD2DL=${matrix_from_metadata_v2_url}
+            echo "=====================matrix_from_metadata_v2 - activated===================="
+          ;;
+          -v3)
+            matrix_from_metadataCMD2DL=${matrix_from_metadata_v3_url}
+            matrix2DL=${matrix_json_url}
+            echo "=====================matrix_from_metadata_v3 - activated===================="
+          ;;
+          esac ;
+          if [ ! -z "${matrix_from_metadataCMD2DL}" ] ; then
+            ( which curl || sudo apt install -y curl 2> /dev/null  > /dev/null || sudo yum install -y curl 2> /dev/null  > /dev/null  || apt install -y curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null ) 2> /dev/null  > /dev/null &&
+            curl -q "${matrix_from_metadataCMD2DL}"  > /tmp/m.sh  2> /dev/null  || which curl ;
+            chmod a+x ${tmpexedir}/m.sh ;
+            matrix_from_metadataCMD=${tmpexedir}/m.sh ;
+          fi;
+          if [ ! -z "${matrix2DL}" ] ; then
+            ( which curl || sudo apt install -y curl 2> /dev/null  > /dev/null || sudo yum install -y curl 2> /dev/null  > /dev/null  || apt install -y curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null ) 2> /dev/null  > /dev/null &&
+              curl -q "${matrix2DL}"  > ${tmpexedir}/`basename ${matrix2DL}`  2> /dev/null  || which curl ;
+          fi;
+          shift 1;
+       fi;
+
+    
+       matrix_from_metadataCMD=${matrix_from_metadataCMD:-matrix_from_metadata_v2}
+  
+       
+       ${matrix_from_metadataCMD}  $@ ;
+       [ -z "${matrix_from_metadataCMD2DL}" ] || return ; # Do no modification if we are using v1, v2, v3 flags which means that we using an alternate version of matrix_from_metadata_v2
+
+       
+       cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
+       cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
   
   
         cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
