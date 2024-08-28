@@ -70,7 +70,7 @@ acceptance_vbox_centos_stream8:
 
 acceptance_vbox_rhel_7:
   provisioner: vagrant
-  images: ['generic/rhel7' ]
+  images: ['generic-x64/rhel7' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -78,7 +78,7 @@ acceptance_vbox_rhel_7:
 
 acceptance_vbox_rhel_8:
   provisioner: vagrant
-  images: ['generic/rhel8' ]
+  images: ['generic-x64/rhel8' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -86,7 +86,7 @@ acceptance_vbox_rhel_8:
 
 acceptance_vbox_rhel_9:
   provisioner: vagrant
-  images: ['Nauman3S/rhel9' ]
+  images: ['generic-x64/rhel9' ]   #            ['Nauman3S/rhel9' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
@@ -98,7 +98,7 @@ acceptance_vbox_rhel_9:
 
 acceptance_vbox_oraclelinux_7:
   provisioner: vagrant
-  images: ['generic/oracle7' ]
+  images: ['generic-x64/oracle7' ]
   vars: |
     roles: ['master' ]
     vagrant_password: 'piepiepiepiepiePIE51!'
