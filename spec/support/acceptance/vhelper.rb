@@ -88,7 +88,7 @@ __END
         chmod a+x /tmp/deploy_pePrep ;
 
         source /tmp/provision.txt ; 
-        if [[ $platforms_image =~ rhel ] ; then
+        if [[ "$platforms_image" =~ rhel ]] ; then
           cat >> /tmp/deploy_pePrep << '__END'
   
           for p in initscripts chkconfig libldap ; do
@@ -387,7 +387,7 @@ function      installpecommands(){  # Filed under install_agent__task
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ;
         primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
   
-#        version="NOT NEEDED SO ByPassed" ;
+#        version="NOT NEEDED SO ByPassed" ; primaryservername="NOT NEEDED SO ByPassed" ;
 #        if  [ -z "$version" -o -z "$primaryservername" ] ; then
 #          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
 #          apt install -y curl || yum install -y curl ;
@@ -811,6 +811,7 @@ namespace :valentepuppet do
   # Task For the Standard Breakdown of the Acceptance Test Stages.
   desc 'Provision environment'
   task :provision_environment__task, [:platformprovider, :platforms_image, :docker_runopts] do |_t, paras|
+    puts "INPUTS...#{paras}"
     puts 'Provisioning.......... environment'
 
     ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
@@ -855,7 +856,8 @@ namespace :valentepuppet do
   end
 
   desc 'Install Puppet agent'
-  task :install_agent__task do # , [:matrix_collection] do |_t, paras|
+  task :install_agent__task, [:matrix_collection] do |_t, paras|
+    puts "INPUTS...#{paras}"
     puts `bash ./spec/support/acceptance/vhelper.rb exec "installpecommands" 2>&1 |  grep -v '.... .......... ....' `.gsub('\n', "\n")
   end
 

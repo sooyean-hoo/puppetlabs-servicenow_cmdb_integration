@@ -17,15 +17,20 @@ apt install -y curl || yum install -y curl
 curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh
 source /tmp/download_pe_tarball.sh  loadlib
 
-installPkg curl cron crontabs 
-installPkg gnupg  gnupg2 gnupg1  
-installPkg ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-full
-installPkg git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev                 make bzip2 autoconf automake libtool bison curl cmake 
-installPkg git curl autoconf bison build-essential \
-  libssl-dev libyaml-dev libreadline6-dev zlib1g-dev \
-  libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev  
-installPkg dnf
+upgradePkg
 
+installPkg dnf
+for p in \
+        initscripts chkconfig libldap curl cron crontabs gnupg  gnupg2 gnupg1 \
+        ruby-devel.x86_64 ruby-bundler ruby-all-dev ruby-dev ruby-full \
+        git git-core zlib* zlib*-dev g++     patch                    \
+        libyaml* libffi-dev                 make bzip2 autoconf automake\
+        libtool bison curl cmake curl autoconf bison build-essential \
+        libssl-dev libyaml-dev libreadline6-dev zlib1g-dev \
+        libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev ; do
+          
+          installPkg $p || true ;
+done ;
   
 if [ -z "$version" -o -z "$primaryservername"  ]; then
   
