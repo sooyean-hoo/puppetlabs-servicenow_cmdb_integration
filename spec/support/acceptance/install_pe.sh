@@ -7,10 +7,10 @@ if [ -e /tmp/p.txt ] ; then
 fi
 pepasswd=${pepasswd:-$pepasswd_def}
 
-primaryservername=`puppet infra status | grep Primary:`
+primaryservername=`puppet infra status | grep Primary:` ||  true
 echo "===Puppet Server Name=${primaryservername}==="
 
-version=`puppet --version`
+version=`puppet --version`  ||  true
 echo "===Puppet Version Installed=${version}==="
 
 apt install -y curl || yum install -y curl 
@@ -220,7 +220,7 @@ fi ;
 version=`puppet --version`
 primaryservername=`puppet infra status | grep Primary:`
 
-if [ -z "$version" -o -z "$primaryservername" ];  then
+if [ -z "$version" -o -z "$primaryservername" ] ;  then
   echo 'Puppet Server install failed'
   exit 1
 fi

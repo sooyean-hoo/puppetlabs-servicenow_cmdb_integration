@@ -329,7 +329,7 @@ function      installpecommands(){
         primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
   
         version="NOT NEEDED SO ByPassed" ;
-#        if  [ -z "$version" -o "$primaryservername" ] ; then
+#        if  [ -z "$version" -o -z "$primaryservername" ] ; then
 #          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
 #          apt install -y curl || yum install -y curl ;
 #          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
