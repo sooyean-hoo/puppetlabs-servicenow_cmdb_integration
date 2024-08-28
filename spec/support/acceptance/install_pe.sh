@@ -217,10 +217,10 @@ fi ;
   echo "====PUPPET INFRA STATUS===="
   puppet infra status
   
-version=`puppet --version`
-primaryservername=`puppet infra status | grep Primary:`
+version=`puppet --version`  || true
+primaryservername=`puppet infra status | grep Primary:` || true
 
-if [ -z "$version" -o -z "$primaryservername" ] ;  then
+if [ -z "$version" -o -z "AAA$primaryservername" ] ;  then
   echo 'Puppet Server install failed'
   exit 1
 fi
