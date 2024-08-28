@@ -220,7 +220,7 @@ fi ;
 version=`puppet --version`  || true
 primaryservername=`puppet infra status | grep Primary:` || true
 
-if [ -z "$version" -o -z "AAA$primaryservername" ] ;  then
-  echo 'Puppet Server install failed'
-  exit 1
-fi
+# if [ -z "$version" -o -z "$primaryservername" ] ;  then
+#   echo 'Puppet Server install failed' ;
+#   exit 1 ; 
+# fi

@@ -107,7 +107,7 @@ function       installgems(){
           gem install --force  CFPropertyList  -v 2.3.6  ;
         fi ;  
 }
-function      matrix_from_metadata(){
+function      old_matrix_from_metadata(){
         matrix_from_metadata_v2  $@ ;
         cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
         cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
@@ -149,7 +149,7 @@ __EMD
       echo "========================================================="
 
 }
-function      oldmatrix_from_metadata(){ # Switch to ofter version using the 1st parameters v1=matrix_from_metadata, v2=matrix_from_metadata_v2, v3=matrix_from_metadata_v3
+function      matrix_from_metadata(){ # Switch to ofter version using the 1st parameters v1=matrix_from_metadata, v2=matrix_from_metadata_v2, v3=matrix_from_metadata_v3
        tmpexedir=/tmp  
      
        matrix_from_metadata_v1_url='https://raw.githubusercontent.com/puppetlabs/puppet_litmus/main/exe/matrix_from_metadata'
@@ -249,7 +249,7 @@ __EMD
 
 }
     
-function      preinstallpecommands(){
+function      preinstallpecommands(){ # Filed under provision_environment__task
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
         ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
@@ -362,7 +362,7 @@ function      preinstallpecommands(){
 
   
 }
-function      installpecommands(){
+function      installpecommands(){  # Filed under install_agent__task
         source /tmp/v.sh  loadlib  ;
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
@@ -370,8 +370,8 @@ function      installpecommands(){
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ;
         primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
   
-        version="NOT NEEDED SO ByPassed" ;
-#        if  [ -z "$version" -o -z "AAAA$primaryservername" ] ; then
+#        version="NOT NEEDED SO ByPassed" ;
+#        if  [ -z "$version" -o -z "$primaryservername" ] ; then
 #          echo "===Installing Puppet Version Installed=${PEVERSION} my way===" ;
 #          apt install -y curl || yum install -y curl ;
 #          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  ;
@@ -398,7 +398,7 @@ function      installpecommands(){
         ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
         bolt script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
 }
-function      prepcommand1(){
+function      prepcommand1(){ # Filed under install_module__task
         cd ./spec/fixtures/ ;
         puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
@@ -453,7 +453,7 @@ __END
         fi;
   
 }
-function      setupServiceNowServer(){
+function      setupServiceNowServer(){ # Filed under acceptance
  
         echoMsg '__' "Pre-Checking Inventory files......."    ;
         ls -l $PWD/inventory.yaml || true ;
@@ -496,7 +496,7 @@ function      setupServiceNowServer(){
   
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
 }
-function      command(){
+function      command(){ # Filed under acceptance
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         
@@ -646,7 +646,7 @@ function      command(){
         exit $errorid ;
 }
 
-function      postcommand(){
+function      postcommand(){ # Filed under tear_down__task
         
         #### Hardcoded for now 
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
