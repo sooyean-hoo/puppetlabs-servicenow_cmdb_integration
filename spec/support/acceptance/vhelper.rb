@@ -65,8 +65,14 @@ function      install_bolt_modules(){
           sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add jarretlavallee-deploy_pe
           sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add puppetlabs-peadm
           sudo -E chmod a+rw ./inventory.yaml
+}
+function      peneedpkg(){
+        for p in initscripts chkconfig libldap ; do
+          installPkg $p || true ;
+        done ;
 }                
 function      installpe(){
+  
         cat > /tmp/deploy_pePrep << '__END'
         [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
         source /tmp/v.sh  loadlib  ;
@@ -80,6 +86,17 @@ function      installpe(){
         installPkg dnf  || true ;
 __END
         chmod a+x /tmp/deploy_pePrep ;
+
+        source /tmp/provision.txt ; 
+        if [[ $platforms_image =~ rhel ] ; then
+          cat >> /tmp/deploy_pePrep << '__END'
+  
+          for p in initscripts chkconfig libldap ; do
+            installPkg $p || true ;
+          done ;
+__END
+        fi;
+  
         sudo -E /usr/local/bin/bolt  script run  /tmp/deploy_pePrep -t ${deploy_petarget}    || echo "============== PE deploy_pe PrepFailed  ==============" ;     
         sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
 }
