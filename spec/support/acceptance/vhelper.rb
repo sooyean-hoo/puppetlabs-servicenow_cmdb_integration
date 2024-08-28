@@ -49,7 +49,7 @@ function      setup_servicenow_host(){
           ./spec/support/acceptance/start_mock_servicenow_instance.sh ||  true ;
 }
 function      install_actual_bolt(){
-          bundle exec gem uninstall --force bolt || gem uninstall --force bolt ;
+          # bundle exec gem uninstall --force bolt || gem uninstall --force bolt ;
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E apt-get update  2> /dev/null  > /dev/null

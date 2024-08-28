@@ -7,10 +7,10 @@ if [ -e /tmp/p.txt ] ; then
 fi
 pepasswd=${pepasswd:-$pepasswd_def}
 
-primaryservername=`puppet infra status | grep Primary:` ||  true
+primaryservername=`puppet infra status | grep Primary:` ||  true ;
 echo "===Puppet Server Name=${primaryservername}==="
 
-version=`puppet --version`  ||  true
+version=`puppet --version`  ||  true ;
 echo "===Puppet Version Installed=${version}==="
 
 apt install -y curl || yum install -y curl 
