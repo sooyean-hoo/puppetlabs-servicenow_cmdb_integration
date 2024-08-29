@@ -322,19 +322,21 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
         snappkgs='snapd' ;
         vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
         echo "=====Pkgs=${pkgs}=============" ;
-        installPkg $pkgs ;
-        echo "=====Pkgs=${vagrantpkgs}=============" ;
-        installPkg $vagrantpkgs ;
-        echo "=====Pkgs=${snappkgs}=============" ;
-        installPkg $snappkgs ;
-        vagrant plugin install vagrant-libvirt ;
-        vagrant plugin list ;
+        installPkg $pkgs  || true ;
+        echo "=====Vagrant Pkgs=${vagrantpkgs}=============" ;
+        installPkg $vagrantpkgs || true ;
+        echo "=====Snap Pkgs=${snappkgs}=============" ;
+        installPkg $snappkgs  || true ;
+        vagrant plugin install vagrant-libvirt   || true ;
+        vagrant plugin list   || true ;
+        echoMsg '__' 'Repo Setup: apt.releases.hashicorp.com'
         wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
         echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
+        echoMsg '__' "Repo Setup: apt.releases.hashicorp.com : sudo apt install ${vagrantpkgs}"
         sudo apt update && sudo apt install ${vagrantpkgs} ;  
           
         #VAGRANTRUN=$VAGRANTRUN installgems
-        
+        echoMsg '__' 'home/runner setup'
         mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work || chmod 777 -R /home/runner/work  ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
         echo ;
         echoMsg '__' 'Inventories'
