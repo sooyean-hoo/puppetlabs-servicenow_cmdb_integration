@@ -387,7 +387,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "===vagrantdir=$vagrantdir=";
           pushd $PWD ;
           cd ${vagrantdir} ;
-          $PWD ;
+          echo "===In PWD=$PWD" ;
           vagrantsshkeys_ed25519=`vagrant ssh-config | grep IdentityFile | grep key.ed ` ;
           ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_ed25519} ||  true ;
           vagrantsshkeys_rsa=`vagrant ssh-config | grep IdentityFile | grep key.rsa ` ;
@@ -913,11 +913,11 @@ namespace :valentepuppet do
     cmds += ' echoMsg == Prep Install Checks   + installPkg git + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
-    cmds += '"'
-    puts "Executing #{cmds}".gsub('+', "+\n")
+    cmds += '" 2>&1'
+    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
-      puts output.gsub('\n', "\n")
+      puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
     else
       puts 'SKIPPED abort error: could not execute command for stage 1'
     end
@@ -927,11 +927,11 @@ namespace :valentepuppet do
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands + '
-    cmds += '"'
-    puts "Executing #{cmds}".gsub('+', "+\n")
+    cmds += '" 2>&1'
+    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
-      puts output.gsub('\n', "\n")
+      puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
     else
       puts 'SKIPPED abort error: could not execute command for stage 2'
     end
@@ -940,11 +940,11 @@ namespace :valentepuppet do
     puts "\n\n\n\n\n"
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == Install Start  + installpe + '
-    cmds += '"'
-    puts "Executing #{cmds}".gsub('+', "+\n")
+    cmds += '" 2>&1'
+    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
-      puts output.gsub('\n', "\n")
+      puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
     else
       puts 'SKIPPED abort error: could not execute command for stage 3'
     end
@@ -959,7 +959,7 @@ namespace :valentepuppet do
           invcontent += line unless %r{^[ ]*#}.match?(line)
         end
       end
-      puts "===Actual=Contents=#{inventoryfile}===\n#{invcontent}"
+      puts "===Actual=Contents=#{inventoryfile}===\n#{invcontent}".gsub(%r{password: .+}, 'password: [redacted]')
     end
     exit 404 if invcontent.empty?
   end
@@ -972,7 +972,7 @@ namespace :valentepuppet do
 
   desc 'Install module'
   task :install_module__task do # , [:para1, :para2] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `.gsub('\n', "\n")
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
   end
 
   desc 'Run acceptance tests'
@@ -998,7 +998,7 @@ namespace :valentepuppet do
     # Does not show error even when there is an error            puts system('bash', './spec/support/acceptance/vhelper.rb', 'exec', 'command')
     cmd = 'bash ./spec/support/acceptance/vhelper.rb exec command'
     stdin, stdout, stderr, wait_thr = Open3.popen3(cmd)
-    puts stdout.read.to_s.gsub('\n', "\n")
+    puts stdout.read.to_s.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
 
     if wait_thr.value.success?
       stdin.close
@@ -1006,7 +1006,7 @@ namespace :valentepuppet do
       stderr.close
       exit(true)
     else
-      puts "Error level was: #{wait_thr.value.exitstatus}\n#{stderr.read}".gsub('\n', "\n")
+      puts "Error level was: #{wait_thr.value.exitstatus}\n#{stderr.read}".gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
       stdin.close
       stdout.close
       stderr.close
@@ -1016,7 +1016,7 @@ namespace :valentepuppet do
 
   desc 'Remove test environment'
   task :tear_down__task do # , [:para1, :para2] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `.gsub('\n', "\n")
+    puts `bash ./spec/support/acceptance/vhelper.rb exec "postcommand" `.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
   end
   #
   # end of Rake Tasks
