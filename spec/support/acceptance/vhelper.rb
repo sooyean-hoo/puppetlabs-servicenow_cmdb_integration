@@ -117,7 +117,7 @@ function      install_bolt_modules(){
           sudo -E chmod a+rw ./inventory.yaml
 }
 function      peneedpkg(){
-        for p in initscripts chkconfig libldap ; do
+        for p in initscripts chkconfig  ; do
           installPkg $p || true ;
         done ;
 }                
@@ -141,7 +141,7 @@ __END
         if [[ "$platforms_image" =~ rhel ]] ; then
           cat >> /tmp/deploy_pePrep << '__END'
   
-          for p in initscripts chkconfig libldap initscripts-service ; do
+          for p in initscripts chkconfig  ; do
             installPkg $p || true ;
           done ;
 __END
@@ -343,7 +343,8 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           
         #VAGRANTRUN=$VAGRANTRUN installgems
         echoMsg '__' 'home/runner setup'
-        mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work || chmod 777 -R /home/runner/work  ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+        mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work 2> /dev/null || chmod 777 -R /home/runner/work 2> /dev/null ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+        ls -ld home/runner/work ; ls -l home/runner/work/* ;
         echo ;
         echoMsg '__' 'Inventories'
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master   >> inventory.yaml' > /dev/null  ; 
@@ -392,7 +393,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "===vagrantdir=$vagrantdir=";
           pushd $PWD ;
           cd ${vagrantdir} ;
-          echo "===In PWD=$PWD" ;
+          echo "===In PWD=$(pwd)" ;
           vagrantsshkeys_ed25519=`vagrant ssh-config | grep IdentityFile | grep key.ed ` ;
           ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_ed25519} ||  true ;
           vagrantsshkeys_rsa=`vagrant ssh-config | grep IdentityFile | grep key.rsa ` ;
@@ -928,7 +929,7 @@ namespace :valentepuppet do
     end
 
     ################# Setup Part2
-    puts "\n\n\n\n\n"
+    puts " \n \n \n \n \n"
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands + '
@@ -942,7 +943,7 @@ namespace :valentepuppet do
     end
 
     ################# Setup Part3
-    puts "\n\n\n\n\n"
+    puts " \n \n \n \n \n"
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == Install Start  + installpe + '
     cmds += '" 2>&1'
