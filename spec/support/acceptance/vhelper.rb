@@ -343,7 +343,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           ${BOLTCMD} command run -t ssh_nodes "bash /tmp/v.sh exec installPkg curl " ;
         elif [ "vagrant" =  "$provisioner" ] ; then
           echo "=======VAGRANT RUN=======" ;
-          gem uninstall  -x --force -q bolt ;
+          # gem uninstall  -x --force -q bolt ;
           ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
           echo "===Proposed Changes===" ;
           cat ./spec/fixtures/litmus_inventory.yaml | yq  '.groups[].targets[].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
