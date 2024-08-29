@@ -515,7 +515,14 @@ function      prepcommand1b(){ # Filed under install_module__task
       ) ;
     done ;
     
-    if [ ! -x /usr/bin/puppet ] ; then 
+    if [ ! -x /usr/bin/puppet -a -d /usr/bin/ ] ; then # First Try Create a link
+      pushd $PWD ; 
+      cd /usr/bin/ ;
+      ln -sf /opt/puppetlabs/bin/puppet ;
+      popd  ;
+    end
+  
+    if [ ! -x /usr/bin/puppet ] ; then  # Second Try Create a script
       ( cat | sudo tee /usr/bin/puppet ) << EE
     export PATH=$PATH:\$PATH ;
     /opt/puppetlabs/bin/puppet \$@  ;
@@ -700,7 +707,7 @@ __EEE
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
-        whichpuppet=`${BOLTCMD} command run "which puppet`  || true ;
+        whichpuppet=`${BOLTCMD} command run "which puppet"`  || true ;
         echo "===Which Puppet=${whichpuppet}==="
   
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
