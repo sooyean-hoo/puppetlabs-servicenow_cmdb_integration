@@ -19,10 +19,14 @@ def set_sitepp_content(manifest)
   master.run_shell("echo '#{content}' > /etc/puppetlabs/code/environments/production/manifests/site.pp")
 end
 
-def trigger_puppet_run(target, acceptable_exit_codes: [0, 2])
+def trigger_puppet_run(target, acceptable_exit_codes: [0, 2], countdown: 3)
   result = target.run_shell('puppet agent -t --detailed-exitcodes', expect_failures: true)
   unless acceptable_exit_codes.include?(result[:exit_code])
-    raise "Puppet run failed ( #{result[:exit_code]} )\nstdout: #{result[:stdout]}\nstderr: #{result[:stderr]}"
+    raise "Puppet run failed ( #{result[:exit_code]} )\nstdout: #{result[:stdout]}\nstderr: #{result[:stderr]}" unless result[:exit_code] == 1
+    # Error Code 1 is Run of Puppet configuration client already in progress; skipping, WE SHOULD WAIT 120secs for 3 times AND TRY AGAIN.
+    sleep 120
+    raise "Puppet run failed ( #{result[:exit_code]} )\nstdout: #{result[:stdout]}\nstderr: #{result[:stderr]}" unless countdown > 0
+    trigger_puppet_run(target, acceptable_exit_codes: acceptable_exit_codes, countdown: countdown - 1)
   end
   result
 end
