@@ -97,7 +97,12 @@ function      install_actual_bolt(){
           echo '#!/bin/bash'  > /tmp/boltcmd_sh
           cat /tmp/boltcmd.sh | tr '[:cntrl:]' ' '  >> /tmp/boltcmd_sh
           chmod a+x /tmp/boltcmd_sh
-  
+
+          if [ -x /usr/local/bin/bolt ] ; then
+            BOLTCMD=/usr/local/bin/bolt ;
+            echo '/usr/local/bin/bolt' > /tmp/boltcmdsh ;
+          fi ;
+    
           catMe /tmp/boltcmd_sh
   
           export BOLTCMD=`cat /tmp/boltcmdsh `
