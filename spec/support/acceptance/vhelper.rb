@@ -384,6 +384,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "=============================================================" ;
   
           vagrantdir=`vagrant global-status | grep default | grep running  | grep servicenow | cut -d\  -f8` || true ;
+          echo "===vagrantdir=$vagrantdir=";
           pushd $PWD ;
           cd ${vagrantdir} ;
           $PWD ;
@@ -902,6 +903,8 @@ namespace :valentepuppet do
     puts "..........................#{paras[:platforms_image]}===>===#{ENV['PROVISION_LIST']}"
     puts "..........................#{paras[:platformprovider]}===>===vagrant"
 
+    ################# Setup Part1
+
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' runlogged /tmp/provision.txt +'
     cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
@@ -909,8 +912,8 @@ namespace :valentepuppet do
     cmds += ' catMe /tmp/provision.txt  +'
     cmds += ' echoMsg == Prep Install Checks   + installPkg git + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
-    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +"'
-
+    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
+    cmds += '"'
     puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
@@ -919,11 +922,12 @@ namespace :valentepuppet do
       puts 'SKIPPED abort error: could not execute command for stage 1'
     end
 
+    ################# Setup Part2
     puts "\n\n\n\n\n"
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
-    cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
-
+    cmds += ' echoMsg == PreInstall Start +  preinstallpecommands + '
+    cmds += '"'
     puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
@@ -932,6 +936,21 @@ namespace :valentepuppet do
       puts 'SKIPPED abort error: could not execute command for stage 2'
     end
 
+    ################# Setup Part3
+    puts "\n\n\n\n\n"
+    cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' echoMsg == Install Start  + installpe + '
+    cmds += '"'
+    puts "Executing #{cmds}".gsub('+', "+\n")
+    output = `#{cmds}`
+    if $CHILD_STATUS.success?
+      puts output.gsub('\n', "\n")
+    else
+      puts 'SKIPPED abort error: could not execute command for stage 3'
+    end
+
+    puts "\n\n\n\n\n"
+    puts '==========Installation Done: installpe done. =========================='
     inventoryfile = './spec/fixtures/litmus_inventory.yaml'
     invcontent = ''
     if File.exist?(inventoryfile)
