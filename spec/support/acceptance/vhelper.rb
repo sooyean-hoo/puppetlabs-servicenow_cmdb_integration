@@ -91,7 +91,7 @@ __END
         if [[ "$platforms_image" =~ rhel ]] ; then
           cat >> /tmp/deploy_pePrep << '__END'
   
-          for p in initscripts chkconfig libldap ; do
+          for p in initscripts chkconfig libldap initscripts-service ; do
             installPkg $p || true ;
           done ;
 __END

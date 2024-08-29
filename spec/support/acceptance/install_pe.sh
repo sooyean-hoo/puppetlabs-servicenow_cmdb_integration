@@ -197,6 +197,21 @@ fi ;
   echo "================="
 
 
+
+  echo "====SELINUX===="
+  disableSELINUX
+  checkSELINUX
+
+  echo "====FIREWALL===="
+  puppet resource service firewalld ensure=stopped enable=false
+  systemctl disable firewalld || sudo systemctl disable firewalld
+  systemctl stop firewalld || sudo systemctl stop firewalld
+  systemctl status firewalld  || sudo systemctl status firewalld
+  puppet resource service firewalld
+
+  echo "====PE-Service=Check=and=Restart====="
+  puppet infra status | grep ' 0 services are fully operational' && restartCompilersReplicaServices
+  puppet infra status | grep 'services are fully operational'
   
   echo “Finalize PE install”
   puppet agent -t
@@ -210,11 +225,6 @@ fi ;
   ## Setup the RBAC token
   echo "${pepasswd}" | puppet access login --lifetime 1y --username admin || \
   echo "${pepasswd}" | /opt/puppetlabs/bin/puppet access login --lifetime 1y --username admin
-
-
-  echo "====FIREWALL===="
-  systemctl disable firewalld || sudo systemctl disable firewalld
-  systemctl status firewalld  || sudo systemctl status firewalld
 
   echo "====PUPPETTOKEN===="
   ls -l ~/.puppetlabs/token
