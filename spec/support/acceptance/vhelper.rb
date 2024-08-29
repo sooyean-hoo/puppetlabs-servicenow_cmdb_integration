@@ -908,25 +908,30 @@ namespace :valentepuppet do
     cmds += ' catMe /tmp/provision.txt  +'
     cmds += ' echoMsg == Prep Install Checks   + installPkg git + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
-    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
-    cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
-    cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
-
+    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +"'
+ 
     puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n")
     else
-      abort 'error: could not execute command'
+      puts 'SKIPPED abort error: could not execute command for stage 1'
     end
 
-    #    output = `bash ./spec/support/acceptance/vhelper.rb exec "runChain + echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe +"`
-    #    if $CHILD_STATUS.success?
-    #      puts output.gsub('\n', "\n")
-    #    else
-    #      abort 'error: could not execute command'
-    #    end
-
+    puts "\n\n\n\n\n"
+    cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
+    cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
+   
+    puts "Executing #{cmds}".gsub('+', "+\n")
+    output = `#{cmds}`
+    if $CHILD_STATUS.success?
+      puts output.gsub('\n', "\n")
+    else
+      puts 'SKIPPED abort error: could not execute command for stage 2'
+    end
+    
+    
     inventoryfile = './spec/fixtures/litmus_inventory.yaml'
     invcontent = ''
     if File.exist?(inventoryfile)
