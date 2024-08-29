@@ -213,6 +213,12 @@ fi ;
   puppet infra status | grep ' 0 services are fully operational' && restartCompilersReplicaServices
   puppet infra status | grep 'services are fully operational'
   
+  
+  echo "====SSHD_CONFIG====="
+  cat /etc/ssh/sshd_config  | sed -E 's/^.+AllowTcpForwarding.+$/AllowTcpForwarding yes/g' | sed -E 's/^.+GatewayPorts.+$/GatewayPorts yes/g'  > /tmp/sshd_config ; cat /tmp/sshd_config | sudo tee /etc/ssh/sshd_config ; rm -fr   /tmp/sshd_config ;
+  systemctl restart sshd ||  systemctl restart sshd 
+  sudo grep -E 'AllowTcpForwarding|GatewayPorts' /etc/ssh/sshd_config
+  
   echo “Finalize PE install”
   puppet agent -t
 

@@ -22,6 +22,8 @@ print(){
 #     echoMsg '++'
 #     env ;
 #     echoMsg '++'
+  
+    export BOLTCMD=`cat /tmp/boltcmdsh `
 
 function      setupruby(){
           [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
@@ -57,6 +59,17 @@ function      install_actual_bolt(){
           sudo -E apt-get -y install curl 2> /dev/null  > /dev/null || sudo -E yum install -y curl  2> /dev/null  > /dev/null || apt-get -y install curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null
           sudo -E apt-get -y install cron 2> /dev/null  > /dev/null
           sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan show
+
+
+          which bolt | tee /tmp/boltcmdsh >  /tmp/boltcmd.sh
+          echo '$@'  >> /tmp/boltcmd.sh
+
+          echo '#!/bin/bash'  > /tmp/boltcmd_sh
+          cat /tmp/boltcmd.sh | tr '[:cntrl:]' ' '  >> /tmp/boltcmd_sh
+          chmod a+x /tmp/boltcmd_sh
+  
+          cat /tmp/boltcmd_sh
+  
 }
 function      install_bolt_modules(){
           sudo -E mkdir -p  spec/fixtures/modules
@@ -326,10 +339,11 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "=======DOCKER RUN=======" ;
           docker ps -a ;
           echo "===== ssh with default passwd based on generate inv ===========" ;
-          bolt script run -t ssh_nodes ./spec/support/acceptance/vhelper.rb ;
-          bolt command run -t ssh_nodes "bash /tmp/v.sh exec installPkg curl " ;
+          ${BOLTCMD} script run -t ssh_nodes ./spec/support/acceptance/vhelper.rb ;
+          ${BOLTCMD} command run -t ssh_nodes "bash /tmp/v.sh exec installPkg curl " ;
         elif [ "vagrant" =  "$provisioner" ] ; then
           echo "=======VAGRANT RUN=======" ;
+          gem uninstall  -x --force -q bolt ;
           ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
           echo "===Proposed Changes===" ;
           cat ./spec/fixtures/litmus_inventory.yaml | yq  '.groups[].targets[].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
@@ -384,8 +398,8 @@ function      installpecommands(){  # Filed under install_agent__task
         echo "===FailSafe PE Installation, in case the original one fail===" ;
         PEVERSION='2021.7.8' ;
         pepasswd="pie$(date +%s )piepiepiepiepiepiepiepiepieP5!" ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ;
-        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ;
+        primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
   
 #        version="NOT NEEDED SO ByPassed" ; primaryservername="NOT NEEDED SO ByPassed" ;
 #        if  [ -z "$version" -o -z "$primaryservername" ] ; then
@@ -405,21 +419,21 @@ function      installpecommands(){  # Filed under install_agent__task
 #        fi ;
         oldDIR="$PWD" ;
         cd ./spec/fixtures/ ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
+        puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '` || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
-        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
 
         echoMsg '!!' 'Prepare Primary server aka ssh_nodes for tests: Access Keys' ;
-        bolt command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
+        ${BOLTCMD} command run "echo pepasswd='$pepasswd' > /tmp/p.txt" -t ssh_nodes  ;
         ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
-        bolt script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
+        ${BOLTCMD} script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
 }
 function      prepcommand1(){ # Filed under install_module__task
         cd ./spec/fixtures/ ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+        puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
-        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
   
         if [[ $puppetversion =~ command.not.found  ]] ; then
@@ -459,12 +473,12 @@ EE
   echo Msg '!!'
 __END
           chmod a+x /tmp/psetup.sh ;
-          bolt script run  /tmp/psetup.sh  -t ssh_nodes   || true ; 
+          ${BOLTCMD} script run  /tmp/psetup.sh  -t ssh_nodes   || true ; 
           
-          puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+          puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
           echo "===Puppet Version Installed=${puppetversion}===" || true ;
   
-          primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+          primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
           echo "===Puppet Server Name=${primaryservername}==="
  
         fi;
@@ -558,7 +572,7 @@ function      command(){ # Filed under acceptance
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         echoMsg '++' 'Connectivity Checks Before  Running the rest'  ;
         echoMeNRun ip addr || echo "IP addr Failed..." ;
-        bolt command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
+        ${BOLTCMD} command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
         masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ;
         
         #### Hardcoded for now
@@ -601,12 +615,12 @@ function      command(){ # Filed under acceptance
         echoMsg '__' ;
 
         echoMsg '__' "Required ${checkno} : PE Server Check" ;  checkno=$((${checkno:-0} + 1 )) ;
-        puppetversion=`bolt command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
+        puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on ' ` || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
-        primaryservername=`bolt command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
   
-        bolt command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
+        ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
         echoMsg '__' ;
   
         catMe $HOME/.ssh/known_hosts ;
