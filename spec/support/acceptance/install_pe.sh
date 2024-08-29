@@ -217,6 +217,10 @@ fi ;
   echo "====SSHD_CONFIG====="
   cat /etc/ssh/sshd_config  | sed -E 's/^.+AllowTcpForwarding.+$/AllowTcpForwarding yes/g' | sed -E 's/^.+GatewayPorts.+$/GatewayPorts yes/g'  > /tmp/sshd_config ; cat /tmp/sshd_config | sudo tee /etc/ssh/sshd_config ; rm -fr   /tmp/sshd_config ;
   systemctl restart sshd ||  systemctl restart sshd 
+
+  sudo grep -E '^AllowTcpForwarding yes' /etc/ssh/sshd_config || echo 'AllowTcpForwarding yes' | sudo tee -a /etc/ssh/sshd_config
+  sudo grep -E '^GatewayPorts yes' /etc/ssh/sshd_config || echo 'GatewayPorts yes' | sudo tee -a /etc/ssh/sshd_config
+
   sudo grep -E 'AllowTcpForwarding|GatewayPorts' /etc/ssh/sshd_config
   
   echo “Finalize PE install”

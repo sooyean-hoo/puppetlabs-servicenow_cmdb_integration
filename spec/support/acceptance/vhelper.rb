@@ -335,7 +335,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           
         #VAGRANTRUN=$VAGRANTRUN installgems
         
-        mkdir -p /home/runner/.ssh ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+        mkdir -p /home/runner/.ssh ; chmod 777 -R /home/runner/work || sudo chmod 777 -R /home/runner/work  ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
         echo ;
         echoMsg '__' 'Inventories'
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master   >> inventory.yaml' > /dev/null  ; 
@@ -379,6 +379,17 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "===Proposed Changes===" ;
           cat ./spec/fixtures/litmus_inventory.yaml | yq  '.groups[].targets[].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
           echo "=============================================================" ;
+  
+          vagrantdir=`vagrant global-status | grep default | grep running  | grep servicenow | cut -d\  -f8` || true ;
+          pushd $PWD ;
+          cd ${vagrantdir} ;
+          $PWD ;
+          vagrantsshkeys_ed25519=`vagrant ssh-config | grep IdentityFile | grep key.ed ` ;
+          ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_ed25519} ||  true ;
+          vagrantsshkeys_rsa=`vagrant ssh-config | grep IdentityFile | grep key.rsa ` ;
+          ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_rsa} ||  true ;
+          popd ;
+  
           ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
           ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
           pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
@@ -395,12 +406,14 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "==============" ;
           vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
           popd ;
-          echo "===== ssh with vagrantkey ===========" ;
-          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+          echo "===== ssh with vagrantkey.ed25519  ===========" ;
+          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+          echo "===== ssh with vagrantkey.rsa  ===========" ;
+          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.rsa -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
           echo "===== ssh with /tmp/myownkey ===========" ;
-          ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
+          ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
           echo "SKIPPED ======ssh puppet install====================" ;
-          echo SKIPPED ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} "sudo apt install -y puppet"  "||"  echo "FAIL: ssh puppet install..."  ;
+          echo SKIPPED ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} "sudo apt install -y puppet"  "||"  echo "FAIL: ssh puppet install..."  ;
           echo "==========================" ;
         else
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
@@ -461,6 +474,8 @@ function      installpecommands(){  # Filed under install_agent__task
         ${BOLTCMD} script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
 }
 function      prepcommand1(){ # Filed under install_module__task
+        chmod 777 -R /home/runner/work || sudo chmod 777 -R /home/runner/work  ||  true ;
+        ls -l /home/runner/work  ||  true ;
         cd ./spec/fixtures/ ;
         puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
@@ -624,18 +639,18 @@ function      command(){ # Filed under acceptance
         echoMsg '++'    ;
         set | grep -E 'masterip=|_port=|_ip=|^deploype|ipaddrport=|^deploy' | grep -v '^ ' ;
         echoMsg '++'    ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
+        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
         echoMsg '++'    ;
         echoMsg '!!' "Activating the Port Fwding: ${portsfwdOptions}  "    ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "touch /tmp/proxy.txt"  ;
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
+        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "touch /tmp/proxy.txt"  ;
+        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
         sleep 10 ;
         #### 
   
         conncheckscript=/tmp/conncheckscript.sh ; chmod a+x $conncheckscript ;
         echo '#!/bin/bash' > $conncheckscript
         cat > $conncheckscript << '__EEE'
-  apt install -y curl || yum install -y curl ;
+  apt install -y curl || yum install -y curl || sudo apt install -y curl || sudo yum install -y curl  ;
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
   source /tmp/download_pe_tarball.sh  loadlib ;
 
@@ -694,8 +709,8 @@ __EEE
           if [ "$masterip" = "$masterport"  ] ; then
             masterport=2222 ;
           fi;
-          ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working:  vagrant@${masterip}:${masterport}" || echo "Failed:  vagrant@${masterip}:${masterport} ;
-          ssh -i /tmp/myownkey -A -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working HostChecked:  vagrant@${masterip}:${masterport}" || echo "Failed HostChecked:  vagrant@${masterip}:${masterport} ;
+          ssh -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working:  vagrant@${masterip}:${masterport}" || echo "Failed:  vagrant@${masterip}:${masterport} ;
+          ssh -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${masterport} -l vagrant ${masterip} "echo Working HostChecked:  vagrant@${masterip}:${masterport}" || echo "Failed HostChecked:  vagrant@${masterip}:${masterport} ;
         done ;
         echoMsg '!!'    ;
         echo     > $HOME/.ssh/known_hosts ;
@@ -715,13 +730,13 @@ __EEE
         ls -l pkg/*.tar.gz ;
         tarfile="pkg/*.tar.gz" ;
         btarfile=`basename ${tarfile}`
-        scp -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -P${masterport:-2222}   pkg/*.tar.gz  vagrant@${masterip}:/tmp ;
-        ssh -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -p${masterport:-2222} -l vagrant ${masterip} "ls -l /tmp/${btarfile} ; sudo puppet module install /tmp/${btarfile} ; " ;
+        scp -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -P${masterport:-2222}   pkg/*.tar.gz  vagrant@${masterip}:/tmp ;
+        ssh -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 -p${masterport:-2222} -l vagrant ${masterip} "ls -l /tmp/${btarfile} ; sudo puppet module install /tmp/${btarfile} ; " ;
         echoMsg '!!'  ;
 
         echo ;
         echo ;
-        (sleep 1800 && ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
+        (sleep 1800 && ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10  -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ) &
         echoMsg '==' "Setup done, Now Run Tests"  ;
         bundle exec "rake acceptance:run_tests" ; errorid=$? ;
         echo "rake acceptance:run_tests done with errid=$errorid " ;
@@ -731,7 +746,7 @@ __EEE
 function      postcommand(){ # Filed under tear_down__task
         
         #### Hardcoded for now 
-        ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
+        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10   -p${deploype_port} -l vagrant ${deploype_ip}  "rm -fr  /tmp/proxy.txt"  ;
         #### 
         bundle exec "rake acceptance:tear_down"  || echo  "Tear Down also have errors." ;
         
@@ -889,10 +904,13 @@ namespace :valentepuppet do
     cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
     cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
     cmds += ' catMe /tmp/provision.txt  +'
+    cmds += ' echoMsg == Prep Install Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
-    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Bolt and Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
+    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
+    cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
 
+    puts "Executing #{cmds}"
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n")
