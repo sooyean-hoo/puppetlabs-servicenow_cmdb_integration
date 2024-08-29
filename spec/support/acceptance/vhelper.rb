@@ -34,6 +34,7 @@ print(){
     fi ;
   
     export BOLTCMD=${BOLTCMD:-/usr/local/bin/bolt}
+    export BOLT_PROJECT=$PWD
 
 function      setupruby(){
           [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
@@ -909,7 +910,7 @@ namespace :valentepuppet do
     cmds += ' echoMsg == Prep Install Checks   + installPkg git + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +"'
- 
+
     puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
@@ -922,7 +923,7 @@ namespace :valentepuppet do
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
-   
+
     puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
@@ -930,8 +931,7 @@ namespace :valentepuppet do
     else
       puts 'SKIPPED abort error: could not execute command for stage 2'
     end
-    
-    
+
     inventoryfile = './spec/fixtures/litmus_inventory.yaml'
     invcontent = ''
     if File.exist?(inventoryfile)
