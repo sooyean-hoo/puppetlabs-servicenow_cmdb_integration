@@ -335,7 +335,7 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           
         #VAGRANTRUN=$VAGRANTRUN installgems
         
-        mkdir -p /home/runner/.ssh ; chmod 777 -R /home/runner/work || sudo chmod 777 -R /home/runner/work  ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+        mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work || chmod 777 -R /home/runner/work  ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
         echo ;
         echoMsg '__' 'Inventories'
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master   >> inventory.yaml' > /dev/null  ; 
@@ -910,7 +910,7 @@ namespace :valentepuppet do
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
 
-    puts "Executing #{cmds}"
+    puts "Executing #{cmds}".gsub('+', "+\n")
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n")
