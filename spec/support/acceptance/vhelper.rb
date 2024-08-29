@@ -587,6 +587,7 @@ function      setupServiceNowServer(){ # Filed under acceptance
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
 }
 function      command(){ # Filed under acceptance
+        checkno=$((${checkno:-0} + 1 )) ;
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         
@@ -629,7 +630,8 @@ function      command(){ # Filed under acceptance
         echoMsg '__' "Required ${checkno} : Inventory Checks: PE server name/uri should be example.puppet.com ";  checkno=$((${checkno:-0} + 1 )) ;
         echoMsg '++' "    In Use" ;
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
-        echoMsg '++' 'Connectivity Checks Before  Running the rest'  ;
+        
+        echoMsg '__' "Required ${checkno} : IP address of nodes are...";  checkno=$((${checkno:-0} + 1 )) ;
         echoMeNRun ip addr || echo "IP addr Failed..." ;
         ${BOLTCMD} command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
         masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ;
@@ -646,7 +648,7 @@ function      command(){ # Filed under acceptance
         else
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080:127.0.0.1:1080" ;
         fi ;
-        set | grep -E '^platforms_image=|portsfwdOptions=' ;
+        set | grep -E '^platforms_image=|^portsfwdOptions=' ;
 
         masterip=${deploype_ip} ;
         echoMsg '++'    ;
@@ -677,8 +679,10 @@ __EEE
           echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to ${masterip} from GitHub Runner";  checkno=$((${checkno:-0} + 1 )) ;
           echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} | tee  -a $conncheckscript ;
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
+          echo "${checkno}" > /tmp/checkno.txt
         done ;
 
+        checkno=`cat /tmp/checkno.txt`; rm -fr /tmp/checkno.txt ;
         echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to all nodes from PE Console";  checkno=$((${checkno:-0} + 1 )) ;
         ${BOLTCMD} script run -t ssh_nodes $conncheckscript || true ;
 
@@ -696,6 +700,8 @@ __EEE
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
+        whichpuppet=`${BOLTCMD} command run "which puppet`  || true ;
+        echo "===Which Puppet=${whichpuppet}==="
   
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
         echoMsg '__' ;
