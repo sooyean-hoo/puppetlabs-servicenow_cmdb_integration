@@ -904,7 +904,7 @@ namespace :valentepuppet do
     cmds += " runlogged /tmp/provision.txt  echo platforms_image='#{paras[:platforms_image]}'   +"
     cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
     cmds += ' catMe /tmp/provision.txt  +'
-    cmds += ' echoMsg == Prep Install Checks  + chkPkg git curl bash puppet-bolt  +'
+    cmds += ' echoMsg == Prep Install Checks   + installPkg git + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
