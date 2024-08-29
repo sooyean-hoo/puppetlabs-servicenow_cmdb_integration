@@ -516,7 +516,7 @@ function      prepcommand1b(){ # Filed under install_module__task
     done ;
     
     if [ ! -x /usr/bin/puppet ] ; then 
-      cat | sudo tee /usr/bin/puppet << EE
+      ( cat | sudo tee /usr/bin/puppet ) << EE
     export PATH=$PATH:\$PATH ;
     /opt/puppetlabs/bin/puppet \$@  ;
 EE
