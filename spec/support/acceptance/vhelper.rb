@@ -23,7 +23,17 @@ print(){
 #     env ;
 #     echoMsg '++'
   
-    export BOLTCMD=`cat /tmp/boltcmdsh `
+    BOLTCMD=`cat /tmp/boltcmdsh 2> /dev/null `   || true 
+    BOLTCMD=${BOLTCMD:-`cd /tmp/ && which bolt`}   || true 
+    BOLTCMD=${BOLTCMD:-`which bolt`}   || true 
+    set | grep -E '^BOLTCMD='   || true 
+  
+    if [ -x /usr/local/bin/bolt ] ; then
+      BOLTCMD=/usr/local/bin/bolt ;
+      echo '/usr/local/bin/bolt' > /tmp/boltcmdsh ;
+    fi ;
+  
+    export BOLTCMD=${BOLTCMD:-/usr/local/bin/bolt}
 
 function      setupruby(){
           [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
@@ -51,7 +61,8 @@ function      setup_servicenow_host(){
           ./spec/support/acceptance/start_mock_servicenow_instance.sh ||  true ;
 }
 function      install_actual_bolt(){
-          # bundle exec gem uninstall --force bolt || gem uninstall --force bolt ;
+  
+          # Ubuntu
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E apt-get update  2> /dev/null  > /dev/null
@@ -61,6 +72,24 @@ function      install_actual_bolt(){
           sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan show
 
 
+          # RHEL or Fedora
+          sudo rpm -Uvh https://yum.puppet.com/puppet-tools-release-fedora-36.noarch.rpm 2> /dev/null  > /dev/null
+          sudo dnf install puppet-bolt 2> /dev/null  > /dev/null
+  
+  
+          # SLES 15
+          sudo rpm -Uvh https://yum.puppet.com/puppet-tools-release-sles-15.noarch.rpm 2> /dev/null  > /dev/null
+          sudo zypper install puppet-bolt 2> /dev/null  > /dev/null
+          
+
+          # SLES 12
+          sudo rpm -Uvh https://yum.puppet.com/puppet-tools-release-sles-12.noarch.rpm 2> /dev/null  > /dev/null
+          sudo zypper install puppet-bolt 2> /dev/null  > /dev/null
+   
+
+  
+  
+          
           which bolt | tee /tmp/boltcmdsh >  /tmp/boltcmd.sh
           echo '$@'  >> /tmp/boltcmd.sh
 
@@ -68,8 +97,10 @@ function      install_actual_bolt(){
           cat /tmp/boltcmd.sh | tr '[:cntrl:]' ' '  >> /tmp/boltcmd_sh
           chmod a+x /tmp/boltcmd_sh
   
-          cat /tmp/boltcmd_sh
+          catMe /tmp/boltcmd_sh
   
+          export BOLTCMD=`cat /tmp/boltcmdsh `
+          env | grep BOLTCMD
 }
 function      install_bolt_modules(){
           sudo -E mkdir -p  spec/fixtures/modules
@@ -600,13 +631,31 @@ function      command(){ # Filed under acceptance
         ssh  -i /tmp/myownkey -A -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
         sleep 10 ;
         #### 
+  
+        conncheckscript=/tmp/conncheckscript.sh ; chmod a+x $conncheckscript ;
+        echo '#!/bin/bash' > $conncheckscript
+        cat > $conncheckscript << '__EEE'
+  apt install -y curl || yum install -y curl ;
+  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
+  source /tmp/download_pe_tarball.sh  loadlib ;
+
+__EEE
+
+  
+        
         cat ./spec/fixtures/litmus_inventory.yaml | grep uri | sed -E 's/^[^:]+://g' | while read ipaddrport ; do 
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
-          echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports";  checkno=$((${checkno:-0} + 1 )) ;
-          echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}    ;
+          echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to ${masterip} from GitHub Runner";  checkno=$((${checkno:-0} + 1 )) ;
+          echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} | tee  -a $conncheckscript ;
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
         done ;
+
+        echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to all nodes from PE Console";  checkno=$((${checkno:-0} + 1 )) ;
+        ${BOLTCMD} script run -t ssh_nodes $conncheckscript || true ;
+
+        echoMsg '__' "Required ${checkno} : Current User Test runner and the hosts file." ; checkno=$((${checkno:-0} + 1 )) ;
+       
         whoami ;
         catMe /etc/hosts ;
   
@@ -623,6 +672,7 @@ function      command(){ # Filed under acceptance
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
         echoMsg '__' ;
   
+        echoMsg '++' Original $HOME/.ssh/known_hosts ;
         catMe $HOME/.ssh/known_hosts ;
         rm -fr $HOME/.ssh/known_hosts ;
         ssh-keyscan -t rsa ${masterip}   >> $HOME/.ssh/known_hosts ;
@@ -650,6 +700,7 @@ function      command(){ # Filed under acceptance
         echoMsg '!!'    ;
         echo     > $HOME/.ssh/known_hosts ;
 
+        echoMsg '++' Adapted $HOME/.ssh/known_hosts ;
         echoMsg '++' 'known_hosts' ;
         catMe $HOME/.ssh/known_hosts ;
         catMe $HOME/.ssh/known_hosts.old ;
@@ -839,7 +890,7 @@ namespace :valentepuppet do
     cmds += " runlogged /tmp/provision.txt  echo platformprovider='#{paras[:platformprovider]}'   +"
     cmds += ' catMe /tmp/provision.txt  +'
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
-    cmds += ' Create_the_fixtures_directory + install_actual_bolt + install_bolt_modules +'
+    cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Bolt and Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands +  echoMsg == Install Start  + installpe + "'
 
     output = `#{cmds}`
