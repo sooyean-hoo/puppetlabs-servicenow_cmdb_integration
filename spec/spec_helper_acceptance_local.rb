@@ -22,7 +22,7 @@ end
 def trigger_puppet_run(target, acceptable_exit_codes: [0, 2])
   result = target.run_shell('puppet agent -t --detailed-exitcodes', expect_failures: true)
   unless acceptable_exit_codes.include?(result[:exit_code])
-    raise "Puppet run failed\nstdout: #{result[:stdout]}\nstderr: #{result[:stderr]}"
+    raise "Puppet run failed ( #{result[:exit_code]} )\nstdout: #{result[:stdout]}\nstderr: #{result[:stderr]}"
   end
   result
 end
