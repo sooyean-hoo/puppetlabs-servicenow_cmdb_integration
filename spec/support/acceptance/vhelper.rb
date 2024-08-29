@@ -483,9 +483,12 @@ function      installpecommands(){  # Filed under install_agent__task
         ls -l ${oldDIR}/spec/support/acceptance/install_pe.sh ;
         ${BOLTCMD} script run ${oldDIR}/spec/support/acceptance/install_pe.sh -t ssh_nodes  ;
 }
-function      prepcommand1(){ # Filed under install_module__task
-        chmod 777 -R /home/runner/work || sudo chmod 777 -R /home/runner/work  ||  true ;
-        ls -l /home/runner/work  ||  true ;
+function      prepcommand1a(){ # Filed under install_module__task
+        chmod 777 -R /home/runner/work 2> /dev/null || sudo chmod 777 -R /home/runner/work  2> /dev/null ||  true ;
+        ls -l -d /home/runner/work  ||  true ;
+        ls -l    /home/runner/work/*  ||  true ;
+}
+function      prepcommand1b(){ # Filed under install_module__task
         cd ./spec/fixtures/ ;
         puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
@@ -978,7 +981,33 @@ namespace :valentepuppet do
 
   desc 'Install module'
   task :install_module__task do # , [:para1, :para2] do |_t, paras|
-    puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
+    # puts `bash ./spec/support/acceptance/vhelper.rb exec "prepcommand1" `.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
+
+    ################# Setup Part1a
+    puts " \n \n \n \n \n"
+    cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' echoMsg == prepcommand1a  + prepcommand1a + '
+    cmds += '" 2>&1'
+    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
+    output = `#{cmds}`
+    if $CHILD_STATUS.success?
+      puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
+    else
+      puts 'SKIPPED abort error: could not execute command for stage 1a'
+    end
+
+    ################# Setup Part1b
+    puts " \n \n \n \n \n"
+    cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
+    cmds += ' echoMsg == prepcommand1b  + prepcommand1b + '
+    cmds += '" 2>&1'
+    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
+    output = `#{cmds}`
+    if $CHILD_STATUS.success?
+      puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
+    else
+      puts 'SKIPPED abort error: could not execute command for stage 1b'
+    end
   end
 
   desc 'Run acceptance tests'
