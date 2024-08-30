@@ -539,9 +539,10 @@ function      prepcommand1b(){ # Filed under install_module__task
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
   
-        if [[ $puppetversion =~ command.not.found  ]] ; then
+        if [[ $puppetversion =~ failed  ]] ; then
           
-  
+          echoMsg '!!'  Fixing Missing Puppet Command
+          
           cat > /tmp/psetup.sh << '__END'
   whichpuppet=`which puppet`
   if [ -z "${whichpuppet}" ] ; then
@@ -617,7 +618,7 @@ __END
           echo "===Puppet Server Name=${primaryservername}==="
   
           whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
-          whichpuppetsudo=`${BOLTCMD} command run "sudowhich puppet" -t ssh_nodes `  || true ;
+          whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes `  || true ;
           lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes `  || true ;
           echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
  
