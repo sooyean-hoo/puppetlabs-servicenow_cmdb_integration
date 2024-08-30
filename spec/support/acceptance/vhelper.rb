@@ -514,33 +514,35 @@ function      prepcommand1b(){ # Filed under install_module__task
         || echo FAIL in getting puppet in the Path of $PATH 
       ) ;
     done ;
-    
-    if [ ! -x /usr/bin/puppet -a -d /usr/bin/ ] ; then # First Try Create a link
-      pushd $PWD ; 
-      cd /usr/bin/ ;
-      ln -sf /opt/puppetlabs/bin/puppet ;
-      popd  ;
-    end
-  
-    lastdirinPath=`echo $PATH | tr ':' '\n'| tail -1`
-    if  which puppet  2> /dev/null > /dev/null ; then 
-      which puppet ;
-    else
-      pushd $PWD ;
-      cd ${lastdirinPath} ;
-      echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
-      ln -sf /opt/puppetlabs/bin/puppet ;
-      popd ;
-    fi
-    if [ ! -x /usr/bin/puppet ] ; then  # Second Try Create a script
-      ( cat | sudo tee /usr/bin/puppet ) << EE
-    export PATH=$PATH:\$PATH ;
-    /opt/puppetlabs/bin/puppet \$@  ;
-EE
-      sudo chmod a+x /usr/bin/puppet ;
-    fi ;
   fi ;
+
+  if [ ! -x /usr/bin/puppet -a -d /usr/bin/ ] ; then # First Try Create a link
+    pushd $PWD ; 
+    cd /usr/bin/ ;
+    ln -sf /opt/puppetlabs/bin/puppet ;
+    popd  ;
+  end
   
+  lastdirinPath=`echo $PATH | tr ':' '\n'| tail -1`
+  if  which puppet  2> /dev/null > /dev/null ; then 
+    which puppet ;
+  else
+    pushd $PWD ;
+    cd ${lastdirinPath} ;
+    echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
+    ln -sf /opt/puppetlabs/bin/puppet ;
+    popd ;
+  fi
+  
+  if [ ! -x /usr/bin/puppet ] ; then  # Second Try Create a script
+    ( cat | sudo tee /usr/bin/puppet ) << EE
+  export PATH=$PATH:\$PATH ;
+  /opt/puppetlabs/bin/puppet \$@  ;
+EE
+    sudo chmod a+x /usr/bin/puppet ;
+  fi ;
+
+    
   grep -H -n -v -E 'AALINEAANUMBER' $HOME/.profile  $HOME/.bashrc
   
   echo Msg '__' PATH
