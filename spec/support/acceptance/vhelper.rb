@@ -5,8 +5,17 @@ print(){
 }
 #echo 'running as shell'
 
+if [  "`uname`" = "Darwin" -o -d "/Users/valente"    ] ; then
+  VALENTEHOME="Y" ;
+fi;
+  
+if [ -z "$VALENTEHOME"  ] ; then
   ( which curl || sudo apt install -y curl 2> /dev/null  > /dev/null || sudo yum install -y curl 2> /dev/null  > /dev/null  || apt install -y curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null ) 2> /dev/null  > /dev/null &&
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  || which curl ;
+else
+  curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  || which curl ;
+fi ;
+
   source /tmp/v.sh  loadlib  ;
   VAGRANTRUN="Y" ;
   
@@ -28,6 +37,11 @@ print(){
     BOLTCMD=${BOLTCMD:-`which bolt`}   || true 
     set | grep -E '^BOLTCMD='   || true 
   
+    if [ -x /opt/puppetlabs/bin/bolt ] ; then
+      BOLTCMD=/opt/puppetlabs/bin/bolt ;
+      echo '/opt/puppetlabs/bin/bolt' > /tmp/boltcmdsh ;
+    fi ;
+            
     if [ -x /usr/local/bin/bolt ] ; then
       BOLTCMD=/usr/local/bin/bolt ;
       echo '/usr/local/bin/bolt' > /tmp/boltcmdsh ;
@@ -39,9 +53,11 @@ print(){
 function      setupruby(){
           [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
           source /tmp/v.sh  loadlib  ;
-          rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
+          [ ! -z "$VALENTEHOME"  ] || \
+            rungithubactionuse - ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true ;
 }
 function      modify_sudo_settings(){
+          [ ! -z "$VALENTEHOME"  ] || \
           sudo sed -i 's/Defaults env_reset//' /etc/sudoers
 }
 function      Create_the_fixtures_directory(){
@@ -49,12 +65,14 @@ function      Create_the_fixtures_directory(){
           bundle exec rake spec_prep
 }
 function      disableApparmor(){
+        if [ -z "$VALENTEHOME"  ] ; then
           if command -v apparmor_parser >/dev/null ; then
             sudo find /etc/apparmor.d/ -maxdepth 1 -type f -exec ln -sf {} /etc/apparmor.d/disable/ \;
             sudo apparmor_parser -R /etc/apparmor.d/disable/* || true
             sudo systemctl disable apparmor
             sudo systemctl stop apparmor
-          fi
+          fi ;
+        fi
 }
 function      setup_servicenow_host(){
           cp -fvr ./spec/support/acceptance/servicenow  /tmp/ ||  true ;
@@ -62,7 +80,7 @@ function      setup_servicenow_host(){
           ./spec/support/acceptance/start_mock_servicenow_instance.sh ||  true ;
 }
 function      install_actual_bolt(){
-  
+        if [ -z "$VALENTEHOME"  ] ; then   
           # Ubuntu
           wget https://apt.puppet.com/puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
           sudo -E dpkg -i puppet-tools-release-jammy.deb 2> /dev/null  > /dev/null
@@ -86,7 +104,7 @@ function      install_actual_bolt(){
           # SLES 12
           sudo rpm -Uvh https://yum.puppet.com/puppet-tools-release-sles-12.noarch.rpm 2> /dev/null  > /dev/null
           sudo zypper install puppet-bolt 2> /dev/null  > /dev/null
-   
+        fi ;
 
   
   
@@ -98,6 +116,11 @@ function      install_actual_bolt(){
           cat /tmp/boltcmd.sh | tr '[:cntrl:]' ' '  >> /tmp/boltcmd_sh
           chmod a+x /tmp/boltcmd_sh
 
+  
+          if [ -x /opt/puppetlabs/bin/bolt ] ; then
+            BOLTCMD=/opt/puppetlabs/bin/bolt ;
+            echo '/opt/puppetlabs/bin/bolt' > /tmp/boltcmdsh ;
+          fi ;
           if [ -x /usr/local/bin/bolt ] ; then
             BOLTCMD=/usr/local/bin/bolt ;
             echo '/usr/local/bin/bolt' > /tmp/boltcmdsh ;
@@ -111,15 +134,17 @@ function      install_actual_bolt(){
 function      install_bolt_modules(){
           sudo -E mkdir -p  spec/fixtures/modules
           sudo -E echo ln -s spec/fixtures/modules .modules
-          sudo -E /usr/local/bin/bolt project init my_project --modules jarretlavallee-deploy_pe,puppetlabs-peadm,aursu-puppet
-          sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add jarretlavallee-deploy_pe
-          sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules module add puppetlabs-peadm
+          sudo -E ${BOLTCMD:-/usr/local/bin/bolt} project init my_project --modules jarretlavallee-deploy_pe,puppetlabs-peadm,aursu-puppet
+          sudo -E ${BOLTCMD:-/usr/local/bin/bolt} --modulepath spec/fixtures/modules module add jarretlavallee-deploy_pe
+          sudo -E ${BOLTCMD:-/usr/local/bin/bolt} --modulepath spec/fixtures/modules module add puppetlabs-peadm
           sudo -E chmod a+rw ./inventory.yaml
 }
 function      peneedpkg(){
+      if [ -z "$VALENTEHOME"  ] ; then
         for p in initscripts chkconfig  ; do
           installPkg $p || true ;
         done ;
+      fi;
 }                
 function      installpe(){
   
@@ -147,8 +172,8 @@ __END
 __END
         fi;
   
-        sudo -E /usr/local/bin/bolt  script run  /tmp/deploy_pePrep -t ${deploy_petarget}    || echo "============== PE deploy_pe PrepFailed  ==============" ;     
-        sudo -E /usr/local/bin/bolt --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
+        sudo -E ${BOLTCMD:-/usr/local/bin/bolt}  script run  /tmp/deploy_pePrep -t ${deploy_petarget}    || echo "============== PE deploy_pe PrepFailed  ==============" ;     
+        sudo -E ${BOLTCMD:-/usr/local/bin/bolt} --modulepath spec/fixtures/modules plan run deploy_pe::provision_master targets=${deploy_petarget} version=${deploy_peversion} || echo "==Install PE deploy_pe failed==" ;      
 }
 function       installgems(){
         if [ -z "$VAGRANTRUN" ] ; then
@@ -319,32 +344,42 @@ __EMD
 function      preinstallpecommands(){ # Filed under provision_environment__task
         sshverbose="-vvvvvv" ;         sshverbose="" ;
         echo ;
-        ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
-        curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
-        source /tmp/v.sh  loadlib  ;
+        if [ -z "$VALENTEHOME"  ] ; then
+          ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
+          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
+          source /tmp/v.sh  loadlib  ;
+        else
+          curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
+          source /tmp/v.sh  loadlib  ;
+        fi;
         echo ;
         echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
         pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
         snappkgs='snapd' ;
         vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
         echo "=====Pkgs=${pkgs}=============" ;
-        installPkg $pkgs  || true ;
+        [ ! -z "$VALENTEHOME"  ] || installPkg $pkgs  || true ;
         echo "=====Vagrant Pkgs=${vagrantpkgs}=============" ;
-        installPkg $vagrantpkgs || true ;
+        [ ! -z "$VALENTEHOME"  ] || installPkg $vagrantpkgs || true ;
         echo "=====Snap Pkgs=${snappkgs}=============" ;
-        installPkg $snappkgs  || true ;
+        [ ! -z "$VALENTEHOME"  ] || installPkg $snappkgs  || true ;
         vagrant plugin install vagrant-libvirt   || true ;
         vagrant plugin list   || true ;
-        echoMsg '__' 'Repo Setup: apt.releases.hashicorp.com'
-        wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
-        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
-        echoMsg '__' "Repo Setup: apt.releases.hashicorp.com : sudo apt install ${vagrantpkgs}"
-        sudo apt update && sudo apt install ${vagrantpkgs} ;  
-          
+  
+        if [  -z "$VALENTEHOME"  ] ; then
+          echoMsg '__' 'Repo Setup: apt.releases.hashicorp.com'
+          wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
+          echoMsg '__' "Repo Setup: apt.releases.hashicorp.com : sudo apt install ${vagrantpkgs}"
+          sudo apt update && sudo apt install ${vagrantpkgs} ;  
+        fi;
+   
         #VAGRANTRUN=$VAGRANTRUN installgems
-        echoMsg '__' 'home/runner setup'
-        mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work 2> /dev/null || chmod 777 -R /home/runner/work 2> /dev/null ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
-        ls -ld home/runner/work ; ls -l home/runner/work/* ;
+        echoMsg '__' "/home/runner setup"
+        if [  -z "$VALENTEHOME"  ] ; then
+          mkdir -p /home/runner/.ssh ; sudo chmod 777 -R /home/runner/work 2> /dev/null || chmod 777 -R /home/runner/work 2> /dev/null ; touch /home/runner/.ssh/known_hosts ; touch  ~/.ssh/known_hosts ;
+          ls -ld home/runner/work ; ls -l home/runner/work/* ;
+        fi;
         echo ;
         echoMsg '__' 'Inventories'
         echo -e '\n  - name: master\n    targets:\n      - uri: localhost\n        vars:\n          roles:\n            - master   >> inventory.yaml' > /dev/null  ; 
@@ -384,7 +419,8 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
         elif [ "vagrant" =  "$provisioner" ] ; then
           echo "=======VAGRANT RUN=======" ;
           # gem uninstall  -x --force -q bolt ;
-          ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
+          [ -e /tmp/myownkey ] || \
+            ssh-keygen -t ed25519 -f /tmp/myownkey      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  /tmp/myownkey* ;
           echo "===Proposed Changes===" ;
           cat ./spec/fixtures/litmus_inventory.yaml | yq  '.groups[].targets[].config.ssh.private-key="/tmp/myownkey"' | tee ./spec/fixtures/litmus_inventory.yaml.proposed | grep -H -n -v -E 'AALINEAANUMBER' ;
           echo "=============================================================" ;
@@ -394,15 +430,20 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           pushd $PWD ;
           cd ${vagrantdir} ;
           echo "===In PWD=$(pwd)" ;
+  
           vagrantsshkeys_ed25519=`vagrant ssh-config | grep IdentityFile | grep key.ed ` ;
           ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_ed25519} ||  true ;
           vagrantsshkeys_rsa=`vagrant ssh-config | grep IdentityFile | grep key.rsa ` ;
           ls -l ${vagrantsshkeys:-NO_vagrantsshkeys_rsa} ||  true ;
           popd ;
   
-          ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
-          ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
-          pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; vagrant global-status ;
+          if [  -z "$VALENTEHOME"  ] ; then
+            ls -l /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 ;
+            ls -l /home/runner/.vagrant.d/insecure_private_keys/ ;
+            pwd ; ls -l ; ls -l /home/runner/.vagrant.d/ ; 
+          fi;
+
+          vagrant global-status ;
           OLDCWD=$(pwd) ;
           echo "=====vagrant ssh default===========" ;
           pushd `pwd` ; ls -l spec/fixtures/.vagrant/* ; cd spec/fixtures/.vagrant/* ;pwd ;
@@ -416,10 +457,14 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           echo "==============" ;
           vagrant ssh default  --command "grep -H -n -v -E 'AALINEAANUMBER'  /home/vagrant/.ssh/*" || echo "FAIL: vagrant ssh default....." ; 
           popd ;
-          echo "===== ssh with vagrantkey.ed25519  ===========" ;
-          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
-          echo "===== ssh with vagrantkey.rsa  ===========" ;
-          ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.rsa -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+          
+          if [  -z "$VALENTEHOME"  ] ; then
+            echo "===== ssh with vagrantkey.ed25519  ===========" ;
+            ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.ed25519 -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+            echo "===== ssh with vagrantkey.rsa  ===========" ;
+            ssh  -i /home/runner/.vagrant.d/insecure_private_keys/vagrant.key.rsa -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with vagrantkey..."  ;
+          fi;
+  
           echo "===== ssh with /tmp/myownkey ===========" ;
           ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} date  ||  echo "FAIL: ssh with /tmp/myownkey..."  ;
           echo "SKIPPED ======ssh puppet install====================" ;
@@ -428,7 +473,6 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
         else
           echo "=======SKIPPED COS Unsupported provisioner: $provisioner =======" ;
         fi ;
-  
   
         echo “Config Hostsname on the Runner”
         puppet resource host   `puppet config print certname`  ip=127.0.0.1 || echo  "127.0.0.1 `puppet config print certname` `puppet config print certname`" | sudo tee -a  /etc/hosts > /dev/null || true
@@ -530,9 +574,22 @@ function      prepcommand1b(){ # Filed under install_module__task
     pushd $PWD ;
     cd ${lastdirinPath} ;
     echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
-    ln -sf /opt/puppetlabs/bin/puppet ;
+    sudo ln -sf /opt/puppetlabs/bin/puppet ;
     popd ;
   fi
+  
+  
+  lastdirinPath=`sudo which puppet 2> /dev/stdout |  cut -d\( -f2  | awk -F':' '{print $NF}' | tr -d \) `
+  if sudo which puppet  2> /dev/null > /dev/null ; then 
+    sudo which puppet ;
+  else
+    pushd $PWD ;
+    cd ${lastdirinPath} ;
+    echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
+    sudo ln -sf /opt/puppetlabs/bin/puppet ;
+    popd ;
+  fi
+  
   
   if [ ! -x /usr/bin/puppet ] ; then  # Second Try Create a script
     ( cat | sudo tee /usr/bin/puppet ) << EE
@@ -560,7 +617,9 @@ __END
           echo "===Puppet Server Name=${primaryservername}==="
   
           whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
-          echo "===Which Puppet=${whichpuppet}==="
+          whichpuppetsudo=`${BOLTCMD} command run "sudowhich puppet" -t ssh_nodes `  || true ;
+          lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes `  || true ;
+          echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
  
         fi;
   
@@ -951,7 +1010,7 @@ namespace :valentepuppet do
     cmds += ' echoMsg == Prep Install Start  + modify_sudo_settings +'
     cmds += ' Create_the_fixtures_directory + echoMsg == Installation of Binary Bolt + install_actual_bolt + echoMsg == Installation of Bolt Modules + install_bolt_modules +'
     cmds += '" 2>&1'
-    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
+    puts "Part 1 Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
@@ -965,7 +1024,7 @@ namespace :valentepuppet do
     cmds += ' echoMsg == PreInstall Checks  + chkPkg git curl bash puppet-bolt  +'
     cmds += ' echoMsg == PreInstall Start +  preinstallpecommands + '
     cmds += '" 2>&1'
-    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
+    puts "Part 2 Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
@@ -978,7 +1037,7 @@ namespace :valentepuppet do
     cmds = 'bash ./spec/support/acceptance/vhelper.rb exec "runChain + '
     cmds += ' echoMsg == Install Start  + installpe + '
     cmds += '" 2>&1'
-    puts "Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
+    puts "Part 3 Executing #{cmds}".gsub('+', "+\n").gsub(%r{password: .+}, 'password: [redacted]')
     output = `#{cmds}`
     if $CHILD_STATUS.success?
       puts output.gsub('\n', "\n").gsub(%r{password: .+}, 'password: [redacted]')
