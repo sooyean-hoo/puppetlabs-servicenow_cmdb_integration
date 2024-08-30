@@ -5,9 +5,12 @@ print(){
 }
 #echo 'running as shell'
 
+VALENTEHOME="" ;
 if [  "`uname`" = "Darwin" -o -d "/Users/valente"    ] ; then
   VALENTEHOME="Y" ;
 fi;
+
+echo "===VALENTEHOME=$VALENTEHOME="
   
 if [ -z "$VALENTEHOME"  ] ; then
   ( which curl || sudo apt install -y curl 2> /dev/null  > /dev/null || sudo yum install -y curl 2> /dev/null  > /dev/null  || apt install -y curl 2> /dev/null  > /dev/null || yum install -y curl 2> /dev/null  > /dev/null ) 2> /dev/null  > /dev/null &&
@@ -16,7 +19,7 @@ else
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh  2> /dev/null  || which curl ;
 fi ;
 
-  source /tmp/v.sh  loadlib  ;
+  source /tmp/v.sh  loadlib  || . source /tmp/v.sh  loadlib  ;
   VAGRANTRUN="Y" ;
   
       deploy_peversion='2021.7.8' ;
@@ -544,10 +547,11 @@ function      prepcommand1b(){ # Filed under install_module__task
           echoMsg '!!'  Fixing Missing Puppet Command
           
           cat > /tmp/psetup.sh << '__END'
+    echo "====================Fix with Path env"
   whichpuppet=`which puppet`
   if [ -z "${whichpuppet}" ] ; then
     find /opt/puppetlabs  -iname puppet -type f  -maxdepth 4 | grep bin | grep -v bolt | while read whichpuppetposs ; do
-      echo "Try ${whichpuppetposs}"
+      echo "===================Trying ${whichpuppetposs}"
       (puppet --version && puppet infra --help > /dev/null &&  puppet access login --help  > /dev/null ) || 
       (
         export PATH="$(dirname  ${whichpuppetposs:-/usr/bin/ls} ):$PATH" &&  \
@@ -558,36 +562,38 @@ function      prepcommand1b(){ # Filed under install_module__task
         )  \
         || echo FAIL in getting puppet in the Path of $PATH 
       ) ;
-    done ;
+    done || true ;
   fi ;
-
+  
+  echo "====================Fix with Links"
+  
   if [ ! -x /usr/bin/puppet -a -d /usr/bin/ ] ; then # First Try Create a link
     pushd $PWD ; 
     cd /usr/bin/ ;
-    ln -sf /opt/puppetlabs/bin/puppet ;
+    sudo ln -sf /opt/puppetlabs/bin/puppet || ln -sf /opt/puppetlabs/bin/puppet  || true ;
     popd  ;
-  end
+  fi;
   
-  lastdirinPath=`echo $PATH | tr ':' '\n'| tail -1`
+  lastdirinPath1=$(echo $PATH | tr ':' '\n' | tail -1 ) || true ;
   if  which puppet  2> /dev/null > /dev/null ; then 
     which puppet ;
   else
     pushd $PWD ;
-    cd ${lastdirinPath} ;
+    cd ${lastdirinPath1} ;
     echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
-    sudo ln -sf /opt/puppetlabs/bin/puppet ;
+    sudo ln -sf /opt/puppetlabs/bin/puppet || ln -sf /opt/puppetlabs/bin/puppet || true ;
     popd ;
   fi
   
   
-  lastdirinPath=`sudo which puppet 2> /dev/stdout |  cut -d\( -f2  | awk -F':' '{print $NF}' | tr -d \) `
+  lastdirinPath2=`sudo which puppet 2> /dev/stdout |  cut -d\( -f2  | awk -F':' '{print $NF}' | tr -d \) `  || true ;
   if sudo which puppet  2> /dev/null > /dev/null ; then 
     sudo which puppet ;
   else
     pushd $PWD ;
-    cd ${lastdirinPath} ;
+    cd ${lastdirinPath2} ;
     echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
-    sudo ln -sf /opt/puppetlabs/bin/puppet ;
+    sudo ln -sf /opt/puppetlabs/bin/puppet || ln -sf /opt/puppetlabs/bin/puppet  || true ;
     popd ;
   fi
   
@@ -611,19 +617,20 @@ __END
           chmod a+x /tmp/psetup.sh ;
           ${BOLTCMD} script run  /tmp/psetup.sh  -t ssh_nodes   || true ; 
           
-          puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
-          echo "===Puppet Version Installed=${puppetversion}===" || true ;
-  
-          primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
-          echo "===Puppet Server Name=${primaryservername}==="
-  
-          whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
-          whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes `  || true ;
-          lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes `  || true ;
-          echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
- 
         fi;
-  
+        
+        echoMsg '__'  Final Confirmation
+        puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
+        echo "===Puppet Version Installed=${puppetversion}===" || true ;
+
+        primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
+        echo "===Puppet Server Name=${primaryservername}==="
+
+        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
+        whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes `  || true ;
+        lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes `  || true ;
+        echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
+ 
 }
 function      setupServiceNowServer(){ # Filed under acceptance
  
