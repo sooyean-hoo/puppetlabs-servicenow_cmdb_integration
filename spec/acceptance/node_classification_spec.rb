@@ -52,10 +52,10 @@ describe 'node classification' do
     master_certname = master.run_shell('puppet config print  certname')['stdout'] # Cannot assume certname is always the uri. Hence We ask the node.
 
     # Based off https://www.puppet.com/docs/pe/2023.6/running_tasks_from_the_command_line#puppet-task-run-options
-    # Seems to having problem as it cannot handle array :   master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule
-    #           --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master_certname}")
-    master.run_shell("echo '{ \"group_names\": [ \"#{TEST_ENVIRONMENT}\" ] }' > /tmp/params.json ")
-    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params @/tmp/params.json --nodes #{master_certname}")
+    # Seems to having problem as it cannot handle array :
+    master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params '{\"group_names\": [\"#{TEST_ENVIRONMENT}\"]}' --nodes #{master_certname}")
+    # master.run_shell("echo '{ \"group_names\": [ \"#{TEST_ENVIRONMENT}\" ] }' > /tmp/params.json ")
+    # master.run_shell("puppet task run servicenow_cmdb_integration::add_environment_rule --params @/tmp/params.json --nodes #{master_certname}")
   end
   after(:all) do
     # Teardown the test environment
