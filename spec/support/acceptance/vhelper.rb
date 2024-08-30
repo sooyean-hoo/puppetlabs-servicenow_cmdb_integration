@@ -546,6 +546,9 @@ __END
   
           primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
           echo "===Puppet Server Name=${primaryservername}==="
+  
+          whichpuppet=`${BOLTCMD} command run "which puppet"`  || true ;
+          echo "===Which Puppet=${whichpuppet}==="
  
         fi;
   
