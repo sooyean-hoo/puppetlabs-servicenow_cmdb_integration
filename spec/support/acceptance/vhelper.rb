@@ -522,6 +522,16 @@ function      prepcommand1b(){ # Filed under install_module__task
       popd  ;
     end
   
+    lastdirinPath=`echo $PATH | tr ':' '\n'| tail -1`
+    if  which puppet  2> /dev/null > /dev/null ; then 
+      which puppet ;
+    else
+      pushd $PWD ;
+      cd ${lastdirinPath} ;
+      echo "In $PWD ===ln -sf /opt/puppetlabs/bin/puppet" ;
+      ln -sf /opt/puppetlabs/bin/puppet ;
+      popd ;
+    fi
     if [ ! -x /usr/bin/puppet ] ; then  # Second Try Create a script
       ( cat | sudo tee /usr/bin/puppet ) << EE
     export PATH=$PATH:\$PATH ;
@@ -547,7 +557,7 @@ __END
           primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
           echo "===Puppet Server Name=${primaryservername}==="
   
-          whichpuppet=`${BOLTCMD} command run "which puppet"`  || true ;
+          whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
           echo "===Which Puppet=${whichpuppet}==="
  
         fi;
@@ -710,7 +720,7 @@ __EEE
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
-        whichpuppet=`${BOLTCMD} command run "which puppet"`  || true ;
+        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
         echo "===Which Puppet=${whichpuppet}==="
   
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
