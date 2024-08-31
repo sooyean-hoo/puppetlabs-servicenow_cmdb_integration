@@ -740,6 +740,7 @@ function      command(){ # Filed under acceptance
           source /tmp/provision.txt ; 
           if [[  $platforms_image =~ buntu ]]    ; then
             servicenowserverIP="127.0.0.1" ;
+            servicenowserver="localhost"
           else
             servicenowserverIP="10.0.2.2" ;
           fi ;
@@ -775,7 +776,7 @@ function      command(){ # Filed under acceptance
            platforms_image=`grep platform:  ./spec/fixtures/litmus_inventory.yaml     ` ;
          fi;
 
-         echoMsg '__' "Required ${checkno} : Platform Checks, Make sure Ports are fwded correctly -L:1080...for Ubuntu, -R*:1008... for others";  checkno=$((${checkno:-0} + 1 )) ;
+         echoMsg '__' "Required ${checkno} : Platform Checks, Make sure Ports are fwded correctly -L:1080...for Ubuntu ... for others";  checkno=$((${checkno:-0} + 1 )) ;
          if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
@@ -825,7 +826,7 @@ __EEE
         catMe /etc/hosts ;
 
         echoMsg '__' "Required ${checkno} : Current User Test runner and the hosts file on PE Primary" ; checkno=$((${checkno:-0} + 1 )) ;
-        ${BOLTCMD} command run " whoami ; catMe /etc/hosts ; df  ;           " -t ssh_nodes | grep -v ' on ' || true ;
+        ${BOLTCMD} command run " whoami ; grep -H -n -v -E 'AALINEAANUMBER' /etc/hosts ; df  ;           " -t ssh_nodes | grep -v ' on ' || true ;
         
   
         echoMsg '__' "Required ${checkno} : Mock ServiceServer Check" ; checkno=$((${checkno:-0} + 1 )) ;
