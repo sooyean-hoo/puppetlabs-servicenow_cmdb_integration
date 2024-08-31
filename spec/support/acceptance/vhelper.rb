@@ -692,7 +692,11 @@ function      setupServiceNowServer(){ # Filed under acceptance
         servicenowserverIP="127.0.0.1"
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "vagrant" =  "$provisioner" ] ; then
-          servicenowserverIP="10.0.2.2"
+          if [[  $platforms_image =~ buntu ]]    ; then
+            servicenowserverIP="127.0.0.1" ;
+          else
+            servicenowserverIP="10.0.2.2" ;
+          fi ;
         fi;
         puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null || true
         ${BOLTCMD} command run -t ssh_nodes "puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null" || true ;
@@ -728,17 +732,24 @@ function      command(){ # Filed under acceptance
           echoMsg '++' "    Original" ;
           grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
           echo "127.0.0.1 master ${pehostnameinservicenow}" | sudo tee -a /etc/hosts ;
+          echo
+          echo
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g'   > ./spec/fixtures/litmus_inventory.yaml.NEW ;
        
-          servicenowserverIP="10.0.2.2"
+          source /tmp/provision.txt ; 
+          if [[  $platforms_image =~ buntu ]]    ; then
+            servicenowserverIP="127.0.0.1" ;
+          else
+            servicenowserverIP="10.0.2.2" ;
+          fi ;
           
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml.TMP ; \
             cat ./spec/fixtures/litmus_inventory.yaml.TMP | \
               sed -E "s/name: ([^:]+)(:2222)/name: ${pehostnameinservicenow}\2/g" | \
               sed  -E "s/uri: ([^:]+)(:2222)/uri: ${pehostnameinservicenow}\2/g"  | \
               \
-              sed  -E "s/ [^:]+:1080/${servicenowserver}:1080/g"  | \
+              sed  -E "s/ [^:]+:1080/ ${servicenowserver}:1080/g"   \
                 > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           
           #  cat ./spec/fixtures/litmus_inventory.yaml.TMP | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E "s/uri: 127.0.0.1:2222/uri: ${pehostnameinservicenow}/g" | sed  -E "s/host: 127.0.0.1/host: ${pehostnameinservicenow}/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
