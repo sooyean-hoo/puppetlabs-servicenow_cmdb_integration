@@ -1251,11 +1251,12 @@ namespace :valentepuppet do
 
     master.bolt_upload_file('/tmp/v.sh', '/tmp/')
     master.run_shell('chmod 777 /tmp/v.sh')
-    master.run_shell('bash /tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/vhelper.rb exec runChain + installPkg nodejs  +  setupruby ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true +')
 
-
+    cmd = 'bash /tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/vhelper.rb exec '
+    cmd += 'runChain + installPkg nodejs  +  setupruby ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true +'
+    master.run_shell(cmd)
   end
-  
+
   desc 'Test ServiceNow host with sample Data'
   task :test_servicenow_host do
     cmdb_table = 'cmdb_ci'
@@ -1279,8 +1280,8 @@ namespace :valentepuppet do
     h1 = 'TESTING SERVICENOW SERVER'
     puts "#{h1}......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
 
-    master.run_shell("curl -k https://localhost:1080")
-    master.run_shell("curl -k https://coy.servicenow:1080")
+    master.run_shell('curl -k https://localhost:1080')
+    master.run_shell('curl -k https://coy.servicenow:1080')
   end
 
   desc 'Sets up the ServiceNow host with docker'
