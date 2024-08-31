@@ -688,6 +688,15 @@ function      setupServiceNowServer(){ # Filed under acceptance
         cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g' > ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
         cat ./spec/fixtures/litmus_inventory.yaml.tmp > ./spec/fixtures/litmus_inventory.yaml ; rm -fr ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
   
+        servicenowserver="coy.servicenow"
+        servicenowserverIP="127.0.0.1"
+        provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
+        if [ "vagrant" =  "$provisioner" ] ; then
+          servicenowserverIP="10.0.2.2"
+        fi;
+        puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null || true
+        ${BOLTCMD} command run -t ssh_nodes "puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null" || true ;
+  
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true
 }
 function      command(){ # Filed under acceptance
@@ -708,6 +717,10 @@ function      command(){ # Filed under acceptance
 
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
+        
+        servicenowserver="coy.servicenow"
+        servicenowserverIP="127.0.0.1"
+        
         if [ "docker" =  "$provisioner" ] ; then
           echoMsg '!!' "Adjustment for Docker" ;
         elif [ "vagrant" =  "$provisioner" ] ; then
@@ -717,11 +730,16 @@ function      command(){ # Filed under acceptance
           echo "127.0.0.1 master ${pehostnameinservicenow}" | sudo tee -a /etc/hosts ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g'  > /dev/null ;
           cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/ [^ :]+:2222:1080/ localhost:1080/g'   > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+       
+          servicenowserverIP="10.0.2.2"
           
           cat ./spec/fixtures/litmus_inventory.yaml.NEW > ./spec/fixtures/litmus_inventory.yaml.TMP ; \
             cat ./spec/fixtures/litmus_inventory.yaml.TMP | \
               sed -E "s/name: ([^:]+)(:2222)/name: ${pehostnameinservicenow}\2/g" | \
-              sed  -E "s/uri: ([^:]+)(:2222)/uri: ${pehostnameinservicenow}\2/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
+              sed  -E "s/uri: ([^:]+)(:2222)/uri: ${pehostnameinservicenow}\2/g"  | \
+              \
+              sed  -E "s/ [^:]+:1080/${servicenowserver}:1080/g"  | \
+                > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           
           #  cat ./spec/fixtures/litmus_inventory.yaml.TMP | sed -E 's/name: ([^:]+:2222)/name: master/g' | sed  -E "s/uri: 127.0.0.1:2222/uri: ${pehostnameinservicenow}/g" | sed  -E "s/host: 127.0.0.1/host: ${pehostnameinservicenow}/g"  > ./spec/fixtures/litmus_inventory.yaml.NEW ;
           
@@ -750,7 +768,7 @@ function      command(){ # Filed under acceptance
          if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
-          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080" ;
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 " ; # -R:1080
         fi ;
         set | grep -E '^platforms_image=|^portsfwdOptions=' ;
 
@@ -1260,6 +1278,9 @@ namespace :valentepuppet do
     CMDBHelpers.delete_target_record(servicenow_instance, table: cmdb_table, certname_field: certname_field)
     h1 = 'TESTING SERVICENOW SERVER'
     puts "#{h1}......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
+
+    master.run_shell("curl -k https://localhost:1080")
+    master.run_shell("curl -k https://coy.servicenow:1080")
   end
 
   desc 'Sets up the ServiceNow host with docker'
