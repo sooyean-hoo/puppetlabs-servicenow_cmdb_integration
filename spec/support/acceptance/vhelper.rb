@@ -53,6 +53,20 @@ fi ;
     export BOLTCMD=${BOLTCMD:-/usr/local/bin/bolt}
     export BOLT_PROJECT=$PWD
 
+function installgitfromsrc(){
+          cd /tmp/
+          sudo yum groupinstall "Development Tools"
+          sudo yum install -y gettext-devel openssl-devel perl-CPAN perl-devel zlib-devel glibc-devel
+
+          wget https://github.com/git/git/archive/v2.1.2.tar.gz -O git.tar.gz
+          tar -zxf git.tar.gz
+          cd git-*
+          make configure
+          ./configure --prefix=/usr/local
+          sudo make install
+  
+          git --version
+}
 function      setupruby(){
           [ -e /tmp/v.sh ]  ||   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/v.sh   || which curl  ;
           source /tmp/v.sh  loadlib  ;
@@ -346,6 +360,11 @@ __EMD
     
 function      preinstallpecommands(){ # Filed under provision_environment__task
         sshverbose="-vvvvvv" ;         sshverbose="" ;
+
+        echoMsg '__' "Cleanse or Reset the SSh Client and config"
+        ssh-keygen -R [127.0.0.1]:2222 ;
+        cat   $HOME/.ssh/known_hosts >  $HOME/.ssh/known_hosts.bak   ; grep -F '[127.0.0.1]:2222'  $HOME/.ssh/known_hosts.bak   >  $HOME/.ssh/known_hosts
+        
         echo ;
         if [ -z "$VALENTEHOME"  ] ; then
           ( sudo apt install -y curl || sudo yum install -y curl || apt install -y curl || yum install -y curl ) &&
@@ -491,8 +510,6 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
         echo "================="
         sudo grep -H -n -v -E 'AALINEAANUMBER' /etc/hostname || true
         echo "================="
-
-  
 }
 function      installpecommands(){  # Filed under install_agent__task
         source /tmp/v.sh  loadlib  ;
@@ -627,7 +644,7 @@ __END
         whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
         whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
         lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes | grep -v ' on ' `  || true ;
-        echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
+        echo -e "===Which Puppet=\n\twhich=${whichpuppet}\n\tsudo which=${whichpuppetsudo}\n\tsudo ls -l /usr/bin/puppet=${lspuppet}="
  
 }
 function      setupServiceNowServer(){ # Filed under acceptance
@@ -733,7 +750,7 @@ function      command(){ # Filed under acceptance
          if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
-          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R*:1080" ;
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080" ;
         fi ;
         set | grep -E '^platforms_image=|^portsfwdOptions=' ;
 
@@ -794,7 +811,7 @@ __EEE
         whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
         whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
         lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes | grep -v ' on ' `  || true ;
-        echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
+        echo -e "===Which Puppet=\n\twhich=${whichpuppet}\n\tsudo which=${whichpuppetsudo}\n\tsudo ls -l /usr/bin/puppet=${lspuppet}="
         
   
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
@@ -1007,7 +1024,12 @@ namespace :valentepuppet do
     puts "INPUTS...#{paras}"
     puts 'Provisioning.......... environment'
 
-    ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
+    begin
+      ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image].gsub('litmusimage/', '').gsub(%r{[-.:]}, '_').downcase}" # Set for Provision to pick up
+    rescue
+      ENV['PROVISION_LIST'] = "acceptance_vbox_#{paras[:platforms_image]}" # Set for Provision to pick up
+    end
+
     puts ".......... PROVISION_LIST=#{ENV['PROVISION_LIST']}"
     puts "..........................#{paras[:platforms_image]}===>===#{ENV['PROVISION_LIST']}"
     puts "..........................#{paras[:platformprovider]}===>===vagrant"
@@ -1200,6 +1222,22 @@ namespace :valentepuppet do
     Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token', 'setup_servicenow_host_docker')
   end
 
+  desc 'Prep ServiceNow host with sample Data, Upload the Whole Project to the master'
+  task :prep_servicenow_host do
+    master.run_shell('mkdir -p /tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance')
+    master.bolt_upload_file('../puppetlabs-servicenow_cmdb_integration/Rakefile', '/tmp/puppetlabs-servicenow_cmdb_integration/')
+    master.bolt_upload_file('../puppetlabs-servicenow_cmdb_integration/Gemfile', '/tmp/puppetlabs-servicenow_cmdb_integration/')
+    master.bolt_upload_file('../puppetlabs-servicenow_cmdb_integration/inventory.yaml', '/tmp/puppetlabs-servicenow_cmdb_integration/')
+    master.bolt_upload_file('../puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/vhelper.rb', '/tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/')
+    master.bolt_upload_file('../puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/helpers.rb', '/tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/')
+
+    master.bolt_upload_file('/tmp/v.sh', '/tmp/')
+    master.run_shell('chmod 777 /tmp/v.sh')
+    master.run_shell('bash /tmp/puppetlabs-servicenow_cmdb_integration/spec/support/acceptance/vhelper.rb exec runChain + installPkg nodejs  +  setupruby ruby/setup-ruby@v1 ruby-version="2.7" bundler-cache=true +')
+
+
+  end
+  
   desc 'Test ServiceNow host with sample Data'
   task :test_servicenow_host do
     cmdb_table = 'cmdb_ci'
