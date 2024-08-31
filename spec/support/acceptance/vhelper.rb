@@ -622,13 +622,11 @@ __END
         echoMsg '__'  Final Confirmation
         puppetversion=`${BOLTCMD} command run "puppet --version" -t ssh_nodes | grep -v ' on '`  || true ; 
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
-
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
-
-        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
-        whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes `  || true ;
-        lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes `  || true ;
+        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
+        whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
+        lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes | grep -v ' on ' `  || true ;
         echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
  
 }
@@ -731,11 +729,11 @@ function      command(){ # Filed under acceptance
            platforms_image=`grep platform:  ./spec/fixtures/litmus_inventory.yaml     ` ;
          fi;
 
-         echoMsg '__' "Required ${checkno} : Platform Checks, Make sure Ports are fwded correctly -L:1080...for Ubuntu, -R:1008... for others";  checkno=$((${checkno:-0} + 1 )) ;
+         echoMsg '__' "Required ${checkno} : Platform Checks, Make sure Ports are fwded correctly -L:1080...for Ubuntu, -R*:1008... for others";  checkno=$((${checkno:-0} + 1 )) ;
          if [[  $platforms_image =~ buntu ]]    ; then
           portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -L:1080:127.0.0.1:1080" ;
         else
-          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R:1080:127.0.0.1:1080" ;
+          portsfwdOptions="-L:8140:127.0.0.1:8140 -L:8143:127.0.0.1:8143 -R*:1080" ;
         fi ;
         set | grep -E '^platforms_image=|^portsfwdOptions=' ;
 
@@ -775,10 +773,14 @@ __EEE
         echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to all nodes from PE Console";  checkno=$((${checkno:-0} + 1 )) ;
         ${BOLTCMD} script run -t ssh_nodes $conncheckscript || true ;
 
-        echoMsg '__' "Required ${checkno} : Current User Test runner and the hosts file." ; checkno=$((${checkno:-0} + 1 )) ;
+        echoMsg '__' "Required ${checkno} : Current User Test runner and the hosts file on Runner" ; checkno=$((${checkno:-0} + 1 )) ;
        
         whoami ;
         catMe /etc/hosts ;
+
+        echoMsg '__' "Required ${checkno} : Current User Test runner and the hosts file on PE Primary" ; checkno=$((${checkno:-0} + 1 )) ;
+        ${BOLTCMD} command run " whoami ; catMe /etc/hosts ; df  ;           " -t ssh_nodes | grep -v ' on ' || true ;
+        
   
         echoMsg '__' "Required ${checkno} : Mock ServiceServer Check" ; checkno=$((${checkno:-0} + 1 )) ;
         bundle exec 'rake valentepuppet:test_servicenow_host'  || true ;
@@ -789,8 +791,11 @@ __EEE
         echo "===Puppet Version Installed=${puppetversion}===" || true ;
         primaryservername=`${BOLTCMD} command run "puppet infra status" -t ssh_nodes | grep Primary:`  || true ;
         echo "===Puppet Server Name=${primaryservername}==="
-        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes `  || true ;
-        echo "===Which Puppet=${whichpuppet}==="
+        whichpuppet=`${BOLTCMD} command run "which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
+        whichpuppetsudo=`${BOLTCMD} command run "sudo which puppet" -t ssh_nodes | grep -v ' on ' `  || true ;
+        lspuppet=`${BOLTCMD} command run "sudo ls -l /usr/bin/puppet " -t ssh_nodes | grep -v ' on ' `  || true ;
+        echo -e "===Which Puppet=\n\t=${whichpuppet}\n\t=${whichpuppetsudo}\n\t=${lspuppet}="
+        
   
         ${BOLTCMD} command run -t ssh_nodes 'echo "====PUPPETTOKEN===="; ls -l ~/.puppetlabs/token ;  echo "====PUPPET INFRA STATUS===="; puppet infra status ;' ||  true ;
         echoMsg '__' ;
