@@ -245,6 +245,12 @@ fi ;
 version=`puppet --version`  || true
 primaryservername=`puppet infra status | grep Primary:` || true
 
+
+# Setup the Configure File and ensure it is writable. To prevent Error in RHEL7 and Oracle Linux
+mkdir -p /etc/puppetlabs/puppet
+touch /etc/puppetlabs/puppet/servicenow_cmdb.yaml
+sudo chmod a+w /etc/puppetlabs/puppet/servicenow_cmdb.yaml || chmod a+w /etc/puppetlabs/puppet/servicenow_cmdb.yaml  ;
+
 # if [ -z "$version" -o -z "$primaryservername" ] ;  then
 #   echo 'Puppet Server install failed' ;
 #   exit 1 ; 

@@ -801,7 +801,7 @@ function      command(){ # Filed under acceptance
         ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "grep -H -n -v -E 'AALINEAANUMBER' /etc/puppetlabs/puppet/puppet.conf"  ;
         echoMsg '++'    ;
         echoMsg '!!' "Activating the Port Fwding: ${portsfwdOptions}  "    ;
-        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "touch /tmp/proxy.txt"  ;
+        ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "touch /tmp/proxy.txt"  ; sleep 3 ;
         ssh  -i /tmp/myownkey -A -oIdentitiesOnly=yes  -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oTCPKeepAlive=yes -oServerAliveInterval=10 ${sshverbose} -p${deploype_port} -l vagrant ${deploype_ip} ${portsfwdOptions} "while [ -e /tmp/proxy.txt ] ; do sleep 30 ; done ;  "  &
         sleep 10 ;
         #### 
