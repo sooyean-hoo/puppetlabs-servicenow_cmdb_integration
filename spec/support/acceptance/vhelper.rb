@@ -712,6 +712,8 @@ function      command(){ # Filed under acceptance
         source /tmp/v.sh  loadlib  ;
         echoMsg '!!' "Running the actual Acceptance Tests" || echo "============================Running the actual Acceptance Tests============================== " ;
         
+        export LC_ALL="en_US.UTF-8" ;
+  
         mkdir -p /etc/puppetlabs/puppet ;
         sudo chmod a+rw /etc/puppetlabs/puppet/servicenow_cmdb.yaml || chmod a+rw /etc/puppetlabs/puppet/servicenow_cmdb.yaml || true ;
         sudo chmod -R a+rw /etc/puppetlabs/puppet || chmod -R a+rw/etc/puppetlabs/puppet || true ;

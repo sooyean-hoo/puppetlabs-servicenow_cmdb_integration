@@ -251,6 +251,12 @@ mkdir -p /etc/puppetlabs/puppet
 touch /etc/puppetlabs/puppet/servicenow_cmdb.yaml
 sudo chmod a+w /etc/puppetlabs/puppet/servicenow_cmdb.yaml || chmod a+w /etc/puppetlabs/puppet/servicenow_cmdb.yaml  ;
 
+export LC_ALL="en_US.UTF-8" ;
+
+echo 'export LC_ALL="en_US.UTF-8" ;' >> $HOME/.bashrc || true
+echo 'export LC_ALL="en_US.UTF-8" ;' | sudo tee -a /root/.bashrc || true
+
+
 # if [ -z "$version" -o -z "$primaryservername" ] ;  then
 #   echo 'Puppet Server install failed' ;
 #   exit 1 ; 
