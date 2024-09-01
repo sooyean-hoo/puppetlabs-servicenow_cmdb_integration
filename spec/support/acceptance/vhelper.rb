@@ -699,7 +699,7 @@ function      setupServiceNowServer(){ # Filed under acceptance
           fi ;
         fi;
         puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null || true
-        ${BOLTCMD} command run -t ssh_nodes "puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null" || true ;
+        ${BOLTCMD} command run -t ssh_nodes "puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  '${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} ' | sudo tee -a  /etc/hosts > /dev/null" || true ;
   
         bundle exec "rake valentepuppet:test_servicenow_host[${servicenowserver}]"  || true
 }
@@ -819,7 +819,7 @@ __EEE
           echo "${checkno}" > /tmp/checkno.txt
         done ;
         
-        echo "echo '=============Curl Check on ${servicenowserver}:1080========';\ncurl -k \"https://${servicenowserver}:1080\""  | tee  -a $conncheckscript ;
+        echo "echo '=============Curl Check on ${servicenowserver}:1080========';curl -k \"https://${servicenowserver}:1080\" 2>&1 ; curl -v \"https://${servicenowserver}:1080\" 2>&1 ;"  | tee  -a $conncheckscript ;
           
         checkno=`cat /tmp/checkno.txt`; rm -fr /tmp/checkno.txt ;
         echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to all nodes from PE Console";  checkno=$((${checkno:-0} + 1 )) ;
@@ -1275,7 +1275,7 @@ namespace :valentepuppet do
   end
 
   desc 'Test ServiceNow host with sample Data'
-  task :test_servicenow_host do #, [:servicenowserver] do |_t, _paras|
+  task :test_servicenow_host do # , [:servicenowserver] do |_t, _paras|
     cmdb_table = 'cmdb_ci'
     certname_field = 'fqdn'
 
@@ -1285,6 +1285,7 @@ namespace :valentepuppet do
     fields_template = JSON.parse(File.read('spec/support/acceptance/cmdb_record_template.json'))
     fields_template['attributes'] = cmdb_table
     fields_template[testfield] = teststring
+    # rubocop:disable all
     begin
       CMDBHelpers.create_target_record(servicenow_instance, fields_template, table: cmdb_table, certname_field: certname_field)
     rescue
