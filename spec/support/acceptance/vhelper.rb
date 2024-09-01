@@ -688,12 +688,13 @@ function      setupServiceNowServer(){ # Filed under acceptance
         cat ./spec/fixtures/litmus_inventory.yaml | sed -E 's/2222:1080/1080/g' > ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
         cat ./spec/fixtures/litmus_inventory.yaml.tmp > ./spec/fixtures/litmus_inventory.yaml ; rm -fr ./spec/fixtures/litmus_inventory.yaml.tmp   || true ;
   
-        servicenowserver="coy.servicenow"
+        servicenowserver="localhost" # "coy.servicenow"
         servicenowserverIP="127.0.0.1"
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         if [ "vagrant" =  "$provisioner" ] ; then
           if [[  $platforms_image =~ buntu ]]    ; then
             servicenowserverIP="127.0.0.1" ;
+            servicenowserver="localhost" ;
           else
             servicenowserverIP="10.0.2.2" ; # Wrong Config
             
@@ -725,7 +726,7 @@ function      command(){ # Filed under acceptance
         echo "============================After Update from setup_servicenow_instance " ;
         provisioner=$( cat ./spec/fixtures/litmus_inventory.yaml | yq -e '.groups[]|select( .name == "ssh_nodes" )|.targets.[0].facts.provisioner' ) ;
         
-        servicenowserver="coy.servicenow"
+        servicenowserver="localhost" # "coy.servicenow"
         servicenowserverIP="127.0.0.1"
         
         if [ "docker" =  "$provisioner" ] ; then
