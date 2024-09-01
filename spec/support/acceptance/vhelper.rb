@@ -701,7 +701,7 @@ function      setupServiceNowServer(){ # Filed under acceptance
         puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null || true
         ${BOLTCMD} command run -t ssh_nodes "puppet resource host   ${servicenowserver}  ip=${servicenowserverIP} || echo  "${servicenowserverIP}  ${servicenowserver}    ${servicenowserver} " | sudo tee -a  /etc/hosts > /dev/null" || true ;
   
-        bundle exec 'rake valentepuppet:test_servicenow_host'  || true
+        bundle exec "rake valentepuppet:test_servicenow_host[${servicenowserver}]"  || true
 }
 function      command(){ # Filed under acceptance
         checkno=$((${checkno:-0} + 1 )) ;
@@ -766,7 +766,9 @@ function      command(){ # Filed under acceptance
         grep -H -n -v -E 'AALINEAANUMBER' ./spec/fixtures/litmus_inventory.yaml ;
         
         echoMsg '__' "Required ${checkno} : IP address of nodes are...";  checkno=$((${checkno:-0} + 1 )) ;
+        echo "===On Runner"
         echoMeNRun ip addr || echo "IP addr Failed..." ;
+        echo "===On Nodes"
         ${BOLTCMD} command run "ip addr" -t all |  tee /tmp/ip.txt   || echo "ip addr on nodes" ;  
         masterip=`cat /tmp/ip.txt | grep 10.0.2 | sed -E 's/^.+ (10.0.2.[^\/]+)\/.+$/\1/g'` ;
         
@@ -796,13 +798,14 @@ function      command(){ # Filed under acceptance
         sleep 10 ;
         #### 
   
-        conncheckscript=/tmp/conncheckscript.sh ; chmod a+x $conncheckscript ;
+        conncheckscript=/tmp/conncheckscript.sh ; touch $conncheckscript  ; chmod a+x $conncheckscript ;
         echo '#!/bin/bash' > $conncheckscript
         cat > $conncheckscript << '__EEE'
   apt install -y curl || yum install -y curl || sudo apt install -y curl || sudo yum install -y curl  ;
   curl -q "https://raw.githubusercontent.com/sooyean-hoo/pe_curl_requests/feature/SYInstallerEnhance/installer/download_pe_tarball.sh"  > /tmp/download_pe_tarball.sh ;
   source /tmp/download_pe_tarball.sh  loadlib ;
-
+          
+          installPkg netcat
 __EEE
 
   
@@ -815,7 +818,9 @@ __EEE
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
           echo "${checkno}" > /tmp/checkno.txt
         done ;
-
+        
+        echo "echo '=============Curl Check on ${servicenowserver}:1080========';\ncurl -k \"https://${servicenowserver}:1080\""  | tee  -a $conncheckscript ;
+          
         checkno=`cat /tmp/checkno.txt`; rm -fr /tmp/checkno.txt ;
         echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to all nodes from PE Console";  checkno=$((${checkno:-0} + 1 )) ;
         ${BOLTCMD} script run -t ssh_nodes $conncheckscript || true ;
@@ -830,7 +835,7 @@ __EEE
         
   
         echoMsg '__' "Required ${checkno} : Mock ServiceServer Check" ; checkno=$((${checkno:-0} + 1 )) ;
-        bundle exec 'rake valentepuppet:test_servicenow_host'  || true ;
+        bundle exec "rake valentepuppet:test_servicenow_host[${servicenowserver}]"  || true ;
         echoMsg '__' ;
 
         echoMsg '__' "Required ${checkno} : PE Server Check" ;  checkno=$((${checkno:-0} + 1 )) ;
@@ -1270,7 +1275,7 @@ namespace :valentepuppet do
   end
 
   desc 'Test ServiceNow host with sample Data'
-  task :test_servicenow_host do
+  task :test_servicenow_host do #, [:servicenowserver] do |_t, _paras|
     cmdb_table = 'cmdb_ci'
     certname_field = 'fqdn'
 
@@ -1280,7 +1285,6 @@ namespace :valentepuppet do
     fields_template = JSON.parse(File.read('spec/support/acceptance/cmdb_record_template.json'))
     fields_template['attributes'] = cmdb_table
     fields_template[testfield] = teststring
-    # rubocop:disable all
     begin
       CMDBHelpers.create_target_record(servicenow_instance, fields_template, table: cmdb_table, certname_field: certname_field)
     rescue
@@ -1292,8 +1296,7 @@ namespace :valentepuppet do
     h1 = 'TESTING SERVICENOW SERVER'
     puts "#{h1}......cmdb_record['#{testfield}']..should.be.'#{teststring}'.........is.'#{cmdb_record[testfield]}'.(#{(cmdb_record[testfield] == teststring) ? 'same' : 'different'})"
 
-    master.run_shell('curl -k https://localhost:1080')
-    master.run_shell('curl -k https://coy.servicenow:1080')
+    # master.run_shell("curl -k https://#{paras[:servicenowserver]}:1080")
   end
 
   desc 'Sets up the ServiceNow host with docker'
