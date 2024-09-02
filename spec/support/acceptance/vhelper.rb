@@ -715,6 +715,7 @@ function      command(){ # Filed under acceptance
         export LC_ALL="en_US.UTF-8" ;
   
         mkdir -p /etc/puppetlabs/puppet ;
+        touch /etc/puppetlabs/puppet/servicenow_cmdb.yaml || true ;
         sudo chmod a+rw /etc/puppetlabs/puppet/servicenow_cmdb.yaml || chmod a+rw /etc/puppetlabs/puppet/servicenow_cmdb.yaml || true ;
         sudo chmod -R a+rw /etc/puppetlabs/puppet || chmod -R a+rw/etc/puppetlabs/puppet || true ;
   
