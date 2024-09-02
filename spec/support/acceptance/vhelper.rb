@@ -3,7 +3,8 @@
 print(){
 =begin
 }
-#echo 'running as shell'
+# POLYGLOT vhelper.rb
+# echo 'running as shell'
 
 VALENTEHOME="" ;
 if [  "`uname`" = "Darwin" -o -d "/Users/valente"    ] ; then
@@ -53,6 +54,9 @@ fi ;
     export BOLTCMD=${BOLTCMD:-/usr/local/bin/bolt}
     export BOLT_PROJECT=$PWD
 
+function monoglot(){
+        echoMsg '__' monoglotting ...
+}
 function installgitfromsrc(){
           cd /tmp/
           sudo yum groupinstall "Development Tools"
@@ -962,6 +966,7 @@ exit
 }
 # lint:endignore
 # rubocop:enable all
+# POLYGLOT vhelper.sh
 # puts 'running as ruby'
 
 ## Implemented own versions: require_relative './helpers.rb'
@@ -1345,3 +1350,4 @@ namespace :valentepuppet do
     Rake::Task['acceptance:setup_servicenow_instance'].invoke("#{servicenow_host_uri}:1080", 'mock_user', 'mock_password', 'mock_token', 'setup_servicenow_host_docker')
   end
 end
+# POLYGLOT vhelper.rb
