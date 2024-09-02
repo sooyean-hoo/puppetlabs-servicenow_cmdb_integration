@@ -1,4 +1,4 @@
-#!/opt/puppetlabs/puppet/bin/ruby
+# !/opt/puppetlabs/puppet/bin/ruby
 # puts 'running as ruby'
 
 ## Implemented own versions: require_relative './helpers.rb'

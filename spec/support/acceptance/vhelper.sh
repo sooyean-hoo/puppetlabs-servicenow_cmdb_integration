@@ -57,6 +57,9 @@ function monoglot(){  # To update the ./spec/support/acceptance/vhelper.rb and .
         
         rm -fr  /tmp/vhelper.tmp
         
+        chmod a+x ./vhelper.sh
+        chmod a+x ./vhelper.rb
+        
         popd 
 
 }

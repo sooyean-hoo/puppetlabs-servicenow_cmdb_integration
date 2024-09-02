@@ -63,6 +63,9 @@ function monoglot(){  # To update the ./spec/support/acceptance/vhelper.rb and .
         
         rm -fr  /tmp/vhelper.tmp
         
+        chmod a+x ./vhelper.sh
+        chmod a+x ./vhelper.rb
+        
         popd 
 
 }
@@ -843,7 +846,7 @@ __EEE
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
           echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to ${masterip} from GitHub Runner";  checkno=$((${checkno:-0} + 1 )) ;
-          echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} | tee  -a $conncheckscript ;
+          echo "ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} ;"| tee  -a $conncheckscript ;
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
           echo "${checkno}" > /tmp/checkno.txt
         done ;
@@ -976,7 +979,7 @@ exit
 # lint:endignore
 # rubocop:enable all
 # POLYGLOT vhelper.sh
-#!/opt/puppetlabs/puppet/bin/ruby
+# !/opt/puppetlabs/puppet/bin/ruby
 # puts 'running as ruby'
 
 ## Implemented own versions: require_relative './helpers.rb'
