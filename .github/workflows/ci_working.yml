@@ -58,7 +58,7 @@ jobs:
       install_module__task: 'valentepuppet:install_module__task'
       acceptance__task: 'valentepuppet:acceptance__task'
       tear_down__task: 'valentepuppet:tear_down__task'
-      matrix_from_metadata: 'bash ./spec/support/acceptance/vhelper.rb exec matrix_from_metadata'
+      matrix_from_metadata: 'bash ./spec/support/acceptance/vhelper.sh exec matrix_from_metadata'
 
       flags: " --exclude-platforms '[\"CentOS-7\",\"CentOS-8\",\"OracleLinux-7\",\"OracleLinux-8\",\"RedHat-7\",\"RedHat-8\",\"RedHat-9\",\"Scientific-7\",\"Scientific-8\",\"SLES-12\",\"SLES-15\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
       # continueintoproposedsteps: true
