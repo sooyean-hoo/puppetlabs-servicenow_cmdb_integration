@@ -4,6 +4,7 @@ print(){
 =begin
 }
 # POLYGLOT vhelper.rb
+#!/bin/bash
 # echo 'running as shell'
 
 VALENTEHOME="" ;
@@ -54,8 +55,16 @@ fi ;
     export BOLTCMD=${BOLTCMD:-/usr/local/bin/bolt}
     export BOLT_PROJECT=$PWD
 
-function monoglot(){
+function monoglot(){  # To update the ./spec/support/acceptance/vhelper.rb and ./spec/support/acceptance/vhelper.sh,  RUN : ./spec/support/acceptance/vhelper.sh.rb exec monoglot
+        pushd $PWD ;
+        cd  `dirname $0` ;
         echoMsg '__' monoglotting ...
+        cat   `basename $0` | awk -F' ' 'BEGIN { prn =1 } /^[#][ ][P][O][L][Y][G][L][O][T]/{    print "Change file "$3"....." ; system("cat /tmp/vhelper.tmp > "$3 )  ; system( "cat /dev/null  > /tmp/vhelper.tmp ") ;  next ; } { print >> "/tmp/vhelper.tmp" ; }   '  | tee  /tmp/vhelper.log ;
+        
+        rm -fr  /tmp/vhelper.tmp
+        
+        popd 
+
 }
 function installgitfromsrc(){
           cd /tmp/
@@ -967,6 +976,7 @@ exit
 # lint:endignore
 # rubocop:enable all
 # POLYGLOT vhelper.sh
+#!/opt/puppetlabs/puppet/bin/ruby
 # puts 'running as ruby'
 
 ## Implemented own versions: require_relative './helpers.rb'
