@@ -330,7 +330,7 @@ __EMD
        cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
   
-  
+
         cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
 {
   "platforms": [
@@ -343,6 +343,18 @@ __EMD
       "label": "Scientific-8",
       "provider": "vagrant",
       "image": "litmusimage/scientificlinux:8"
+    }
+   ]
+}
+__EMD
+  
+        cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
+{
+  "platforms": [
+    {
+      "label": "OracleLinux-8",
+      "provider": "vagrant",
+      "image": "litmusimage/oraclelinux:8"
     }
    ]
 }
@@ -840,7 +852,7 @@ __EEE
           masterip=${ipaddrport/:*/} ;
           masterport=${ipaddrport/*:/} ;
           echoMsg '__' "Required ${checkno} : Connection Checks Verify URL and ports to ${masterip} from GitHub Runner";  checkno=$((${checkno:-0} + 1 )) ;
-          echo ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} | tee  -a $conncheckscript ;
+          echo "ping_NC_Test ${masterip}  tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS} ;"| tee  -a $conncheckscript ;
           ping_NC_Test ${masterip}       tcp ${masterport}:boltinvconnectport ${ping_NC_Test_TESTTARGETS}  || echo "ping_NC_Test Failed..." ;
           echo "${checkno}" > /tmp/checkno.txt
         done ;
