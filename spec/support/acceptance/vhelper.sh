@@ -348,7 +348,7 @@ __EMD
 }
 __EMD
   
-      echo '{  "platforms": [] }' > ${GITHUB_OUTPUT}.add ; Remove addition
+      # echo '{  "platforms": [] }' > ${GITHUB_OUTPUT}.add ; # Remove addition
   
       cat ${GITHUB_OUTPUT}.json  ${GITHUB_OUTPUT}.add |  jq -cM -s 'flatten | group_by(keys[]) | .[0][0].platforms + .[1][0].platforms | { platforms : (.) } ' \
         > ${GITHUB_OUTPUT}.newjson
