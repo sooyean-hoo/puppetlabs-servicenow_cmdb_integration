@@ -74,8 +74,8 @@ jobs:
 
       flags: " --exclude-platforms '[\"RedHat-9\",\"CentOS-7\",\"CentOS-8\",\"Scientific-7\",\"Scientific-8\",\"SLES-12\",\"SLES-15\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
         # The following are SKIPPED and for the reason specified.
-        # ,\"CentOS-7\", =  Cannot update any packages, dune to EOL
-        # \"CentOS-8\", =  Cannot update any packages, dune to EOL
+        # ,\"CentOS-7\", =  Cannot update any packages, due to EOL
+        # \"CentOS-8\", =  Cannot update any packages, due to EOL
         # \"OracleLinux-8\", = ?????
         # \"Scientific-7\", = Cannot find valid Vagrant Images
         # \"Scientific-8\", = Cannot find valid Vagrant Images
