@@ -71,7 +71,7 @@ jobs:
       tear_down__task: 'valentepuppet:tear_down__task'
       matrix_from_metadata: 'bash ./spec/support/acceptance/vhelper.sh exec matrix_from_metadata'
 
-      flags: " --exclude-platforms '[\"Ubuntu-18.04\",\"Ubuntu-20.04\",\"Ubuntu-22.04\",\"Ubuntu-00000000000000000000\",\"RedHat-9\",\"CentOS-7\",\"CentOS-8\",\"Scientific-7\",\"Scientific-8\",\"SLES-12\",\"SLES-15\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
+      flags: " --exclude-platforms '[\"Ubuntu-18.04\",\"Ubuntu-20.04\",\"Ubuntu-22.04\",\"RedHat-7\",\"RedHat-8\",\"RedHat-9\",\"OracleLinux-7\",\"Ubuntu-00000000000000000000\",\"RedHat-9\",\"CentOS-7\",\"CentOS-8\",\"Scientific-7\",\"Scientific-8\",\"SLES-12\",\"SLES-15\"]'" # Only way for Acceptance CI to run in the absence of vmpooler's VMs
         # The following are SKIPPED and for the reason specified.
         # ,\"CentOS-7\", =  Cannot update any packages, dune to EOL
         # \"CentOS-8\", =  Cannot update any packages, dune to EOL
