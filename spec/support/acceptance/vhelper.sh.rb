@@ -336,7 +336,7 @@ __EMD
        cat ${GITHUB_OUTPUT} > ${GITHUB_OUTPUT}.tmp ;
        cat ${GITHUB_OUTPUT}.tmp | grep matrix | sed -E 's/matrix=//g' | jq -cM | head -1  | tee cat ${GITHUB_OUTPUT}.json
   
-  
+
         cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
 {
   "platforms": [
@@ -349,6 +349,18 @@ __EMD
       "label": "Scientific-8",
       "provider": "vagrant",
       "image": "litmusimage/scientificlinux:8"
+    }
+   ]
+}
+__EMD
+  
+        cat > ${GITHUB_OUTPUT}.add  <<'__EMD'
+{
+  "platforms": [
+    {
+      "label": "OracleLinux-8",
+      "provider": "vagrant",
+      "image": "litmusimage/oraclelinux:8"
     }
    ]
 }
