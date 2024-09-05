@@ -385,7 +385,29 @@ __EMD
       echo "========================================================="
 
 }
-    
+function      prep4vagrant(){
+  echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
+  pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
+  snappkgs='snapd' ;
+  vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
+  echo "=====Pkgs=${pkgs}=============" ;
+  [ ! -z "$VALENTEHOME"  ] || installPkg $pkgs  || true ;
+  echo "=====Vagrant Pkgs=${vagrantpkgs}=============" ;
+  [ ! -z "$VALENTEHOME"  ] || installPkg $vagrantpkgs || true ;
+  echo "=====Snap Pkgs=${snappkgs}=============" ;
+  [ ! -z "$VALENTEHOME"  ] || installPkg $snappkgs  || true ;
+  vagrant plugin install vagrant-libvirt   || true ;
+  vagrant plugin list   || true ;
+
+  if [  -z "$VALENTEHOME"  ] ; then
+      echoMsg '__' 'Repo Setup: apt.releases.hashicorp.com'
+      wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
+      echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
+      echoMsg '__' "Repo Setup: apt.releases.hashicorp.com : sudo apt install ${vagrantpkgs}"
+      sudo apt update && sudo apt install ${vagrantpkgs} ;  
+  fi;
+
+}
 function      preinstallpecommands(){ # Filed under provision_environment__task
         sshverbose="-vvvvvv" ;         sshverbose="" ;
 
@@ -403,26 +425,8 @@ function      preinstallpecommands(){ # Filed under provision_environment__task
           source /tmp/v.sh  loadlib  ;
         fi;
         echo ;
-        echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
-        pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
-        snappkgs='snapd' ;
-        vagrantpkgs='vagrant virtualbox virt-manager build-essential ruby-full ruby-all-dev libvirt-dev ' ;
-        echo "=====Pkgs=${pkgs}=============" ;
-        [ ! -z "$VALENTEHOME"  ] || installPkg $pkgs  || true ;
-        echo "=====Vagrant Pkgs=${vagrantpkgs}=============" ;
-        [ ! -z "$VALENTEHOME"  ] || installPkg $vagrantpkgs || true ;
-        echo "=====Snap Pkgs=${snappkgs}=============" ;
-        [ ! -z "$VALENTEHOME"  ] || installPkg $snappkgs  || true ;
-        vagrant plugin install vagrant-libvirt   || true ;
-        vagrant plugin list   || true ;
-  
-        if [  -z "$VALENTEHOME"  ] ; then
-          echoMsg '__' 'Repo Setup: apt.releases.hashicorp.com'
-          wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg ;
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list ; 
-          echoMsg '__' "Repo Setup: apt.releases.hashicorp.com : sudo apt install ${vagrantpkgs}"
-          sudo apt update && sudo apt install ${vagrantpkgs} ;  
-        fi;
+
+        prep4vagrant ;
    
         #VAGRANTRUN=$VAGRANTRUN installgems
         echoMsg '__' "/home/runner setup"
