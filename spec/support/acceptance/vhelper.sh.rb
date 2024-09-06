@@ -385,6 +385,11 @@ __EMD
       echo "========================================================="
 
 }
+function      makesshkey(){
+  sshkey2use=${1:-/tmp/myownkey}
+  [ -e ${sshkey2use} ] || \
+    ssh-keygen -t ed25519 -f ${sshkey2use}      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  ${sshkey2use}* ;
+}
 function      prep4vagrant(){
   echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
   pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
@@ -407,6 +412,13 @@ function      prep4vagrant(){
       sudo apt update && sudo apt install ${vagrantpkgs} ;  
   fi;
 
+  installgems
+  
+  [ -e $PWD/inventory.yaml  ] && ln -sf $PWD/inventory.yaml $PWD/spec/fixtures/litmus_inventory.yaml ;
+  ls -l $PWD/inventory.yaml || true ;
+  ls -l $PWD/spec/fixtures/litmus_inventory.yaml || true ;
+  catMe $PWD/inventory.yaml  || true ;
+  catMe $PWD/spec/fixtures/litmus_inventory.yaml || true ;
 }
 function      preinstallpecommands(){ # Filed under provision_environment__task
         sshverbose="-vvvvvv" ;         sshverbose="" ;
