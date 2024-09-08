@@ -390,6 +390,18 @@ function      makesshkey(){
   [ -e ${sshkey2use} ] || \
     ssh-keygen -t ed25519 -f ${sshkey2use}      -P '' ; grep -H -n -v -E 'AALINEAANUMBER'  ${sshkey2use}* ;
 }
+function      addsshkey(){
+    sshkey2use=${1:-/tmp/myownkey}
+
+    pushd  $PWD
+    vagrantdir=`vagrant global-status | grep default | grep running   | cut -d\  -f8` || true ;
+    echo "===vagrantdir=$vagrantdir=";
+    pushd $PWD ;
+    cd ${vagrantdir} ;
+    echo "===In PWD=$(pwd)" ;
+    cat ${sshkey2use}.pub | vagrant ssh default  --command "cat >> /home/vagrant/.ssh/authorized_keys" || echo "FAIL: vagrant ssh default.....date" ;
+    popd
+}
 function      prep4vagrant(){
   echoMsg '!!' "Preparing the System for Vagrant or Docker, depends on situation" ;
   pkgs='git git-core zlib* zlib*-dev g++     patch                    libyaml* libffi-dev       libffi*dev          make bzip2 autoconf automake libtool bison curl cmake ruby-dev wget sshpass';
